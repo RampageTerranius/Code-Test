@@ -43,6 +43,7 @@ void EntityHandle()
 	//handling velocity
 	for(int i = 0; i < entityList.size(); i++)
 	{
+		//make sure were directly handling the object itself
 		Entity* e = &entityList.at(i);
 
 		//check if the entity is allowed to move
@@ -50,7 +51,7 @@ void EntityHandle()
 		{	
 			//add extra velocity or remove extra velocity as needed			
 			if (!e->velXAttemptToCenter)
-				e->velX += e->velXChangePerTick;	
+				e->velX += e->velXChangePerTick;
 			else if (!e->velXLock)
 			{
 				if (e->velX > 0)
@@ -61,12 +62,12 @@ void EntityHandle()
 				}
 				else if (e->velX < 0)
 				{
-					e->velX += -e->velXChangePerTick;
+					e->velX += e->velXChangePerTick;
+
 					if (e->velX > 0)
 						e->velX = 0;
 				}
 			}
-
 
 			e->velY += e->velYChangePerTick;
 
@@ -76,7 +77,6 @@ void EntityHandle()
 			else if ((e->velX < -e->maxVelX))
 				e->velX = -e->maxVelX;
 
-			
 			if (e->velY > e->maxVelY)
 				e->velY = e->maxVelY;
 			else if ((e->velY < -e->maxVelY))
@@ -90,9 +90,14 @@ void EntityHandle()
 			if (e->velY != 0)
 				e->y += e->velY;
 
+			
+
+
+			
+
 			//make sure player cant leave screen
-			if (e->x < 0)
-				e->x = 0;
+			if (e->x < 10)
+				e->x = 10;
 			else if (e->x > WINDOW_WIDTH - 10)
 				e->x = WINDOW_WIDTH - 10;
 

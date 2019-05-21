@@ -18,6 +18,19 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\EntityHandle.h" />
+    <ClInclude Include="Code\EventHandle.h" />
+    <ClInclude Include="Code\Main.h" />
+    <ClInclude Include="Code\Player.h" />
+    <ClInclude Include="Code\Render.h" />
+    <ClInclude Include="Code\Setup.h" />
+    <ClInclude Include="Code\Shutdown.h" />
+    <ClInclude Include="Code\TimerHandle.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\Main.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{61035966-CBAE-4504-900C-384A65F5CD1E}</ProjectGuid>
@@ -73,6 +86,10 @@
     <IncludePath>C:\Users\tyler.brown\source\repos\Code Test\SDL\SDL2-2.0.9\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\tyler.brown\source\repos\Code Test\SDL\SDL2-2.0.9\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ProjectDir)SDL\SDL2-2.0.9\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)SDL\SDL2-2.0.9\lib\x64;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -92,6 +109,10 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>sdl2.lib;sdl2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -121,19 +142,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="EntityHandle.h" />
-    <ClInclude Include="EventHandle.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="Render.h" />
-    <ClInclude Include="Shutdown.h" />
-    <ClInclude Include="Main.h" />
-    <ClInclude Include="Setup.h" />
-    <ClInclude Include="TimerHandle.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

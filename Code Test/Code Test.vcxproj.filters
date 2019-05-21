@@ -15,33 +15,33 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Main.h">
+    <ClInclude Include="Code\EntityHandle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Setup.h">
+    <ClInclude Include="Code\EventHandle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shutdown.h">
+    <ClInclude Include="Code\Main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EventHandle.h">
+    <ClInclude Include="Code\Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TimerHandle.h">
+    <ClInclude Include="Code\Render.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EntityHandle.h">
+    <ClInclude Include="Code\Setup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Render.h">
+    <ClInclude Include="Code\Shutdown.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
+    <ClInclude Include="Code\TimerHandle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="Code\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

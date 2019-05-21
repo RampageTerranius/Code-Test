@@ -56,6 +56,24 @@ void EventHandle(SDL_Event& event)
 				break;
 			}
 			break;
+
+		case SDL_MOUSEBUTTONDOWN:
+			switch (event.button.button)
+			{
+				case SDL_BUTTON_LEFT:
+					//TODO: create wall
+					Entity e;
+					e.moves = false;
+					e.type = TYPE_WALL;
+					int x, y;
+					SDL_GetMouseState(&x, &y);
+
+					e.x = x;
+					e.y = y;
+
+					AddEntity(e);
+					break;
+			}
 		}
 	}
 
@@ -74,14 +92,14 @@ void EventHandle(SDL_Event& event)
 		entityList.at(playerEntity).velX -= 1;
 		entityList.at(playerEntity).velXLock = true;
 	}
-	else
-		entityList.at(playerEntity).velXLock = false;
 
 	if (keyboard.d)
 	{
 		entityList.at(playerEntity).velX += 1;
 		entityList.at(playerEntity).velXLock = true;
 	}
-	else
+		
+
+	if (!keyboard.a && ! keyboard.d)
 		entityList.at(playerEntity).velXLock = false;
 }

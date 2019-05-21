@@ -42,8 +42,8 @@ bool Setup()
 	e.type = TYPE_PLAYER;
 	e.x = 500;
 	e.y = 400;
-	e.velYChangePerTick = 0.6;
-	e.velXChangePerTick = 3.3;
+	e.velYChangePerTick = 0.3;
+	e.velXChangePerTick = 2.0;
 	e.velXAttemptToCenter = true;
 	e.maxVelX = 20;
 	e.maxVelY = 30;
