@@ -34,21 +34,5 @@ bool Setup()
 	SDL_RendererFlags rFlags = SDL_RENDERER_ACCELERATED;
 	mainRenderer = SDL_CreateRenderer(mainWindow, -1, rFlags);
 
-
-	
-	//create the player
-	Entity e;
-	e.moves = true;
-	e.type = TYPE_PLAYER;
-	e.x = 500;
-	e.y = 400;
-	e.velYChangePerTick = 0.3;
-	e.velXChangePerTick = 2.0;
-	e.velXAttemptToCenter = true;
-	e.maxVelX = 20;
-	e.maxVelY = 30;
-
-	playerEntity = AddEntity(e);
-
 	return true;
 }

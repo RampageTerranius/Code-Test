@@ -3,31 +3,23 @@
 enum eType
 {
 	TYPE_NONE,
-	TYPE_PLAYER,
-	TYPE_WALL
+	TYPE_WALL,
+	TYPE_SAND,
 };
 
 class Entity
 {	
 	public:
 		int x, y;
-		float velX, velY,
-			velXChangePerTick, velYChangePerTick,
-			maxVelX, maxVelY;
-		bool velXAttemptToCenter, velYAttempToCenter,
-			 velXLock, velYLock;
 		eType type;
-		bool moves;		
 
 		Entity();
 };
 
 Entity::Entity()
 {
-	x = y = velX = velY = velXChangePerTick = velYChangePerTick = maxVelX = maxVelY = 0;
+	x = y = 0;
 	type = TYPE_NONE;
-	moves = false;
-	velXAttemptToCenter = velYAttempToCenter = false;
 }
 
 std::vector<Entity> entityList;
@@ -38,76 +30,139 @@ int AddEntity(Entity e)
 	return entityList.size() - 1;
 }
 
+void CreateEntity(eType type, int x, int y)
+{
+	//check that we have no entity in this section to begin with
+	if (EntityExists[x][y])
+		return;
+
+	Entity newEntity;//entity for use with upcoming switch
+
+	//check what type of entity we need to create and assign it the required data as well as update the entityexists list
+	switch (type)
+	{
+	case TYPE_WALL:		
+		newEntity.x = x;
+		newEntity.y = y;
+		newEntity.type = type;
+
+		AddEntity(newEntity);
+		EntityExists[x][y] = true;
+		break;
+
+	case TYPE_SAND:
+		newEntity.x = x;
+		newEntity.y = y;
+		newEntity.type = type;
+
+		AddEntity(newEntity);
+		EntityExists[x][y] = true;
+		break;
+	}
+}
+
 void EntityHandle()
 {
-	//handling velocity
+	//handling entities
 	for(int i = 0; i < entityList.size(); i++)
 	{
 		//make sure were directly handling the object itself
 		Entity* e = &entityList.at(i);
 
-		//check if the entity is allowed to move
-		if (e->moves)
-		{	
-			//add extra velocity or remove extra velocity as needed			
-			if (!e->velXAttemptToCenter)
-				e->velX += e->velXChangePerTick;
-			else if (!e->velXLock)
+		//check what type of object we are working with and act accordingly
+		switch (e->type)
+		{
+		case TYPE_SAND:
+			if (e->y < WINDOW_HEIGHT - 1)//make sure we arent already at the bottom level
 			{
-				if (e->velX > 0)
+				//check if an object exists under this one
+				if (!EntityExists[e->x][e->y + 1])
 				{
-					e->velX -= e->velXChangePerTick;
-					if (e->velX < 0)
-						e->velX = 0;
+					//update the entityexists table
+					EntityExists[e->x][e->y] = false;
+					EntityExists[e->x][e->y + 1] = true;
+
+					//update the entity
+					e->y += 1;
+					break;
 				}
-				else if (e->velX < 0)
+
+				//since there is an object under this one lets check if we can fall to the left or right
+				if (e->x != 0)//making sure were not at the left most edge
 				{
-					e->velX += e->velXChangePerTick;
+					//if the bottom left is empty and the bottom right isnt then drop to the bottom left
+					if (!EntityExists[e->x - 1][e->y + 1] && EntityExists[e->x + 1][e->y + 1])
+					{
+						//update the entityexists table
+						EntityExists[e->x][e->y] = false;
+						EntityExists[e->x - 1][e->y + 1] = true;
 
-					if (e->velX > 0)
-						e->velX = 0;
+						//update the entity
+						e->y += 1;
+						e->x -= 1;
+						break;
+					}
 				}
-			}
 
-			e->velY += e->velYChangePerTick;
+				if (e->x != WINDOW_WIDTH - 1)//making sure were not at the right most edge
+				{
+					//if the bottom right is empty and the bottom left isnt the drop to the bottom right
+					if (!EntityExists[e->x + 1][e->y + 1] && EntityExists[e->x - 1][e->y + 1])
+					{
+						//update the entityexists table
+						EntityExists[e->x][e->y] = false;
+						EntityExists[e->x + 1][e->y + 1] = true;
 
-			//make sure the velocity has not gone over the limit
-			if (e->velX > e->maxVelX)
-				e->velX = e->maxVelX;
-			else if ((e->velX < -e->maxVelX))
-				e->velX = -e->maxVelX;
+						//update the entity
+						e->y += 1;
+						e->x += 1;
+						break;
+					}
+				}
+				//both sides are free, randomly choose one
+				if (!EntityExists[e->x + 1][e->y + 1] && !EntityExists[e->x - 1][e->y + 1])
+				{
+					//check if were on an edge
+					if (e->x == 0)//if were on the left most edge then drop to the right
+					{
+						e->y += 1;
+						e->x += 1;
+						break;
+					} else if (e->x == WINDOW_WIDTH - 1)//if were on the right most edge then drop to the left
+					{
+						e->y += 1;
+						e->x -= 1;
+						break;
+					}
 
-			if (e->velY > e->maxVelY)
-				e->velY = e->maxVelY;
-			else if ((e->velY < -e->maxVelY))
-				e->velY = -e->maxVelY;
+					//we are nto on either edge so randomly decide which way to drop
+					int randomNum = rand() % 2 + 1;
 
-			//check if we need to move left or right
-			if (e->velX != 0)
-				e->x += e->velX;
+					switch (randomNum)
+					{
+						//go left
+					case 1:
+						e->y += 1;
+						e->x -= 1;
 
-			//check if we need to move up or down
-			if (e->velY != 0)
-				e->y += e->velY;
+						break;
 
-			
+						//go right
+					case 2:
+						e->y += 1;
+						e->x += 1;
+						break;
+					}
 
 
-			
 
-			//make sure player cant leave screen
-			if (e->x < 10)
-				e->x = 10;
-			else if (e->x > WINDOW_WIDTH - 10)
-				e->x = WINDOW_WIDTH - 10;
+				}
+			}	
+			break;
 
-			if (e->y < 0)
-				e->y = 0;
-			else if (e->y > WINDOW_HEIGHT - 10)
-			{
-				e->y = WINDOW_HEIGHT - 10;
-				playerData.hasJumped = false;
-			}
-		}		
+		default:
+
+			break;
+		}
 	}
 }

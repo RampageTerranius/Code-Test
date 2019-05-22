@@ -5,7 +5,13 @@ struct Keyboard
 	bool w, s, a, d;
 }keyboard;
 
-void EventHandle(SDL_Event& event)
+struct Mouse
+{
+	bool left, middle, right;
+	int x, y;
+}mouse;
+
+void UpdateEventStructs(SDL_Event event)
 {
 	while (SDL_PollEvent(&event))
 	{
@@ -23,11 +29,11 @@ void EventHandle(SDL_Event& event)
 				break;
 
 			case SDLK_d:
-				keyboard.d = true;				
+				keyboard.d = true;
 				break;
 
 			case SDLK_w:
-				keyboard.w = true;				
+				keyboard.w = true;
 				break;
 
 			case SDLK_s:
@@ -57,49 +63,58 @@ void EventHandle(SDL_Event& event)
 			}
 			break;
 
+			//on mouse movement
+		case SDL_MOUSEMOTION:
+			SDL_GetMouseState(&mouse.x, &mouse.y);
+			break;			
+
+			//on mouse button down
 		case SDL_MOUSEBUTTONDOWN:
 			switch (event.button.button)
 			{
-				case SDL_BUTTON_LEFT:
-					//TODO: create wall
-					Entity e;
-					e.moves = false;
-					e.type = TYPE_WALL;
-					int x, y;
-					SDL_GetMouseState(&x, &y);
+			case SDL_BUTTON_LEFT:
+				mouse.left = true;
+				break;
 
-					e.x = x;
-					e.y = y;
+			case SDL_BUTTON_MIDDLE:
+				mouse.middle = true;
+				break;
 
-					AddEntity(e);
-					break;
+			case SDL_BUTTON_RIGHT:
+				mouse.right = true;
+				break;
 			}
-		}
+			break;
+
+			//on mouse button up
+		case SDL_MOUSEBUTTONUP:
+			switch (event.button.button)
+			{
+			case SDL_BUTTON_LEFT:
+				mouse.left = false;
+				break;
+
+			case SDL_BUTTON_MIDDLE:
+				mouse.middle = false;
+				break;
+
+			case SDL_BUTTON_RIGHT:
+				mouse.right = false;
+				break;
+			}
+			break;
+		}		
 	}
+}
 
-	//handle keys being held down here
-	if (keyboard.w && !playerData.hasJumped)
-	{
-		entityList.at(playerEntity).velY = -10;
-		playerData.hasJumped = true;		
-	}
+void EventHandle(SDL_Event& event)
+{
+	UpdateEventStructs(event);//update all our structures handling what buttons are held down currently first
 
-	if (keyboard.s)	
-		entityList.at(playerEntity).velY = 10;	
+	if (mouse.left)	
+		CreateEntity(TYPE_SAND, mouse.x, mouse.y);
 
-	if (keyboard.a)
-	{
-		entityList.at(playerEntity).velX -= 1;
-		entityList.at(playerEntity).velXLock = true;
-	}
-
-	if (keyboard.d)
-	{
-		entityList.at(playerEntity).velX += 1;
-		entityList.at(playerEntity).velXLock = true;
-	}
-		
-
-	if (!keyboard.a && ! keyboard.d)
-		entityList.at(playerEntity).velXLock = false;
+	if (mouse.left)
+		CreateEntity(TYPE_WALL, mouse.x, mouse.y);
+	
 }

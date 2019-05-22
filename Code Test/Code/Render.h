@@ -12,26 +12,15 @@ void Render()
 
 		switch (e.type)
 		{
-			case TYPE_PLAYER:
-				SDL_Rect pl;
-				pl.h = 20;
-				pl.w = 20;
-				pl.x = e.x-10;
-				pl.y = e.y-10;
+			case TYPE_SAND:
 				
-				SDL_SetRenderDrawColor(mainRenderer, 0, 0, 255, 255);
-				SDL_RenderFillRect(mainRenderer, &pl);
+				SDL_SetRenderDrawColor(mainRenderer, 207, 226, 34, 0);
+				SDL_RenderDrawPoint(mainRenderer, e.x, e.y);
 				break;
 
 			case TYPE_WALL:
-				SDL_Rect wa;
-				wa.h = 20;
-				wa.w = 20;
-				wa.x = e.x-10;
-				wa.y = e.y-10;
-
-				SDL_SetRenderDrawColor(mainRenderer, 255, 255, 255, 255);
-				SDL_RenderFillRect(mainRenderer, &wa);
+				SDL_SetRenderDrawColor(mainRenderer, 87, 87, 87, 0);
+				SDL_RenderDrawPoint(mainRenderer, e.x, e.y);
 				break;
 		}
 	}
