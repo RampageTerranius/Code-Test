@@ -36,6 +36,10 @@ void CreateEntity(eType type, int x, int y)
 	if (EntityExists[x][y])
 		return;
 
+	//make sure were not trying to create an entity off screen
+	if (x < 0 || x > WINDOW_WIDTH - 1 || y < 0 || y > WINDOW_HEIGHT - 1)
+		return;
+
 	Entity newEntity;//entity for use with upcoming switch
 
 	//check what type of entity we need to create and assign it the required data as well as update the entityexists list
@@ -125,11 +129,17 @@ void EntityHandle()
 					//check if were on an edge
 					if (e->x == 0)//if were on the left most edge then drop to the right
 					{
+						EntityExists[e->x][e->y] = false;
+						EntityExists[e->x + 1][e->y + 1] = true;
+
 						e->y += 1;
 						e->x += 1;
 						break;
 					} else if (e->x == WINDOW_WIDTH - 1)//if were on the right most edge then drop to the left
 					{
+						EntityExists[e->x][e->y] = false;
+						EntityExists[e->x - 1][e->y + 1] = true;
+
 						e->y += 1;
 						e->x -= 1;
 						break;
@@ -142,6 +152,9 @@ void EntityHandle()
 					{
 						//go left
 					case 1:
+						EntityExists[e->x][e->y] = false;
+						EntityExists[e->x - 1][e->y + 1] = true;
+
 						e->y += 1;
 						e->x -= 1;
 
@@ -149,6 +162,9 @@ void EntityHandle()
 
 						//go right
 					case 2:
+						EntityExists[e->x][e->y] = false;
+						EntityExists[e->x + 1][e->y + 1] = true;
+
 						e->y += 1;
 						e->x += 1;
 						break;

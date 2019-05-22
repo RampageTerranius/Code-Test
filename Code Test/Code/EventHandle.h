@@ -111,10 +111,25 @@ void EventHandle(SDL_Event& event)
 {
 	UpdateEventStructs(event);//update all our structures handling what buttons are held down currently first
 
-	if (mouse.left)	
+	if (mouse.left)
+	{
 		CreateEntity(TYPE_SAND, mouse.x, mouse.y);
 
-	if (mouse.left)
+		CreateEntity(TYPE_SAND, mouse.x-1, mouse.y);
+		CreateEntity(TYPE_SAND, mouse.x+1, mouse.y);
+		CreateEntity(TYPE_SAND, mouse.x, mouse.y-1);
+		CreateEntity(TYPE_SAND, mouse.x, mouse.y+1);
+	}
+
+	if (mouse.right)
+	{
 		CreateEntity(TYPE_WALL, mouse.x, mouse.y);
+
+
+		CreateEntity(TYPE_WALL, mouse.x - 1, mouse.y);
+		CreateEntity(TYPE_WALL, mouse.x + 1, mouse.y);
+		CreateEntity(TYPE_WALL, mouse.x, mouse.y - 1);
+		CreateEntity(TYPE_WALL, mouse.x, mouse.y + 1);
+	}
 	
 }
