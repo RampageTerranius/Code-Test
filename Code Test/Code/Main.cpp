@@ -8,10 +8,16 @@ int main(int argc, char* argv[])
 	//handles all input given by the user
 	SDL_Event event;
 
-	Timer t;
+	//timers for handling fps
+	Timer capTimer;
+	Timer fpsTimer;
+
+	fpsTimer.Start();
 
 	while(running)
 	{
+		capTimer.Start();
+
 		//render the current scene
 		Render();
 
@@ -22,7 +28,7 @@ int main(int argc, char* argv[])
 		EntityHandle();
 
 		//check timer and make sure to keep the engien running at the correct fps
-		TimerHandle(t);
+		TimerHandle(&capTimer, &fpsTimer);
 	}
 	
 	

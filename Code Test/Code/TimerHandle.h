@@ -81,12 +81,13 @@ int Timer::GetTicks()
 	return 0;
 }
 
-void TimerHandle(Timer& t)
+void TimerHandle(Timer* cap, Timer* fps)
 {
+	
+	float avgFPS = countedFrames / (fps->GetTicks() / 1000.f);
+	if (avgFPS > 2000000)	
+		avgFPS = 0;
+	
 
-	if (t.GetTicks() < 1000 / FPS)
-	{
-		//Sleep the remaining frame time
-		SDL_Delay((1000 / FPS) - t.GetTicks());
-	}
+	std::cout << std::to_string(round(avgFPS)) << "\n";
 }

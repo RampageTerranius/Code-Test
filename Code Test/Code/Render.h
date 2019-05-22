@@ -26,4 +26,5 @@ void Render()
 	}
 
 	SDL_RenderPresent(mainRenderer);
+	countedFrames++;
 }

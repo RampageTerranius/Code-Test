@@ -28,11 +28,11 @@ bool Setup()
 	}
 
 	//create main window
-	SDL_WindowFlags wFlags = SDL_WINDOW_OPENGL;
-	mainWindow = SDL_CreateWindow(PROGRAM_NAME.c_str(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, wFlags);
+	Uint32 windowFlags = SDL_WINDOW_OPENGL;
+	mainWindow = SDL_CreateWindow(PROGRAM_NAME.c_str(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windowFlags);
 
-	SDL_RendererFlags rFlags = SDL_RENDERER_ACCELERATED;
-	mainRenderer = SDL_CreateRenderer(mainWindow, -1, rFlags);
+	Uint32 renderFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
+	mainRenderer = SDL_CreateRenderer(mainWindow, -1, renderFlags);
 
 	return true;
 }

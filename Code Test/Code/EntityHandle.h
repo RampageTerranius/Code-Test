@@ -169,9 +169,6 @@ void EntityHandle()
 						e->x += 1;
 						break;
 					}
-
-
-
 				}
 			}	
 			break;
