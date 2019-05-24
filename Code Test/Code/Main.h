@@ -19,8 +19,6 @@ const int WINDOW_HEIGHT = 768;
 SDL_Window* mainWindow = NULL;
 SDL_Renderer* mainRenderer = NULL;
 
-bool EntityExists[WINDOW_WIDTH][WINDOW_HEIGHT];
-
 int countedFrames = 0;
 
 
@@ -29,7 +27,7 @@ bool running = false;
 
 //project
 #include "TimerHandle.h"
-#include "Player.h"
+#include "Particles.h"
 #include "EntityHandle.h"
 #include "Setup.h"
 #include "Render.h"

@@ -22,7 +22,7 @@
     <ClInclude Include="Code\EntityHandle.h" />
     <ClInclude Include="Code\EventHandle.h" />
     <ClInclude Include="Code\Main.h" />
-    <ClInclude Include="Code\Player.h" />
+    <ClInclude Include="Code\Particles.h" />
     <ClInclude Include="Code\Render.h" />
     <ClInclude Include="Code\Setup.h" />
     <ClInclude Include="Code\Shutdown.h" />
