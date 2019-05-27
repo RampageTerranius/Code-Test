@@ -143,6 +143,11 @@ void EventHandle(SDL_Event& event)
 		//always paint the first particle reguardless
 		CreateParticle(currentBrushType, mouse.x, mouse.y);
 
+		CreateParticle(currentBrushType, mouse.x + 1, mouse.y);
+		CreateParticle(currentBrushType, mouse.x - 1, mouse.y);
+		CreateParticle(currentBrushType, mouse.x, mouse.y + 1);
+		CreateParticle(currentBrushType, mouse.x, mouse.y - 1);
+
 		//TODO: use the current brush size cariable to determine how many particles to make
 		/*if (currentBrushSize > 1)
 			for (int i = 0; i < currentBrushSize - 1; i++)
