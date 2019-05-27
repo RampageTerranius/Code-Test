@@ -3,6 +3,7 @@
 struct Keyboard
 {
 	bool w, s, a, d;
+	bool plus, minus;
 }keyboard;
 
 struct Mouse
@@ -44,6 +45,18 @@ void UpdateEventStructs(SDL_Event event)
 				keyboard.s = true;
 				currentBrushType = TYPE_SAND;
 				break;
+
+			case SDLK_MINUS:
+				keyboard.minus = true;
+				
+				if (currentBrushSize > 1)
+					currentBrushSize--;
+				break;
+
+			case SDLK_PLUS:
+				keyboard.plus = true;
+				currentBrushSize++;
+				break;
 			}
 			break;
 
@@ -64,6 +77,14 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_s:
 				keyboard.s = false;
+				break;
+
+			case SDLK_MINUS:
+				keyboard.minus = false;
+				break;
+
+			case SDLK_PLUS:
+				keyboard.plus = false;
 				break;
 			}
 			break;
@@ -116,14 +137,18 @@ void EventHandle(SDL_Event& event)
 {
 	UpdateEventStructs(event);//update all our structures handling what buttons are held down currently first
 
+	//on left click paint particles using brush
 	if (mouse.left)
 	{
+		//always paint the first particle reguardless
 		CreateParticle(currentBrushType, mouse.x, mouse.y);
-		
-		CreateParticle(currentBrushType, mouse.x-1, mouse.y);
-		CreateParticle(currentBrushType, mouse.x+1, mouse.y);
-		CreateParticle(currentBrushType, mouse.x, mouse.y-1);
-		CreateParticle(currentBrushType, mouse.x, mouse.y+1);
+
+		//TODO: use the current brush size cariable to determine how many particles to make
+		/*if (currentBrushSize > 1)
+			for (int i = 0; i < currentBrushSize - 1; i++)
+			{
+
+			}*/
 	}
 
 	if (mouse.right)
