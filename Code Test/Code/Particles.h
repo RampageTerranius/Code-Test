@@ -25,6 +25,34 @@ class Particle
 Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
 std::vector<Particle*> particleList;
 
+//used to move pointers of particles around
+void MoveParticles(int x1, int y1, int x2, int y2)
+{
+	//get both the particles we want to move
+	Particle* p1 = allParticles[x1][y1];
+	Particle* p2 = allParticles[x2][y2];
+
+	//wipe pointers ahead of time
+	allParticles[x1][y1] = NULL;
+	allParticles[x2][y2] = NULL;
+
+	//if point one was not null we need to move it to point two
+	if (p1 != NULL)
+	{
+		allParticles[x2][y2] = p1;
+		allParticles[x2][y2]->y = y2;
+		allParticles[x2][y2]->x = x2;
+	}
+
+	//if point two was not null we need to move it to point one
+	if (p2 != NULL)
+	{
+		allParticles[x1][y1] = p2;
+		allParticles[x1][y1]->y = y1;
+		allParticles[x1][y1]->x = x1;
+	}
+}
+
 Particle::Particle()
 {
 	Reset();
@@ -51,16 +79,34 @@ void Particle::HandlePhysics()
 	if (y == WINDOW_HEIGHT - 1)
 		return;
 
+	//for efficiency reasons we will make sure we cna ACTUALLY move before doing any further calculations
+	//create some temporary ints to work with
+	int a, b, c;
+	a = b = c = x;
+
+	a--;//used as left
+	c++;//used as right
+
+	if (a < 0)
+		a = 0;//if we are out of screen fix
+
+	if (c > WINDOW_WIDTH - 1)
+		c = WINDOW_WIDTH - 1;//if we are out of screen fix
+
+	//check if we cna ACTUALLY move, cancel physics if we can not here immediately
+	if (allParticles[a][y + 1] != NULL && allParticles[b][y + 1] != NULL && allParticles[c][y + 1] != NULL)
+		return;
+
+
 	//check if an object exists under this one
 	if (allParticles[x][y + 1] == NULL)
 	{
 		//update the array
-		allParticles[x][y + 1] = this;
-		allParticles[x][y + 1]->y = this->y + 1;
-			
-		allParticles[x][y] = NULL;
+		MoveParticles(x, y, x, y + 1);
 		return;
 	}
+
+
 	
 	//since there is an object under this one lets check if we can fall to the left or right
 	if (x == 0)//check if we are on the left most edge
@@ -69,11 +115,7 @@ void Particle::HandlePhysics()
 		if (allParticles[x + 1][y + 1] == NULL)
 		{
 			//update the array
-			y += 1;
-			x += 1;
-			allParticles[x + 1][y + 1] = this;
-			
-			allParticles[x][y] = NULL;
+			MoveParticles(x, y, x + 1, y + 1);
 			return;
 		}
 		return;//even if we cant drop, we know that we can not go anywhere so stop here
@@ -85,10 +127,7 @@ void Particle::HandlePhysics()
 		if (allParticles[x - 1][y + 1] == NULL)
 		{
 			//update the array
-			y += 1;
-			x -= 1;
-			allParticles[x - 1][y + 1] = this;			
-			allParticles[x][y] = NULL;
+			MoveParticles(x, y, x - 1, y + 1);
 			return;
 		}
 		return;//even if we cant drop, we know that we can not go anywhere so stop here
@@ -98,11 +137,7 @@ void Particle::HandlePhysics()
 	if (allParticles[x - 1][y + 1] == NULL && allParticles[x + 1][y + 1] != NULL)
 	{
 		//update the array
-		y += 1;
-		x -= 1;
-		allParticles[x - 1][y + 1] = this;
-		
-		allParticles[x][y] = NULL;
+		MoveParticles(x, y, x - 1, y + 1);
 		return;
 	}
 
@@ -110,37 +145,29 @@ void Particle::HandlePhysics()
 	if (allParticles[x + 1][y + 1] == NULL && allParticles[x - 1][y + 1] != NULL)
 	{
 		//update the array
-		y += 1;
-		x += 1;
-		allParticles[x + 1][y + 1] = this;		
-		allParticles[x][y] = NULL;
+		MoveParticles(x, y, x + 1, y + 1);
 		return;
 	}
 
-	//at this stage we know that both sides are free AND we are not on the edge of the screen, randomly choose one direction and drop down that side	
-	int randomNum = rand() % 2 + 1;
-
-	switch (randomNum)
+	//if both sides are free randomly choose one direction and drop down that side	
+	if (allParticles[x + 1][y + 1] == NULL && allParticles[x - 1][y + 1] == NULL)
 	{
-		//go left
-	case 1:
-		//update the array
-		y += 1;
-		x -= 1;
-		allParticles[x - 1][y + 1] = this;
+		int randomNum = rand() % 2 + 1;
 
-		allParticles[x][y] = NULL;
-		return;
+		switch (randomNum)
+		{
+			//go left
+		case 1:
+			//update the array
+			MoveParticles(x, y, x - 1, y + 1);
+			return;
 
-		//go right
-	case 2:
-		//update the array
-		y += 1;
-		x += 1;
-		allParticles[x + 1][y + 1] = this;
-
-		allParticles[x][y] = NULL;
-		return;
+			//go right
+		case 2:
+			//update the array
+			MoveParticles(x, y, x + 1, y + 1);
+			return;
+		}
 	}
 }
 
