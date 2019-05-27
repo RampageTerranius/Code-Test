@@ -11,6 +11,9 @@ struct Mouse
 	int x, y;
 }mouse;
 
+eType currentBrushType = TYPE_SAND;
+int currentBrushSize = 1;
+
 void UpdateEventStructs(SDL_Event event)
 {
 	while (SDL_PollEvent(&event))
@@ -34,10 +37,12 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_w:
 				keyboard.w = true;
+				currentBrushType = TYPE_WATER;
 				break;
 
 			case SDLK_s:
 				keyboard.s = true;
+				currentBrushType = TYPE_SAND;
 				break;
 			}
 			break;
@@ -113,12 +118,12 @@ void EventHandle(SDL_Event& event)
 
 	if (mouse.left)
 	{
-		CreateParticle(TYPE_SAND, mouse.x, mouse.y);
-		/*
-		CreateParticle(TYPE_SAND, mouse.x-1, mouse.y);
-		CreateParticle(TYPE_SAND, mouse.x+1, mouse.y);
-		CreateParticle(TYPE_SAND, mouse.x, mouse.y-1);
-		CreateParticle(TYPE_SAND, mouse.x, mouse.y+1);*/
+		CreateParticle(currentBrushType, mouse.x, mouse.y);
+		
+		CreateParticle(currentBrushType, mouse.x-1, mouse.y);
+		CreateParticle(currentBrushType, mouse.x+1, mouse.y);
+		CreateParticle(currentBrushType, mouse.x, mouse.y-1);
+		CreateParticle(currentBrushType, mouse.x, mouse.y+1);
 	}
 
 	if (mouse.right)

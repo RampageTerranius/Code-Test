@@ -5,7 +5,8 @@ enum eType
 {
 	TYPE_NONE,
 	TYPE_WALL,
-	TYPE_SAND	
+	TYPE_SAND,
+	TYPE_WATER
 };
 
 class Particle
@@ -17,7 +18,6 @@ class Particle
 		virtual void HandlePhysics();
 
 		int x, y;
-		int weight;
 		eType type;
 };
 
@@ -61,14 +61,14 @@ Particle::Particle()
 void Particle::Reset()
 {
 	x = y = 0;
-	weight = -1;
 	type = TYPE_NONE;
 }
 
-//default draw code, we do not want to draw anything if its a base particle
+//default draw code
 void Particle::Draw()
 {
-
+	SDL_SetRenderDrawColor(mainRenderer, 255, 255, 255, 0);
+	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
 //default particle physics
@@ -93,7 +93,7 @@ void Particle::HandlePhysics()
 	if (c > WINDOW_WIDTH - 1)
 		c = WINDOW_WIDTH - 1;//if we are out of screen fix
 
-	//check if we cna ACTUALLY move, cancel physics if we can not here immediately
+	//check if we can ACTUALLY move, cancel physics if we can not here immediately
 	if (allParticles[a][y + 1] != NULL && allParticles[b][y + 1] != NULL && allParticles[c][y + 1] != NULL)
 		return;
 
@@ -171,20 +171,19 @@ void Particle::HandlePhysics()
 	}
 }
 
-
+//wall particles
 class Wall : public Particle
 {
-	public:
-		Wall(int newX, int newY);
-		void Draw();
-		void HandlePhysics();
+public:
+	Wall(int newX, int newY);
+	void Draw();
+	void HandlePhysics();
 };
 
 Wall::Wall(int newX, int newY)
 {
 	x = newX;
 	y = newY;
-	weight = -1;
 	type = TYPE_WALL;
 }
 
@@ -199,20 +198,19 @@ void Wall::HandlePhysics()
 	//walls have no physics, in the situation soemthing asks it to run its physics simulation do nothing
 }
 
-
+//sand particles
 class Sand : public Particle
 {
-	public:
-		Sand(int newX, int newY);
-		void Draw();
-		void HandlePhysics();
+public:
+	Sand(int newX, int newY);
+	void Draw();
+	void HandlePhysics();
 };
 
 Sand::Sand(int newX, int newY)
 {
 	x = newX;
 	y = newY;
-	weight = 1;
 	type = TYPE_SAND;
 }
 
@@ -225,5 +223,122 @@ void Sand::Draw()
 void Sand::HandlePhysics()
 {
 	Particle::HandlePhysics();
-	allParticles[0][0] = allParticles[0][0];
+}
+
+//water particles
+//always attempts to move downwards if nothing is in way, will always try to move either left or right if cant move down
+class Water : public Particle
+{
+public:
+	Water(int newX, int newY);
+	void Draw();
+	void HandlePhysics();
+};
+
+Water::Water(int newX, int newY)
+{
+	x = newX;
+	y = newY;
+	type = TYPE_WATER;
+}
+
+void Water::Draw()
+{
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 125, 0);
+	SDL_RenderDrawPoint(mainRenderer, x, y);
+}
+
+void Water::HandlePhysics()
+{
+	//make sure we arent already at the bottom level, if we are we dont need to check the physics
+	if (y == WINDOW_HEIGHT - 1)
+		return;
+
+	//for efficiency reasons we will make sure we cna ACTUALLY move before doing any further calculations
+	//create some temporary ints to work with
+	int a, b, c;
+	a = b = c = x;
+
+	a--;//used as left
+	c++;//used as right
+
+	if (a < 0)
+		a = 0;//if we are out of screen fix
+
+	if (c > WINDOW_WIDTH - 1)
+		c = WINDOW_WIDTH - 1;//if we are out of screen fix
+
+	//check if we can ACTUALLY move, cancel physics if we can not here immediately
+	if (allParticles[a][y + 1] != NULL && allParticles[b][y] != NULL && allParticles[c][y] != NULL)
+		return;
+
+	//check if an object exists under this one
+	if (allParticles[x][y + 1] == NULL)
+	{
+		//update the array
+		MoveParticles(x, y, x, y + 1);
+		return;
+	}
+
+	//there is an object under this one, try and move to the left or right
+	if (x == 0)//check if we are on the left most edge
+	{
+		//we are on the left most edge, try to drop to the bottom right
+		if (allParticles[x + 1][y] == NULL)
+		{
+			//update the array
+			MoveParticles(x, y, x + 1, y);
+			return;
+		}
+		return;//even if we cant drop, we know that we can not go anywhere so stop here
+	}
+
+	if (x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
+	{
+		//we are on the right most edge, try to drop to the bottom left
+		if (allParticles[x - 1][y] == NULL)
+		{
+			//update the array
+			MoveParticles(x, y, x - 1, y);
+			return;
+		}
+		return;//even if we cant drop, we know that we can not go anywhere so stop here
+	}
+
+	//if the bottom left is empty and the bottom right isnt then drop to the bottom left
+	if (allParticles[x - 1][y] == NULL && allParticles[x + 1][y] != NULL)
+	{
+		//update the array
+		MoveParticles(x, y, x - 1, y);
+		return;
+	}
+
+	//if the bottom right is empty and the bottom left isnt the drop to the bottom right
+	if (allParticles[x + 1][y] == NULL && allParticles[x - 1][y] != NULL)
+	{
+		//update the array
+		MoveParticles(x, y, x + 1, y);
+		return;
+	}
+
+	//if both sides are free randomly choose one direction and drop down that side	
+	if (allParticles[x + 1][y] == NULL && allParticles[x - 1][y] == NULL)
+	{
+		int randomNum = rand() % 2 + 1;
+
+		switch (randomNum)
+		{
+			//go left
+		case 1:
+			//update the array
+			MoveParticles(x, y, x - 1, y);
+			return;
+
+			//go right
+		case 2:
+			//update the array
+			MoveParticles(x, y, x + 1, y);
+			return;
+		}
+	}
 }
