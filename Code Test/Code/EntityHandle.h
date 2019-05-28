@@ -3,7 +3,7 @@
 void CreateParticle(eType type, int x, int y)
 {
 	//check that we have no entity in this section to begin with
-	if (allParticles[x][y] != NULL)
+	if (allParticles[x][y] != nullptr)
 		if (allParticles[x][y]->type != TYPE_NONE)
 			return;
 
@@ -40,7 +40,7 @@ void DestroyParticle(int x, int y)
 		int tempX, tempY;
 		tempX = particleList.at(i)->x;
 		tempY = particleList.at(i)->y;
-		//if the x/y are the same wiep the particle
+		//if the x/y are the same wipe the particle
 		if (tempX == x && tempY == y)
 		{
 			//clear the vector first

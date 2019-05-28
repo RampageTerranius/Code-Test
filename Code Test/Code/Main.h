@@ -15,7 +15,7 @@ const std::string PROGRAM_NAME = "Testola";
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
 
-const int MAX_BRUSH_SIZE = 6;
+const int MAX_BRUSH_SIZE = 16;
 
 //sdl window and renderer
 SDL_Window* mainWindow = nullptr;
