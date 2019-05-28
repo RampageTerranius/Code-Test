@@ -92,6 +92,10 @@ void Particle::HandlePhysics()
 	if (y == WINDOW_HEIGHT - 1)
 		return;
 
+	//check if an object exists under this one
+	if (DropParticle(x, y))
+		return;
+
 	int left, right;
 	left = right = x;
 	left--;
@@ -151,9 +155,7 @@ void Particle::HandlePhysics()
 		return;
 	}
 
-	//check if an object exists under this one
-	if (DropParticle(x, y))
-		return;	
+	
 	
 	//since there is an object under this one lets check if we can fall to the left or right
 	if (x == 0)//check if we are on the left most edge
@@ -303,6 +305,10 @@ void Water::HandlePhysics()
 	if (y == WINDOW_HEIGHT - 1)
 		return;
 
+	//check if an object exists under this one
+	if (DropParticle(x, y))
+		return;
+
 	int left, right;
 	left = right = x;
 	left--;
@@ -363,10 +369,6 @@ void Water::HandlePhysics()
 		//neither way is less weight and we know that were surrounded, do not run any further code
 		return;
 	}
-
-	//check if an object exists under this one
-	if (DropParticle(x, y))
-		return;
 
 	//there is an object under this one, try and move to the left or right
 	if (x == 0)//check if we are on the left most edge

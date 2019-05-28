@@ -30,6 +30,7 @@ void UpdateEventStructs(SDL_Event event)
 				break;
 
 			case SDLK_a:
+				currentBrushType = TYPE_WALL;
 				keyboard.a = true;
 				break;
 
@@ -155,36 +156,84 @@ void CreateParticles(eType type, int x, int y)
 
 	if (currentBrushSize >= 2)
 	{
-		CreateParticle(type, x + 1, y);
-		CreateParticle(type, x - 1, y);
-		CreateParticle(type, x, y + 1);
-		CreateParticle(type, x, y - 1);
-	}
-
-	if (currentBrushSize >= 3)
-	{
-		CreateParticle(type, x + 2, y);
-		CreateParticle(type, x - 2, y);
-		CreateParticle(type, x, y + 2);
-		CreateParticle(type, x, y - 2);
-		CreateParticle(type, x + 1, y + 1);
+		CreateParticle(type, x , y - 1);
 		CreateParticle(type, x - 1, y - 1);
-		CreateParticle(type, x + 1, y - 1);
+		CreateParticle(type, x - 1, y);
 		CreateParticle(type, x - 1, y + 1);
+		CreateParticle(type, x, y + 1);
+		CreateParticle(type, x + 1, y + 1);
+		CreateParticle(type, x + 1, y);
+		CreateParticle(type, x + 1, y - 1);
 	}
 
 	if (currentBrushSize >= 3)
 	{
-		CreateParticle(type, x + 3, y);
-		CreateParticle(type, x - 3, y);
-		CreateParticle(type, x, y + 3);
-		CreateParticle(type, x, y - 3);
-		CreateParticle(type, x + 2, y + 2);
 		CreateParticle(type, x - 2, y - 2);
-		CreateParticle(type, x + 2, y - 2);
+		CreateParticle(type, x - 2, y - 1);
+		CreateParticle(type, x - 2, y);
+		CreateParticle(type, x - 2, y + 1);
 		CreateParticle(type, x - 2, y + 2);
+
+		CreateParticle(type, x + 2, y - 2);
+		CreateParticle(type, x + 2, y - 1);
+		CreateParticle(type, x + 2, y);
+		CreateParticle(type, x + 2, y + 1);
+		CreateParticle(type, x + 2, y + 2);
+
+		CreateParticle(type, x + 1, y - 2);
+		CreateParticle(type, x, y - 2);
+		CreateParticle(type, x - 1, y - 2);
+
+		CreateParticle(type, x + 1, y + 2);
+		CreateParticle(type, x, y + 2);
+		CreateParticle(type, x - 1, y + 2);
 	}
 }
+
+void DestroyParticles(int x, int y)
+{
+	//always destroy the first particle
+	DestroyParticle(mouse.x, mouse.y);
+
+	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
+
+	if (currentBrushSize >= 2)
+	{
+		DestroyParticle(x, y - 1);
+		DestroyParticle(x - 1, y - 1);
+		DestroyParticle(x - 1, y);
+		DestroyParticle(x - 1, y + 1);
+		DestroyParticle(x, y + 1);
+		DestroyParticle(x + 1, y + 1);
+		DestroyParticle(x + 1, y);
+		DestroyParticle(x + 1, y - 1);
+	}
+
+	if (currentBrushSize >= 3)
+	{
+		DestroyParticle(x - 2, y - 2);
+		DestroyParticle(x - 2, y - 1);
+		DestroyParticle(x - 2, y);
+		DestroyParticle(x - 2, y + 1);
+		DestroyParticle(x - 2, y + 2);
+
+		DestroyParticle(x + 2, y - 2);
+		DestroyParticle(x + 2, y - 1);
+		DestroyParticle(x + 2, y);
+		DestroyParticle(x + 2, y + 1);
+		DestroyParticle(x + 2, y + 2);
+
+		DestroyParticle(x + 1, y - 2);
+		DestroyParticle(x, y - 2);
+		DestroyParticle(x - 1, y - 2);
+
+		DestroyParticle(x + 1, y + 2);
+		DestroyParticle(x, y + 2);
+		DestroyParticle(x - 1, y + 2);
+	}
+}
+
+
 
 void EventHandle(SDL_Event& event)
 {
@@ -196,5 +245,5 @@ void EventHandle(SDL_Event& event)
 	
 
 	if (mouse.right)
-		CreateParticles(TYPE_WALL, mouse.x, mouse.y);
+		DestroyParticles(mouse.x, mouse.y);
 }

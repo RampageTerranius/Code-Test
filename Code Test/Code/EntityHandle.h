@@ -31,6 +31,24 @@ void CreateParticle(eType type, int x, int y)
 	}
 }
 
+//destroys the particle at the given location and wipes the memory of it
+void DestroyParticle(int x, int y)
+{
+	for (int i = 0; i < particleList.size() - 1; i++)
+	{
+		int tempX, tempY;
+		tempX = particleList.at(i)->x;
+		tempY = particleList.at(i)->y;
+		if (tempX == x && tempY == y)
+		{
+			particleList.erase(particleList.begin() + i);
+			delete allParticles[tempX][tempY];
+			allParticles[tempX][tempY] = nullptr;
+			return;
+		}
+	}
+}
+
 void EntityHandle()
 {
 	//handling entities
