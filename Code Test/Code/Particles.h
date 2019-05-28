@@ -112,11 +112,11 @@ void Particle::HandlePhysics()
 		canGoLeft = canGoRight = false;
 
 		if (allParticles[left][y - 1]->weight != -1)
-			if (allParticles[left][y - 1]->weight < allParticles[x][y]->weight)
+			if (allParticles[x][y]->weight < allParticles[left][y - 1]->weight)
 				canGoLeft = true;
 
 		if (allParticles[right][y - 1]->weight != -1)
-			if (allParticles[right][y - 1]->weight < allParticles[x][y]->weight)
+			if (allParticles[x][y]->weight < allParticles[right][y - 1]->weight)
 				canGoRight = true;
 
 		if (canGoLeft && canGoRight)
@@ -318,18 +318,18 @@ void Water::HandlePhysics()
 	if (allParticles[left][y] != nullptr && allParticles[x][y - 1] != nullptr && allParticles[right][y] != nullptr)
 	{
 		//if we are check if we can move via gravity with the surrounding blocks
-
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
 
 		if (allParticles[left][y]->weight != -1)
-			if (allParticles[left][y]->weight < allParticles[x][y]->weight)
+			if (allParticles[x][y]->weight < allParticles[left][y]->weight)
 				canGoLeft = true;
 
 		if (allParticles[right][y]->weight != -1)
-			if (allParticles[right][y]->weight < allParticles[x][y]->weight)
+			if (allParticles[x][y]->weight < allParticles[right][y]->weight)
 				canGoRight = true;
 
+		//can go either way
 		if (canGoLeft && canGoRight)
 		{
 			switch (rand() % 2 + 1)
@@ -346,12 +346,14 @@ void Water::HandlePhysics()
 			}
 		}
 
+		//can only go left
 		if (canGoLeft)
 		{
 			MoveParticles(left, y, x, y);
 			return;
 		}
 
+		//can ohly go right
 		if (canGoRight)
 		{
 			MoveParticles(right, y, x, y);
