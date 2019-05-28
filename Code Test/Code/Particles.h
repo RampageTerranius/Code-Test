@@ -29,28 +29,21 @@ std::vector<Particle*> particleList;
 void MoveParticles(int x1, int y1, int x2, int y2)
 {
 	//get both the particles we want to move
-	Particle* p1 = allParticles[x1][y1];
-	Particle* p2 = allParticles[x2][y2];
+	std::swap(allParticles[x1][y1], allParticles[x2][y2]);
 
-	//wipe pointers ahead of time
-	allParticles[x1][y1] = NULL;
-	allParticles[x2][y2] = NULL;
-
-	//if point one was not null we need to move it to point two
-	if (p1 != NULL)
+	//update the internal location data for the first ponit now that its been moved
+	if (allParticles[x2][y2] != NULL)
 	{
-		allParticles[x2][y2] = p1;
 		allParticles[x2][y2]->y = y2;
 		allParticles[x2][y2]->x = x2;
 	}
 
-	//if point two was not null we need to move it to point one
-	if (p2 != NULL)
+	//update the internal location data for the second ponit now that its been moved
+	if (allParticles[x1][y1] != NULL)
 	{
-		allParticles[x1][y1] = p2;
 		allParticles[x1][y1]->y = y1;
 		allParticles[x1][y1]->x = x1;
-	}
+	}	
 }
 
 Particle::Particle()
