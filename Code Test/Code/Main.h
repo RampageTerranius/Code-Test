@@ -16,8 +16,8 @@ const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
 
 //sdl window and renderer
-SDL_Window* mainWindow = NULL;
-SDL_Renderer* mainRenderer = NULL;
+SDL_Window* mainWindow = nullptr;
+SDL_Renderer* mainRenderer = nullptr;
 
 int countedFrames = 0;
 

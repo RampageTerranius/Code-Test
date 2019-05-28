@@ -18,6 +18,7 @@ class Particle
 		virtual void HandlePhysics();
 
 		int x, y;
+		int weight;
 		eType type;
 };
 
@@ -32,18 +33,36 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 	std::swap(allParticles[x1][y1], allParticles[x2][y2]);
 
 	//update the internal location data for the first ponit now that its been moved
-	if (allParticles[x2][y2] != NULL)
+	if (allParticles[x2][y2] != nullptr)
 	{
 		allParticles[x2][y2]->y = y2;
 		allParticles[x2][y2]->x = x2;
 	}
 
 	//update the internal location data for the second ponit now that its been moved
-	if (allParticles[x1][y1] != NULL)
+	if (allParticles[x1][y1] != nullptr)
 	{
 		allParticles[x1][y1]->y = y1;
 		allParticles[x1][y1]->x = x1;
 	}	
+}
+
+bool DropParticle(int x, int y)
+{
+	if (allParticles[x][y + 1] == nullptr)
+	{
+		//update the array
+		MoveParticles(x, y, x, y + 1);
+		return true;
+	}
+	else if (allParticles[x][y + 1]->weight != -1)
+		if (allParticles[x][y]->weight > allParticles[x][y + 1]->weight)
+		{
+			MoveParticles(x, y, x, y + 1);
+			return true;
+		}
+
+	return false;
 }
 
 Particle::Particle()
@@ -54,6 +73,7 @@ Particle::Particle()
 void Particle::Reset()
 {
 	x = y = 0;
+	weight = -1;
 	type = TYPE_NONE;
 }
 
@@ -74,38 +94,28 @@ void Particle::HandlePhysics()
 
 	//for efficiency reasons we will make sure we cna ACTUALLY move before doing any further calculations
 	//create some temporary ints to work with
-	int a, b, c;
-	a = b = c = x;
+	int left, right;
+	left = right = x;
 
-	a--;//used as left
-	c++;//used as right
+	left--;//used as left
+	right++;//used as right
 
-	if (a < 0)
-		a = 0;//if we are out of screen fix
+	if (left < 0)
+		left = 0;//if we are out of screen fix
 
-	if (c > WINDOW_WIDTH - 1)
-		c = WINDOW_WIDTH - 1;//if we are out of screen fix
-
-	//check if we can ACTUALLY move, cancel physics if we can not here immediately
-	if (allParticles[a][y + 1] != NULL && allParticles[b][y + 1] != NULL && allParticles[c][y + 1] != NULL)
-		return;
+	if (right > WINDOW_WIDTH - 1)
+		right = WINDOW_WIDTH - 1;//if we are out of screen fix
 
 
 	//check if an object exists under this one
-	if (allParticles[x][y + 1] == NULL)
-	{
-		//update the array
-		MoveParticles(x, y, x, y + 1);
+	if (DropParticle(x, y))
 		return;
-	}
-
-
 	
 	//since there is an object under this one lets check if we can fall to the left or right
 	if (x == 0)//check if we are on the left most edge
 	{
 		//we are on the left most edge, try to drop to the bottom right
-		if (allParticles[x + 1][y + 1] == NULL)
+		if (allParticles[x + 1][y + 1] == nullptr)
 		{
 			//update the array
 			MoveParticles(x, y, x + 1, y + 1);
@@ -117,7 +127,7 @@ void Particle::HandlePhysics()
 	if (x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
 	{
 		//we are on the right most edge, try to drop to the bottom left
-		if (allParticles[x - 1][y + 1] == NULL)
+		if (allParticles[x - 1][y + 1] == nullptr)
 		{
 			//update the array
 			MoveParticles(x, y, x - 1, y + 1);
@@ -127,7 +137,7 @@ void Particle::HandlePhysics()
 	}
 
 	//if the bottom left is empty and the bottom right isnt then drop to the bottom left
-	if (allParticles[x - 1][y + 1] == NULL && allParticles[x + 1][y + 1] != NULL)
+	if (allParticles[x - 1][y + 1] == nullptr && allParticles[x + 1][y + 1] != nullptr)
 	{
 		//update the array
 		MoveParticles(x, y, x - 1, y + 1);
@@ -135,7 +145,7 @@ void Particle::HandlePhysics()
 	}
 
 	//if the bottom right is empty and the bottom left isnt the drop to the bottom right
-	if (allParticles[x + 1][y + 1] == NULL && allParticles[x - 1][y + 1] != NULL)
+	if (allParticles[x + 1][y + 1] == nullptr && allParticles[x - 1][y + 1] != nullptr)
 	{
 		//update the array
 		MoveParticles(x, y, x + 1, y + 1);
@@ -143,7 +153,7 @@ void Particle::HandlePhysics()
 	}
 
 	//if both sides are free randomly choose one direction and drop down that side	
-	if (allParticles[x + 1][y + 1] == NULL && allParticles[x - 1][y + 1] == NULL)
+	if (allParticles[x + 1][y + 1] == nullptr && allParticles[x - 1][y + 1] == nullptr)
 	{
 		int randomNum = rand() % 2 + 1;
 
@@ -204,6 +214,7 @@ Sand::Sand(int newX, int newY)
 {
 	x = newX;
 	y = newY;
+	weight = 2;
 	type = TYPE_SAND;
 }
 
@@ -232,6 +243,7 @@ Water::Water(int newX, int newY)
 {
 	x = newX;
 	y = newY;
+	weight = 1;
 	type = TYPE_WATER;
 }
 
@@ -249,35 +261,27 @@ void Water::HandlePhysics()
 
 	//for efficiency reasons we will make sure we cna ACTUALLY move before doing any further calculations
 	//create some temporary ints to work with
-	int a, b, c;
-	a = b = c = x;
+	int left, right;
+	left = right = x;
 
-	a--;//used as left
-	c++;//used as right
+	left--;//used as left
+	right++;//used as right
 
-	if (a < 0)
-		a = 0;//if we are out of screen fix
+	if (left < 0)
+		left = 0;//if we are out of screen fix
 
-	if (c > WINDOW_WIDTH - 1)
-		c = WINDOW_WIDTH - 1;//if we are out of screen fix
-
-	//check if we can ACTUALLY move, cancel physics if we can not here immediately
-	if (allParticles[a][y + 1] != NULL && allParticles[b][y] != NULL && allParticles[c][y] != NULL)
-		return;
+	if (right > WINDOW_WIDTH - 1)
+		right = WINDOW_WIDTH - 1;//if we are out of screen fix
 
 	//check if an object exists under this one
-	if (allParticles[x][y + 1] == NULL)
-	{
-		//update the array
-		MoveParticles(x, y, x, y + 1);
+	if (DropParticle(x, y))
 		return;
-	}
 
 	//there is an object under this one, try and move to the left or right
 	if (x == 0)//check if we are on the left most edge
 	{
 		//we are on the left most edge, try to drop to the bottom right
-		if (allParticles[x + 1][y] == NULL)
+		if (allParticles[x + 1][y] == nullptr)
 		{
 			//update the array
 			MoveParticles(x, y, x + 1, y);
@@ -289,7 +293,7 @@ void Water::HandlePhysics()
 	if (x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
 	{
 		//we are on the right most edge, try to drop to the bottom left
-		if (allParticles[x - 1][y] == NULL)
+		if (allParticles[x - 1][y] == nullptr)
 		{
 			//update the array
 			MoveParticles(x, y, x - 1, y);
@@ -297,25 +301,7 @@ void Water::HandlePhysics()
 		}
 		return;//even if we cant drop, we know that we can not go anywhere so stop here
 	}
-
-	//if the bottom left is empty and the bottom right isnt then drop to the bottom left
-	if (allParticles[x - 1][y] == NULL && allParticles[x + 1][y] != NULL)
-	{
-		//update the array
-		MoveParticles(x, y, x - 1, y);
-		return;
-	}
-
-	//if the bottom right is empty and the bottom left isnt the drop to the bottom right
-	if (allParticles[x + 1][y] == NULL && allParticles[x - 1][y] != NULL)
-	{
-		//update the array
-		MoveParticles(x, y, x + 1, y);
-		return;
-	}
-
-	//if both sides are free randomly choose one direction and drop down that side	
-	if (allParticles[x + 1][y] == NULL && allParticles[x - 1][y] == NULL)
+	
 	{
 		int randomNum = rand() % 2 + 1;
 
@@ -324,13 +310,15 @@ void Water::HandlePhysics()
 			//go left
 		case 1:
 			//update the array
-			MoveParticles(x, y, x - 1, y);
+			if (allParticles[x-1][y] == nullptr)
+				MoveParticles(x, y, x - 1, y);
 			return;
 
 			//go right
 		case 2:
 			//update the array
-			MoveParticles(x, y, x + 1, y);
+			if (allParticles[x + 1][y] == nullptr)
+				MoveParticles(x, y, x + 1, y);
 			return;
 		}
 	}
