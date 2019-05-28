@@ -34,14 +34,19 @@ void CreateParticle(eType type, int x, int y)
 //destroys the particle at the given location and wipes the memory of it
 void DestroyParticle(int x, int y)
 {
+	//iterate through all particles in the list
 	for (int i = 0; i < particleList.size() - 1; i++)
 	{
 		int tempX, tempY;
 		tempX = particleList.at(i)->x;
 		tempY = particleList.at(i)->y;
+		//if the x/y are the same wiep the particle
 		if (tempX == x && tempY == y)
 		{
+			//clear the vector first
 			particleList.erase(particleList.begin() + i);
+
+			//make sure we COMPLETELY wipe the particle, the particle was made by hand via new Particle() and therefore we MUST handle the deletion manually
 			delete allParticles[tempX][tempY];
 			allParticles[tempX][tempY] = nullptr;
 			return;
