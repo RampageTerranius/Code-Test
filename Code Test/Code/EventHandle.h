@@ -4,6 +4,7 @@ struct Keyboard
 {
 	bool w, s, a, d;
 	bool plus, minus;
+	bool leftBracket, rightBracket;
 }keyboard;
 
 struct Mouse
@@ -48,16 +49,28 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_MINUS:
 				keyboard.minus = true;
-				
-				if (currentBrushSize > 1)
-					currentBrushSize--;
 				break;
 
 			case SDLK_PLUS:
 				keyboard.plus = true;
+				break;
+
+			case SDLK_LEFTBRACKET:
+				keyboard.leftBracket = true;
+				currentBrushSize--;
+				if (currentBrushSize < 1)
+					currentBrushSize = 1;
+				break;
+
+			case SDLK_RIGHTBRACKET:
+				keyboard.rightBracket = true;
 				currentBrushSize++;
+				if (currentBrushSize > MAX_BRUSH_SIZE)
+					currentBrushSize = MAX_BRUSH_SIZE;
 				break;
 			}
+
+			
 			break;
 
 		case SDL_KEYUP:
@@ -133,31 +146,55 @@ void UpdateEventStructs(SDL_Event event)
 	}
 }
 
+void CreateParticles(eType type, int x, int y)
+{
+	//always paint the first particle reguardless
+	CreateParticle(type, mouse.x, mouse.y);
+
+	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
+
+	if (currentBrushSize >= 2)
+	{
+		CreateParticle(type, x + 1, y);
+		CreateParticle(type, x - 1, y);
+		CreateParticle(type, x, y + 1);
+		CreateParticle(type, x, y - 1);
+	}
+
+	if (currentBrushSize >= 3)
+	{
+		CreateParticle(type, x + 2, y);
+		CreateParticle(type, x - 2, y);
+		CreateParticle(type, x, y + 2);
+		CreateParticle(type, x, y - 2);
+		CreateParticle(type, x + 1, y + 1);
+		CreateParticle(type, x - 1, y - 1);
+		CreateParticle(type, x + 1, y - 1);
+		CreateParticle(type, x - 1, y + 1);
+	}
+
+	if (currentBrushSize >= 3)
+	{
+		CreateParticle(type, x + 3, y);
+		CreateParticle(type, x - 3, y);
+		CreateParticle(type, x, y + 3);
+		CreateParticle(type, x, y - 3);
+		CreateParticle(type, x + 2, y + 2);
+		CreateParticle(type, x - 2, y - 2);
+		CreateParticle(type, x + 2, y - 2);
+		CreateParticle(type, x - 2, y + 2);
+	}
+}
+
 void EventHandle(SDL_Event& event)
 {
 	UpdateEventStructs(event);//update all our structures handling what buttons are held down currently first
 
 	//on left click paint particles using brush
 	if (mouse.left)
-	{
-		//always paint the first particle reguardless
-		CreateParticle(currentBrushType, mouse.x, mouse.y);
-
-		//TODO: use the current brush size cariable to determine how many particles to make
-		/*if (currentBrushSize > 1)
-			for (int i = 0; i < currentBrushSize - 1; i++)
-			{
-
-			}*/
-	}
+		CreateParticles(currentBrushType, mouse.x, mouse.y);
+	
 
 	if (mouse.right)
-	{
-		CreateParticle(TYPE_WALL, mouse.x, mouse.y);
-
-		CreateParticle(TYPE_WALL, mouse.x - 1, mouse.y);
-		CreateParticle(TYPE_WALL, mouse.x + 1, mouse.y);
-		CreateParticle(TYPE_WALL, mouse.x, mouse.y - 1);
-		CreateParticle(TYPE_WALL, mouse.x, mouse.y + 1);
-	}	
+		CreateParticles(TYPE_WALL, mouse.x, mouse.y);
 }

@@ -32,14 +32,14 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 	//get both the particles we want to move
 	std::swap(allParticles[x1][y1], allParticles[x2][y2]);
 
-	//update the internal location data for the first ponit now that its been moved
+	//update the internal location data for the first point now that its been moved
 	if (allParticles[x2][y2] != nullptr)
 	{
 		allParticles[x2][y2]->y = y2;
 		allParticles[x2][y2]->x = x2;
 	}
 
-	//update the internal location data for the second ponit now that its been moved
+	//update the internal location data for the second point now that its been moved
 	if (allParticles[x1][y1] != nullptr)
 	{
 		allParticles[x1][y1]->y = y1;
@@ -92,24 +92,68 @@ void Particle::HandlePhysics()
 	if (y == WINDOW_HEIGHT - 1)
 		return;
 
-	//for efficiency reasons we will make sure we cna ACTUALLY move before doing any further calculations
-	//create some temporary ints to work with
 	int left, right;
 	left = right = x;
-
-	left--;//used as left
-	right++;//used as right
+	left--;
+	right++;
 
 	if (left < 0)
-		left = 0;//if we are out of screen fix
+		left = 0;
 
 	if (right > WINDOW_WIDTH - 1)
-		right = WINDOW_WIDTH - 1;//if we are out of screen fix
+		right = WINDOW_WIDTH - 1;
 
+	//check if we are surrounded
+	if (allParticles[left][y - 1] != nullptr && allParticles[x][y - 1] != nullptr && allParticles[right][y - 1] != nullptr)
+	{
+		//if we are check if we can move via gravity with the surrounding blocks
+
+		bool canGoLeft, canGoRight;
+		canGoLeft = canGoRight = false;
+
+		if (allParticles[left][y - 1]->weight != -1)
+			if (allParticles[left][y - 1]->weight < allParticles[x][y]->weight)
+				canGoLeft = true;
+
+		if (allParticles[right][y - 1]->weight != -1)
+			if (allParticles[right][y - 1]->weight < allParticles[x][y]->weight)
+				canGoRight = true;
+
+		if (canGoLeft && canGoRight)
+		{
+			switch (rand() % 2 + 1)
+			{
+				//go left
+			case 1:
+				MoveParticles(left, y - 1, x, y);
+				return;
+
+				//go right
+			case 2:
+				MoveParticles(right, y - 1, x, y);
+				return;
+			}
+		}
+
+		if (canGoLeft)
+		{
+			MoveParticles(left, y - 1, x, y);
+			return;
+		}
+
+		if (canGoRight)
+		{
+			MoveParticles(right, y - 1, x, y);
+			return;
+		}
+
+		//neither way is less weight and we know that were surrounded, do not run any further code
+		return;
+	}
 
 	//check if an object exists under this one
 	if (DropParticle(x, y))
-		return;
+		return;	
 	
 	//since there is an object under this one lets check if we can fall to the left or right
 	if (x == 0)//check if we are on the left most edge
@@ -122,7 +166,7 @@ void Particle::HandlePhysics()
 			return;
 		}
 		return;//even if we cant drop, we know that we can not go anywhere so stop here
-	}		
+	}	
 
 	if (x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
 	{
@@ -259,19 +303,64 @@ void Water::HandlePhysics()
 	if (y == WINDOW_HEIGHT - 1)
 		return;
 
-	//for efficiency reasons we will make sure we cna ACTUALLY move before doing any further calculations
-	//create some temporary ints to work with
 	int left, right;
 	left = right = x;
-
-	left--;//used as left
-	right++;//used as right
+	left--;
+	right++;
 
 	if (left < 0)
-		left = 0;//if we are out of screen fix
+		left = 0;
 
 	if (right > WINDOW_WIDTH - 1)
-		right = WINDOW_WIDTH - 1;//if we are out of screen fix
+		right = WINDOW_WIDTH - 1;
+
+	//check if we are surrounded
+	if (allParticles[left][y] != nullptr && allParticles[x][y - 1] != nullptr && allParticles[right][y] != nullptr)
+	{
+		//if we are check if we can move via gravity with the surrounding blocks
+
+		bool canGoLeft, canGoRight;
+		canGoLeft = canGoRight = false;
+
+		if (allParticles[left][y]->weight != -1)
+			if (allParticles[left][y]->weight < allParticles[x][y]->weight)
+				canGoLeft = true;
+
+		if (allParticles[right][y]->weight != -1)
+			if (allParticles[right][y]->weight < allParticles[x][y]->weight)
+				canGoRight = true;
+
+		if (canGoLeft && canGoRight)
+		{
+			switch (rand() % 2 + 1)
+			{
+				//go left
+			case 1:
+				MoveParticles(left, y, x, y);
+				return;
+
+				//go right
+			case 2:
+				MoveParticles(right, y, x, y);
+				return;
+			}
+		}
+
+		if (canGoLeft)
+		{
+			MoveParticles(left, y, x, y);
+			return;
+		}
+
+		if (canGoRight)
+		{
+			MoveParticles(right, y, x, y);
+			return;
+		}
+
+		//neither way is less weight and we know that were surrounded, do not run any further code
+		return;
+	}
 
 	//check if an object exists under this one
 	if (DropParticle(x, y))

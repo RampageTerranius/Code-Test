@@ -15,13 +15,13 @@ const std::string PROGRAM_NAME = "Testola";
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
 
+const int MAX_BRUSH_SIZE = 6;
+
 //sdl window and renderer
 SDL_Window* mainWindow = nullptr;
 SDL_Renderer* mainRenderer = nullptr;
 
 int countedFrames = 0;
-
-
 
 bool running = false;
 
