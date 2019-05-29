@@ -3,10 +3,10 @@
 //used to help objects keep track of what they are for rendering purposes as the lists will be using base particles that are using polymorphism to determine how to handle physics
 enum eType
 {
-	TYPE_NONE,
 	TYPE_WALL,
 	TYPE_SAND,
-	TYPE_WATER
+	TYPE_WATER,
+	TYPE_TOTALTYPES
 };
 
 class Particle
@@ -74,7 +74,7 @@ void Particle::Reset()
 {
 	x = y = 0;
 	weight = -1;
-	type = TYPE_NONE;
+	type = TYPE_WALL;
 }
 
 //default draw code

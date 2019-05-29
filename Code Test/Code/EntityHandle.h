@@ -4,8 +4,7 @@ void CreateParticle(eType type, int x, int y)
 {
 	//check that we have no entity in this section to begin with
 	if (allParticles[x][y] != nullptr)
-		if (allParticles[x][y]->type != TYPE_NONE)
-			return;
+		return;
 
 	//make sure were not trying to create an entity off screen
 	if (x < 0 || x > WINDOW_WIDTH - 1 || y < 0 || y > WINDOW_HEIGHT - 1)

@@ -16,6 +16,37 @@ struct Mouse
 eType currentBrushType = TYPE_SAND;
 int currentBrushSize = 1;
 
+//used to switch the brush type back or forth automaticlaly
+void SwitchBrushType(bool gotoNext)
+{
+	//temp variables used to determine how many particles there is and the current brush type
+	int i = currentBrushType;
+
+	//if told to goto next brush
+	if (gotoNext)
+	{
+		i++;
+
+		//make sure we havent gone over the struct size
+		if (i > TYPE_TOTALTYPES - 1)			
+			i = 0;		
+
+		//cast the int as eType and update the current brush
+		currentBrushType = static_cast<eType>(i);
+	}
+	else//if told to goto last brush type
+	{
+		i--;
+
+		//make sure we havent gone under the struct size
+		if (i < 0)		
+			i = TYPE_TOTALTYPES - 1;
+
+		//cast the int as eType and update the current brush
+		currentBrushType = static_cast<eType>(i);
+	}
+}
+
 void UpdateEventStructs(SDL_Event event)
 {
 	while (SDL_PollEvent(&event))
@@ -40,12 +71,12 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_w:
 				keyboard.w = true;
-				currentBrushType = TYPE_WATER;
+				SwitchBrushType(true);
 				break;
 
 			case SDLK_s:
 				keyboard.s = true;
-				currentBrushType = TYPE_SAND;
+				SwitchBrushType(false);
 				break;
 
 			case SDLK_MINUS:
