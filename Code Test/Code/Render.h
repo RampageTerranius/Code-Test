@@ -17,6 +17,10 @@ void Render()
 	brushSize.SetText(std::to_string(currentBrushSize));
 	brushSize.Draw(mainRenderer, 20, 54);
 
+	//render the current framerate
+	currentFrameRate.SetText(std::to_string(avgFPS));
+	currentFrameRate.Draw(mainRenderer, 20, WINDOW_HEIGHT - 34);
+
 	SDL_RenderPresent(mainRenderer);
 	countedFrames++;
 }

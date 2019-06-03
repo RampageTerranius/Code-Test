@@ -18,6 +18,7 @@ private:
 
 TTF brushName;
 TTF brushSize;
+TTF currentFrameRate;
 
 TTF::TTF()
 {

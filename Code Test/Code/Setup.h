@@ -52,6 +52,11 @@ bool Setup()
 		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
 		return false;
 	}
+	if (!currentFrameRate.SetFont("pxl.ttf", 24))
+	{
+		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
+		return false;
+	}
 
 	return true;
 }

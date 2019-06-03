@@ -18,6 +18,8 @@ const int WINDOW_HEIGHT = 768;
 
 const int MAX_BRUSH_SIZE = 16;
 
+float avgFPS = 0;
+
 //sdl window and renderer
 SDL_Window* mainWindow = nullptr;
 SDL_Renderer* mainRenderer = nullptr;

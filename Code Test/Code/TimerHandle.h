@@ -82,9 +82,8 @@ int Timer::GetTicks()
 }
 
 void TimerHandle(Timer* cap, Timer* fps)
-{
-	
-	float avgFPS = countedFrames / (fps->GetTicks() / 1000.f);
+{	
+	avgFPS = countedFrames / (fps->GetTicks() / 1000.f);
 	if (avgFPS > 2000000)	
 		avgFPS = 0;
 	
