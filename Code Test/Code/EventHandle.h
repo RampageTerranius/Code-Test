@@ -14,7 +14,7 @@ struct Mouse
 }mouse;
 
 eType currentBrushType = TYPE_SAND;
-int currentBrushSize = 1;
+int currentBrushSize = 4;
 
 //used to switch the brush type back or forth automaticlaly
 void SwitchBrushType(bool gotoNext)
@@ -28,7 +28,7 @@ void SwitchBrushType(bool gotoNext)
 		i++;
 
 		//make sure we havent gone over the struct size
-		if (i > TYPE_TOTALTYPES - 1)			
+		if (i > TYPE_TOTALTYPES - 1)	
 			i = 0;		
 
 		//cast the int as eType and update the current brush
