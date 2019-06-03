@@ -2,6 +2,7 @@
 
 //sdl
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 //other
 #include <string>
@@ -22,14 +23,14 @@ SDL_Window* mainWindow = nullptr;
 SDL_Renderer* mainRenderer = nullptr;
 
 int countedFrames = 0;
-
 bool running = false;
 
 //project
 #include "TimerHandle.h"
 #include "Particles.h"
 #include "EntityHandle.h"
-#include "Setup.h"
-#include "Render.h"
+#include "TTF.h"
 #include "EventHandle.h"
+#include "Render.h"
+#include "Setup.h"
 #include "Shutdown.h"

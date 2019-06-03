@@ -1,6 +1,6 @@
 #pragma once
 
-void CreateParticle(eType type, int x, int y)
+void CreateParticle(ParticleType type, int x, int y)
 {
 	//check that we have no entity in this section to begin with
 	if (allParticles[x][y] != nullptr)

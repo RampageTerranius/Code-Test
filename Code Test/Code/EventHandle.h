@@ -13,7 +13,7 @@ struct Mouse
 	int x, y;
 }mouse;
 
-eType currentBrushType = TYPE_SAND;
+ParticleType currentBrushType = TYPE_SAND;
 int currentBrushSize = 4;
 
 //used to switch the brush type back or forth automaticlaly
@@ -32,7 +32,7 @@ void SwitchBrushType(bool gotoNext)
 			i = 0;		
 
 		//cast the int as eType and update the current brush
-		currentBrushType = static_cast<eType>(i);
+		currentBrushType = static_cast<ParticleType>(i);
 	}
 	else//if told to goto last brush type
 	{
@@ -43,7 +43,7 @@ void SwitchBrushType(bool gotoNext)
 			i = TYPE_TOTALTYPES - 1;
 
 		//cast the int as eType and update the current brush
-		currentBrushType = static_cast<eType>(i);
+		currentBrushType = static_cast<ParticleType>(i);
 	}
 }
 
@@ -61,12 +61,19 @@ void UpdateEventStructs(SDL_Event event)
 				break;
 
 			case SDLK_a:
-				currentBrushType = TYPE_WALL;
 				keyboard.a = true;
+				keyboard.leftBracket = true;
+				currentBrushSize--;
+				if (currentBrushSize < 1)
+					currentBrushSize = 1;
 				break;
 
 			case SDLK_d:
 				keyboard.d = true;
+				keyboard.rightBracket = true;
+				currentBrushSize++;
+				if (currentBrushSize > MAX_BRUSH_SIZE)
+					currentBrushSize = MAX_BRUSH_SIZE;
 				break;
 
 			case SDLK_w:
@@ -178,7 +185,7 @@ void UpdateEventStructs(SDL_Event event)
 	}
 }
 
-void CreateParticles(eType type, int x, int y)
+void CreateParticles(ParticleType type, int x, int y)
 {
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
 

@@ -27,6 +27,7 @@
     <ClInclude Include="Code\Setup.h" />
     <ClInclude Include="Code\Shutdown.h" />
     <ClInclude Include="Code\TimerHandle.h" />
+    <ClInclude Include="Code\TTF.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Main.cpp" />
@@ -87,8 +88,8 @@
     <LibraryPath>C:\Users\tyler.brown\source\repos\Code Test\SDL\SDL2-2.0.9\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)SDL\SDL2-2.0.9\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)SDL\SDL2-2.0.9\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)SDL\SDL2-2.0.9\include;$(ProjectDir)SDL\SDL2_ttf-2.0.15\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)SDL\SDL2-2.0.9\lib\x64;$(ProjectDir)SDL\SDL2_ttf-2.0.15\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -110,7 +111,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>sdl2.lib;sdl2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sdl2.lib;sdl2main.lib;sdl2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>

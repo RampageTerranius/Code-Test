@@ -1,13 +1,19 @@
 #pragma once
 
 //used to help objects keep track of what they are for rendering purposes as the lists will be using base particles that are using polymorphism to determine how to handle physics
-enum eType
+enum ParticleType
 {
 	TYPE_WALL,
 	TYPE_SAND,
 	TYPE_WATER,
 	TYPE_TOTALTYPES
 };
+
+//used to give a name to each particle type
+std::string typeNames[] = { "Wall",
+							"Sand",
+							"Water",
+							"TotalTypes"};//you should never be using this final string, if you are your working with a non existant particale type
 
 class Particle
 {
@@ -19,7 +25,7 @@ class Particle
 
 		int x, y;
 		int weight;
-		eType type;
+		ParticleType type;
 };
 
 //array and vector list handling all data to do with our entities
