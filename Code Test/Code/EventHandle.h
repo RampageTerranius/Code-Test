@@ -198,8 +198,8 @@ void CreateParticles(ParticleType type, int x, int y)
 {
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
 
-	for(int i = -currentBrushSize; i < currentBrushSize; i++)
-		for (int n = -currentBrushSize; n < currentBrushSize; n++)
+	for(int i = currentBrushSize; i > -currentBrushSize; i--)
+		for (int n = currentBrushSize; n > -currentBrushSize; n--)
 			CreateParticle(type, mouse.x + i, mouse.y + n);
 }
 
@@ -213,8 +213,8 @@ void DestroyParticles(int x, int y)
 	DestroyParticle(mouse.x, mouse.y);
 
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
-	for (int i = -currentBrushSize; i < currentBrushSize; i++)
-		for (int n = -currentBrushSize; n < currentBrushSize; n++)
+	for (int i = currentBrushSize; i > -currentBrushSize; i--)
+		for (int n = currentBrushSize; n > -currentBrushSize; n--)
 			DestroyParticle(mouse.x + i, mouse.y + n);
 }
 
