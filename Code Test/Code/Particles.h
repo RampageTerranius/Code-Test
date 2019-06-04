@@ -19,8 +19,9 @@ class Particle
 {
 	public:
 		Particle();
-		void Reset();
+		void Reset();		
 		virtual void Draw();
+		bool CheckIfAtBottom();
 		virtual void HandlePhysics();
 
 		int x, y;
@@ -90,22 +91,46 @@ void Particle::Draw()
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
+//check if the particle is at the bottom of the screen and if we need to loop back to the top
+bool Particle::CheckIfAtBottom()
+{
+	//check if at bottom of screen
+	if (y == WINDOW_HEIGHT - 1)
+	{
+		//check if we need to loop the particles from bottom to top
+		if (loopScreen)
+		{
+			if (allParticles[x][0] == nullptr)
+				MoveParticles(x, y, x, 0);
+
+			//even if we cant move return true as we are stil lat the bottom and cant move else where
+			return true;
+		}
+		else
+			return true;//we are not to loop, stop here
+	}
+
+	//we are not at the bottom
+	return false;
+}
+
 //default particle physics
 //by default we want to treat everything as sand
 void Particle::HandlePhysics()
 {
 	//make sure we arent already at the bottom level, if we are we dont need to check the physics
-	if (y == WINDOW_HEIGHT - 1)
+	if (CheckIfAtBottom())
 		return;
 
 	//check if an object exists under this one
 	if (DropParticle(x, y))
 		return;
 
-	int left, right;
+	int left, right, down;
 	left = right = x;
 	left--;
 	right++;
+	down = y + 1;
 
 	if (left < 0)
 		left = 0;
@@ -114,19 +139,19 @@ void Particle::HandlePhysics()
 		right = WINDOW_WIDTH - 1;
 
 	//check if we are surrounded
-	if (allParticles[left][y - 1] != nullptr && allParticles[x][y - 1] != nullptr && allParticles[right][y - 1] != nullptr)
+	if (allParticles[left][down] != nullptr && allParticles[x][down] != nullptr && allParticles[right][down] != nullptr)
 	{
 		//if we are check if we can move via gravity with the surrounding blocks
 
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
 
-		if (allParticles[left][y - 1]->weight != -1)
-			if (allParticles[x][y]->weight < allParticles[left][y - 1]->weight)
+		if (allParticles[left][down]->weight != -1)
+			if (allParticles[x][y]->weight < allParticles[left][down]->weight)
 				canGoLeft = true;
 
-		if (allParticles[right][y - 1]->weight != -1)
-			if (allParticles[x][y]->weight < allParticles[right][y - 1]->weight)
+		if (allParticles[right][down]->weight != -1)
+			if (allParticles[x][y]->weight < allParticles[right][down]->weight)
 				canGoRight = true;
 
 		if (canGoLeft && canGoRight)
@@ -135,42 +160,40 @@ void Particle::HandlePhysics()
 			{
 				//go left
 			case 1:
-				MoveParticles(left, y - 1, x, y);
+				MoveParticles(left, down, x, y);
 				return;
 
 				//go right
 			case 2:
-				MoveParticles(right, y - 1, x, y);
+				MoveParticles(right, down, x, y);
 				return;
 			}
 		}
 
 		if (canGoLeft)
 		{
-			MoveParticles(left, y - 1, x, y);
+			MoveParticles(left, down, x, y);
 			return;
 		}
 
 		if (canGoRight)
 		{
-			MoveParticles(right, y - 1, x, y);
+			MoveParticles(right, down, x, y);
 			return;
 		}
 
 		//neither way is less weight and we know that were surrounded, do not run any further code
 		return;
-	}
-
-	
+	}	
 	
 	//since there is an object under this one lets check if we can fall to the left or right
 	if (x == 0)//check if we are on the left most edge
 	{
 		//we are on the left most edge, try to drop to the bottom right
-		if (allParticles[right][y + 1] == nullptr)
+		if (allParticles[right][down] == nullptr)
 		{
 			//update the array
-			MoveParticles(x, y, right, y + 1);
+			MoveParticles(x, y, right, down);
 			return;
 		}
 		return;//even if we cant drop, we know that we can not go anywhere so stop here
@@ -179,33 +202,33 @@ void Particle::HandlePhysics()
 	if (x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
 	{
 		//we are on the right most edge, try to drop to the bottom left
-		if (allParticles[left][y + 1] == nullptr)
+		if (allParticles[left][down] == nullptr)
 		{
 			//update the array
-			MoveParticles(x, y, left, y + 1);
+			MoveParticles(x, y, left, down);
 			return;
 		}
 		return;//even if we cant drop, we know that we can not go anywhere so stop here
 	}
 
 	//if the bottom left is empty and the bottom right isnt then drop to the bottom left
-	if (allParticles[left][y + 1] == nullptr && allParticles[right][y + 1] != nullptr)
+	if (allParticles[left][down] == nullptr && allParticles[right][down] != nullptr)
 	{
 		//update the array
-		MoveParticles(x, y, left, y + 1);
+		MoveParticles(x, y, left, down);
 		return;
 	}
 
 	//if the bottom right is empty and the bottom left isnt the drop to the bottom right
-	if (allParticles[right][y + 1] == nullptr && allParticles[left][y + 1] != nullptr)
+	if (allParticles[right][down] == nullptr && allParticles[left][down] != nullptr)
 	{
 		//update the array
-		MoveParticles(x, y, right, y + 1);
+		MoveParticles(x, y, right, down);
 		return;
 	}
 
 	//if both sides are free randomly choose one direction and drop down that side	
-	if (allParticles[right][y + 1] == nullptr && allParticles[left][y + 1] == nullptr)
+	if (allParticles[right][down] == nullptr && allParticles[left][down] == nullptr)
 	{
 		int randomNum = rand() % 2 + 1;
 
@@ -214,13 +237,13 @@ void Particle::HandlePhysics()
 			//go left
 		case 1:
 			//update the array
-			MoveParticles(x, y, left, y + 1);
+			MoveParticles(x, y, left, down);
 			return;
 
 			//go right
 		case 2:
 			//update the array
-			MoveParticles(x, y, right, y + 1);
+			MoveParticles(x, y, right, down);
 			return;
 		}
 	}
@@ -311,17 +334,18 @@ void Water::Draw()
 void Water::HandlePhysics()
 {
 	//make sure we arent already at the bottom level, if we are we dont need to check the physics
-	if (y == WINDOW_HEIGHT - 1)
+	if (CheckIfAtBottom())
 		return;
 
 	//check if an object exists under this one
 	if (DropParticle(x, y))
 		return;
 
-	int left, right;
+	int left, right, down;
 	left = right = x;
 	left--;
 	right++;
+	down = y + 1;
 
 	if (left < 0)
 		left = 0;
@@ -330,7 +354,7 @@ void Water::HandlePhysics()
 		right = WINDOW_WIDTH - 1;
 
 	//check if we are surrounded
-	if (allParticles[left][y] != nullptr && allParticles[x][y - 1] != nullptr && allParticles[right][y] != nullptr)
+	if (allParticles[left][y] != nullptr && allParticles[x][down] != nullptr && allParticles[right][y] != nullptr)
 	{
 		//if we are check if we can move via gravity with the surrounding blocks
 		bool canGoLeft, canGoRight;

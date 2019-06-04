@@ -86,7 +86,4 @@ void TimerHandle(Timer* cap, Timer* fps)
 	avgFPS = countedFrames / (fps->GetTicks() / 1000.f);
 	if (avgFPS > 2000000)	
 		avgFPS = 0;
-	
-
-	std::cout << std::to_string(round(avgFPS)) << "\n";
 }

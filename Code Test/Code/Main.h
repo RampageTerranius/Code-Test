@@ -18,6 +18,8 @@ const int WINDOW_HEIGHT = 768;
 
 const int MAX_BRUSH_SIZE = 16;
 
+bool loopScreen = true;
+
 float avgFPS = 0;
 
 //sdl window and renderer
