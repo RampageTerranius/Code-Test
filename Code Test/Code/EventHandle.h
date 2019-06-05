@@ -148,6 +148,14 @@ void UpdateEventStructs(SDL_Event event)
 			//on mouse movement
 		case SDL_MOUSEMOTION:
 			SDL_GetMouseState(&mouse.x, &mouse.y);
+			if (mouse.x < 0)
+				mouse.x = 0;
+			if (mouse.x > WINDOW_WIDTH - 1)
+				mouse.x = WINDOW_WIDTH - 1;
+			if (mouse.y < 0)
+				mouse.y = 0;
+			if (mouse.y > WINDOW_HEIGHT - 1)
+				mouse.y = WINDOW_HEIGHT - 1;
 			break;			
 
 			//on mouse button down

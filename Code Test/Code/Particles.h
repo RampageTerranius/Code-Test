@@ -87,7 +87,7 @@ Particle* CreateParticle(ParticleType type, int x, int y, int temp)
 	//check that we have no entity in this section to begin with
 	if (allParticles[x][y] != nullptr)
 	{
-		std::cout << "Attempt to create a particle of type " + typeNames[type] + " at " + std::to_string(x) + "|" + std::to_string(y) + " when a particle already exists here\n";
+		std::cout << "Attempt to create a particle of type " + typeNames[type] + " at " + std::to_string(x) + "|" + std::to_string(y) + " when a particle already exists here of type " + typeNames[allParticles[x][y]->type] +"\n";
 		return nullptr;
 	}
 
@@ -118,6 +118,9 @@ Particle* CreateParticle(ParticleType type, int x, int y, int temp)
 		particleList.push_back(allParticles[x][y]);
 		return allParticles[x][y];
 	}
+
+	//we didnt have a type, return nullptr
+	return nullptr;
 }
 
 //destroys the particle at the given location and wipes the memory of it
@@ -239,7 +242,7 @@ void Particle::Reset()
 	weight = -1;
 	temperature = 0;
 	thermalConductivity = 0;
-	health = 0;
+	health = 100;
 	type = TYPE_WALL;
 }
 
@@ -291,6 +294,11 @@ void Particle::HandleEvents()
 		if (canGoRight)
 			EvenOutTemperatures(x, y, x, right);
 	}
+
+	//health check
+	if (health <= 0)	
+		DestroyParticle(x, y);
+	
 }
 
 //check if the particle is at the bottom of the screen and if we need to loop back to the top
@@ -529,7 +537,7 @@ void Water::HandleEvents()
 
 		DestroyParticle(x, y);
 		Particle* tempParticle = CreateParticle(TYPE_ICE, newX, newY, newTemp);
-		tempParticle->health = health;
+		tempParticle->health = newHealth;
 	}
 }
 
@@ -691,8 +699,8 @@ void Ice::HandleEvents()
 		int newHealth = health;
 
 		DestroyParticle(x, y);
-		Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);
-		tempParticle->health = health;
+		Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);	
+		tempParticle->health = newHealth;
 	}
 }
 
