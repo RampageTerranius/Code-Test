@@ -7,6 +7,7 @@ enum ParticleType
 	TYPE_SAND,
 	TYPE_WATER,
 	TYPE_ICE,
+	TYPE_THERMALFLUID,
 	TYPE_TOTALTYPES
 };
 
@@ -15,6 +16,7 @@ std::string typeNames[] = { "Wall",
 							"Sand",
 							"Water",
 							"Ice",
+							"Thermal Fluid",
 							"TotalTypes"};//you should never be using this final string, if you are your working with a non existant particale type
 
 class Particle
@@ -61,6 +63,15 @@ class Water : public Particle
 {
 public:
 	Water(int newX, int newY, int newTemperature);
+	void Draw();
+	void HandleEvents();
+	void HandlePhysics();
+};
+
+class ThermalFluid : public Water
+{
+public:
+	ThermalFluid(int newX, int newY, int newTemperature);
 	void Draw();
 	void HandleEvents();
 	void HandlePhysics();
@@ -115,6 +126,11 @@ Particle* CreateParticle(ParticleType type, int x, int y, int temp)
 
 	case TYPE_ICE:
 		allParticles[x][y] = new Ice(x, y, temp);
+		particleList.push_back(allParticles[x][y]);
+		return allParticles[x][y];
+
+	case TYPE_THERMALFLUID:
+		allParticles[x][y] = new ThermalFluid(x, y, temp);
 		particleList.push_back(allParticles[x][y]);
 		return allParticles[x][y];
 	}
@@ -464,8 +480,9 @@ Wall::Wall(int newX, int newY, int newTemperature)
 	Particle::Reset();
 	x = newX;
 	y = newY;
+	weight = wallWeight;
 	temperature = (float)newTemperature;
-	thermalConductivity = 0.001;
+	thermalConductivity = wallThermalConductivity;
 	type = TYPE_WALL;
 }
 
@@ -488,8 +505,8 @@ Sand::Sand(int newX, int newY, int newTemperature)
 	x = newX;
 	y = newY;
 	temperature = (float)newTemperature;
-	thermalConductivity = 0.005;
-	weight = 2;
+	thermalConductivity = sandThermalConductivity;
+	weight = sandWeight;
 	type = TYPE_SAND;
 }
 
@@ -507,14 +524,15 @@ void Sand::HandlePhysics()
 //water particles
 Water::Water(int newX, int newY, int newTemperature)
 {
-	Particle::Reset();
+	Particle::Particle();
 	x = newX;
 	y = newY;
 	temperature = (float)newTemperature;
-	thermalConductivity = 0.015;
-	weight = 1;
+	thermalConductivity = waterThermalConductivity;
+	weight = waterWeight;
 	type = TYPE_WATER;
 }
+
 
 void Water::Draw()
 {
@@ -537,7 +555,6 @@ void Water::HandleEvents()
 
 		DestroyParticle(x, y);
 		Particle* tempParticle = CreateParticle(TYPE_ICE, newX, newY, newTemp);
-		tempParticle->health = newHealth;
 	}
 }
 
@@ -675,7 +692,8 @@ Ice::Ice(int newX, int newY, int newTemperature)
 	x = newX;
 	y = newY;
 	temperature = (float)newTemperature;
-	thermalConductivity = 0.020;
+	thermalConductivity = iceThermalConductivity;
+	weight = iceWeight;
 	type = TYPE_ICE;
 }
 
@@ -699,8 +717,7 @@ void Ice::HandleEvents()
 		int newHealth = health;
 
 		DestroyParticle(x, y);
-		Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);	
-		tempParticle->health = newHealth;
+		Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);
 	}
 }
 
@@ -709,5 +726,27 @@ void Ice::HandlePhysics()
 	//Ice does not fall, run no physics
 }
 
+ThermalFluid::ThermalFluid(int newX, int newY, int newTemperature) : Water(newX, newY, newTemperature)
+{
+	thermalConductivity = thermalFluidThermalConductivity;
+	weight = thermalFluidWeight;
+	type = TYPE_THERMALFLUID;
+}
 
+void ThermalFluid::Draw()
+{
+	SDL_SetRenderDrawColor(mainRenderer, 150, 50, 255, 0);
+	SDL_RenderDrawPoint(mainRenderer, x, y);
+}
 
+//use default event handling, nothing else required
+void ThermalFluid::HandleEvents()
+{
+	Particle::HandleEvents();
+}
+
+//use defautl water physics
+void ThermalFluid::HandlePhysics()
+{
+	Water::HandlePhysics();
+}

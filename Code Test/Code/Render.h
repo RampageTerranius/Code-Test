@@ -21,12 +21,20 @@ void Render()
 	brushTemperature.SetText(std::to_string(currentBrushTemperature) + "c");
 	brushTemperature.Draw(mainRenderer, 20, 88);
 
-	//render selected particles temperature
+	//render selected particle type and temperature
 	if (allParticles[mouse.x][mouse.y] != nullptr)
-		brushTemperature.SetText(std::to_string(allParticles[mouse.x][mouse.y]->temperature) + "c");
+	{
+		selectedParticleTemperature.SetText(std::to_string(allParticles[mouse.x][mouse.y]->temperature) + "c");
+		selectedParticleName.SetText(typeNames[allParticles[mouse.x][mouse.y]->type]);
+	}
 	else
-		brushTemperature.SetText("0c");
-	brushTemperature.Draw(mainRenderer, 20, 122);
+	{
+		selectedParticleName.SetText("None");
+		selectedParticleTemperature.SetText("0c");
+	}	
+
+	selectedParticleName.Draw(mainRenderer, 20, 172);
+	selectedParticleTemperature.Draw(mainRenderer, 20, 206);
 
 
 	//render the current framerate

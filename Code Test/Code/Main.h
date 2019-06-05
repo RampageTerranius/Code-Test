@@ -33,10 +33,24 @@ int countedFrames = 0;
 bool running = false;
 
 //extra settings
-//water
-float waterFreezePoint = 0;
 
-//ice
+//weight (-1 donates it does not calculate weight)
+int wallWeight = -1;
+int sandWeight = 10;
+int waterWeight = 3;
+int iceWeight = -1;
+int thermalFluidWeight = 10;
+
+//thermal conductivity
+float wallThermalConductivity = 0.001;
+float sandThermalConductivity = 0.005;
+float waterThermalConductivity = 0.025;
+float iceThermalConductivity = 0.03;
+float thermalFluidThermalConductivity = 2.5;
+
+//other settings
+//freeze and melt points
+float waterFreezePoint = 0;
 float iceMeltPoint = 0;
 
 //project

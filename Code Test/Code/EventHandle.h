@@ -197,7 +197,7 @@ void UpdateEventStructs(SDL_Event event)
 	}
 }
 
-void CreateParticles(ParticleType type, int x, int y, int temperature)
+void CreateParticlesAtBrush(ParticleType type, int x, int y, int temperature)
 {
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
 
@@ -206,7 +206,7 @@ void CreateParticles(ParticleType type, int x, int y, int temperature)
 			CreateParticle(type, mouse.x + i, mouse.y + n, temperature);
 }
 
-void DestroyParticles(int x, int y)
+void DestroyParticlesAtBrush(int x, int y)
 {
 	//make sure we actually have a list first
 	if (particleList.size() == 0)
@@ -228,9 +228,8 @@ void EventHandle(SDL_Event& event)
 
 	//on left click paint particles using brush
 	if (mouse.left)
-		CreateParticles(currentBrushType, mouse.x, mouse.y, currentBrushTemperature);
-	
+		CreateParticlesAtBrush(currentBrushType, mouse.x, mouse.y, currentBrushTemperature);	
 
 	if (mouse.right)
-		DestroyParticles(mouse.x, mouse.y);
+		DestroyParticlesAtBrush(mouse.x, mouse.y);
 }

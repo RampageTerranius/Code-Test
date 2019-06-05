@@ -84,8 +84,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\tyler.brown\source\repos\Code Test\SDL\SDL2-2.0.9\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\tyler.brown\source\repos\Code Test\SDL\SDL2-2.0.9\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)SDL\SDL2-2.0.9\include;$(ProjectDir)SDL\SDL2_ttf-2.0.15\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)SDL\SDL2-2.0.9\lib\x86;$(ProjectDir)SDL\SDL2_ttf-2.0.15\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir)SDL\SDL2-2.0.9\include;$(ProjectDir)SDL\SDL2_ttf-2.0.15\include;$(IncludePath)</IncludePath>
@@ -99,7 +99,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>sdl2.lib;sdl2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sdl2.lib;sdl2main.lib;sdl2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>

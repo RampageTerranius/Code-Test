@@ -20,6 +20,7 @@ TTF brushName;
 TTF brushSize;
 TTF brushTemperature;
 TTF selectedParticleTemperature;
+TTF selectedParticleName;
 TTF currentFrameRate;
 
 TTF::TTF()
