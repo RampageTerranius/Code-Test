@@ -17,9 +17,23 @@ void Render()
 	brushSize.SetText(std::to_string(currentBrushSize));
 	brushSize.Draw(mainRenderer, 20, 54);
 
+	//render brush temperature
+	brushTemperature.SetText(std::to_string(currentBrushTemperature) + "c");
+	brushTemperature.Draw(mainRenderer, 20, 88);
+
+	//render selected particles temperature
+	if (allParticles[mouse.x][mouse.y] != nullptr)
+		brushTemperature.SetText(std::to_string(allParticles[mouse.x][mouse.y]->temperature) + "c");
+	else
+		brushTemperature.SetText("0c");
+	brushTemperature.Draw(mainRenderer, 20, 122);
+
+
 	//render the current framerate
 	currentFrameRate.SetText(std::to_string(static_cast<int>(avgFPS)));
 	currentFrameRate.Draw(mainRenderer, 20, WINDOW_HEIGHT - 34);
+
+	
 
 	SDL_RenderPresent(mainRenderer);
 	countedFrames++;

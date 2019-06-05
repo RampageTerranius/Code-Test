@@ -101,19 +101,14 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_LEFTBRACKET:
 				keyboard.leftBracket = true;
-				currentBrushSize--;
-				if (currentBrushSize < 1)
-					currentBrushSize = 1;
+				currentBrushTemperature--;
 				break;
 
 			case SDLK_RIGHTBRACKET:
 				keyboard.rightBracket = true;
-				currentBrushSize++;
-				if (currentBrushSize > MAX_BRUSH_SIZE)
-					currentBrushSize = MAX_BRUSH_SIZE;
+				currentBrushTemperature++;
 				break;
 			}
-
 			
 			break;
 
@@ -194,13 +189,13 @@ void UpdateEventStructs(SDL_Event event)
 	}
 }
 
-void CreateParticles(ParticleType type, int x, int y)
+void CreateParticles(ParticleType type, int x, int y, int temperature)
 {
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
 
 	for(int i = currentBrushSize; i > -currentBrushSize; i--)
 		for (int n = currentBrushSize; n > -currentBrushSize; n--)
-			CreateParticle(type, mouse.x + i, mouse.y + n);
+			CreateParticle(type, mouse.x + i, mouse.y + n, temperature);
 }
 
 void DestroyParticles(int x, int y)
@@ -218,15 +213,14 @@ void DestroyParticles(int x, int y)
 			DestroyParticle(mouse.x + i, mouse.y + n);
 }
 
-
-
+//handles all keyboard/mouse events
 void EventHandle(SDL_Event& event)
 {
 	UpdateEventStructs(event);//update all our structures handling what buttons are held down currently first
 
 	//on left click paint particles using brush
 	if (mouse.left)
-		CreateParticles(currentBrushType, mouse.x, mouse.y);
+		CreateParticles(currentBrushType, mouse.x, mouse.y, currentBrushTemperature);
 	
 
 	if (mouse.right)

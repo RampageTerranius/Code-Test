@@ -6,6 +6,7 @@ enum ParticleType
 	TYPE_WALL,
 	TYPE_SAND,
 	TYPE_WATER,
+	TYPE_ICE,
 	TYPE_TOTALTYPES
 };
 
@@ -13,6 +14,7 @@ enum ParticleType
 std::string typeNames[] = { "Wall",
 							"Sand",
 							"Water",
+							"Ice",
 							"TotalTypes"};//you should never be using this final string, if you are your working with a non existant particale type
 
 class Particle
@@ -22,16 +24,129 @@ class Particle
 		void Reset();		
 		virtual void Draw();
 		bool CheckIfAtBottom();
+		virtual void HandleEvents();
 		virtual void HandlePhysics();
 
 		int x, y;
 		int weight;
+		int health;
+		float temperature;
+		float thermalConductivity;
 		ParticleType type;
+};
+
+//wall particles
+//does not move
+class Wall : public Particle
+{
+public:
+	Wall(int newX, int newY, int newTemperature);
+	void Draw();
+	void HandlePhysics();
+};
+
+//sand particles
+class Sand : public Particle
+{
+public:
+	Sand(int newX, int newY, int newTemperature);
+	void Draw();
+	void HandlePhysics();
+};
+
+//water particles
+//always attempts to move downwards if nothing is in way, will always try to move either left or right if cant move down
+//can freeze into water
+class Water : public Particle
+{
+public:
+	Water(int newX, int newY, int newTemperature);
+	void Draw();
+	void HandleEvents();
+	void HandlePhysics();
+};
+
+//ice particles
+//does not move
+//can melt into water
+class Ice : public Particle
+{
+public:
+	Ice(int newX, int newY, int newTemperature);
+	void Draw();
+	void HandleEvents();
+	void HandlePhysics();
 };
 
 //array and vector list handling all data to do with our entities
 Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
 std::vector<Particle*> particleList;
+
+Particle* CreateParticle(ParticleType type, int x, int y, int temp)
+{
+	//check that we have no entity in this section to begin with
+	if (allParticles[x][y] != nullptr)
+	{
+		std::cout << "Attempt to create a particle of type " + typeNames[type] + " at " + std::to_string(x) + "|" + std::to_string(y) + " when a particle already exists here\n";
+		return nullptr;
+	}
+
+	//make sure were not trying to create an entity off screen
+	if (x < 0 || x > WINDOW_WIDTH - 1 || y < 0 || y > WINDOW_HEIGHT - 1)
+		return nullptr;;
+
+	//check what type of entity we need to create and assign it the required data as well as update the entityexists list
+	switch (type)
+	{
+	case TYPE_WALL:
+		allParticles[x][y] = new Wall(x, y, temp);
+		particleList.push_back(allParticles[x][y]);
+		return allParticles[x][y];
+
+	case TYPE_SAND:
+		allParticles[x][y] = new Sand(x, y, temp);
+		particleList.push_back(allParticles[x][y]);
+		return allParticles[x][y];
+
+	case TYPE_WATER:
+		allParticles[x][y] = new Water(x, y, temp);
+		particleList.push_back(allParticles[x][y]);
+		return allParticles[x][y];
+
+	case TYPE_ICE:
+		allParticles[x][y] = new Ice(x, y, temp);
+		particleList.push_back(allParticles[x][y]);
+		return allParticles[x][y];
+	}
+}
+
+//destroys the particle at the given location and wipes the memory of it
+void DestroyParticle(int x, int y)
+{
+	//iterate through all particles in the list
+	for (int i = 0; i < particleList.size() - 1; i++)
+	{
+		int tempX, tempY;
+		tempX = particleList.at(i)->x;
+		tempY = particleList.at(i)->y;
+		//if the x/y are the same wipe the particle
+		if (tempX == x && tempY == y)
+		{
+			//if there is no data to work with then cancel now
+			if (allParticles[tempX][tempY] == nullptr)
+				return;
+
+			//clear the vector first
+			particleList.erase(particleList.begin() + i);
+
+			//make sure we COMPLETELY wipe the particle, the particle was made by hand via new Particle() and therefore we MUST handle the deletion manually		
+			delete allParticles[tempX][tempY];
+			allParticles[tempX][tempY] = nullptr;
+
+			return;
+		}
+	}
+}
 
 //used to move pointers of particles around
 void MoveParticles(int x1, int y1, int x2, int y2)
@@ -72,6 +187,47 @@ bool DropParticle(int x, int y)
 	return false;
 }
 
+//attempts to even out temperatures between the two given points using the given thermal change value
+void EvenOutTemperatures(int x1, int y1, int x2, int y2)
+{
+	//make sure both points are not blank
+	if (allParticles[x1][y1] != nullptr && allParticles[x2][y2] != nullptr)
+	{
+		//make sure they arent already the same temp
+		if (allParticles[x1][y1]->temperature == allParticles[x2][y2]->temperature)
+			return;
+
+		//get the difference between both temperatures in an attempt to either increase or decrease the spread of temperature between objects
+		/*float temperatureDifference = std::abs(allParticles[x1][y1]->temperature - allParticles[x2][y2]->temperature) / (allParticles[x1][y1]->temperature + allParticles[x2][y2]->temperature);
+		float calculatedTemperatureChange = temperatureDifference * (std::abs(allParticles[x1][y1]->thermalConductivity + allParticles[x2][y2]->thermalConductivity) / 2);*/
+
+		float calculatedTemperatureChange = std::abs(allParticles[x1][y1]->thermalConductivity + allParticles[x2][y2]->thermalConductivity) / 2;
+
+
+		//check if the temperature change will mean they both even each other out or not
+		if (std::abs(allParticles[x1][y1]->temperature - allParticles[x2][y2]->temperature) > calculatedTemperatureChange)
+		{
+			//first particle is higher temp then second
+			if (allParticles[x1][y1]->temperature > allParticles[x2][y2]->temperature)
+			{
+				allParticles[x1][y1]->temperature -= calculatedTemperatureChange;
+				allParticles[x2][y2]->temperature += calculatedTemperatureChange;
+			}
+			else//second particle is higher temp then first
+			{
+				allParticles[x1][y1]->temperature += calculatedTemperatureChange;
+				allParticles[x2][y2]->temperature -= calculatedTemperatureChange;
+			}
+		}
+		else//both temperatures are close enough to just even them out at same temperature
+		{
+			float temp = (allParticles[x1][y1]->temperature + allParticles[x2][y2]->temperature) / 2;
+			allParticles[x1][y1]->temperature = temp;
+			allParticles[x2][y2]->temperature = temp;
+		}
+	}
+}
+
 Particle::Particle()
 {
 	Reset();
@@ -81,6 +237,9 @@ void Particle::Reset()
 {
 	x = y = 0;
 	weight = -1;
+	temperature = 0;
+	thermalConductivity = 0;
+	health = 0;
 	type = TYPE_WALL;
 }
 
@@ -89,6 +248,49 @@ void Particle::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, 255, 255, 255, 0);
 	SDL_RenderDrawPoint(mainRenderer, x, y);
+}
+
+void Particle::HandleEvents()
+{
+	//temperature handle
+	if (thermalConductivity > 0)
+	{
+		//values to help with determining what ways to calculate
+		int up, down, left, right;
+		up = x--;
+		down = x++;
+		left = y--;
+		right = y++;
+
+		bool canGoUp, canGoDown, canGoLeft, canGoRight;
+		canGoUp = canGoDown = canGoLeft = canGoRight = false;
+
+		if (up >= 0)
+			canGoUp = true;
+
+		if (down <= WINDOW_HEIGHT - 1)
+			canGoDown = true;
+
+		if (left >= 0)
+			canGoLeft = true;
+
+		if (right <= WINDOW_WIDTH - 1)
+			canGoRight = true;
+
+
+		//check and update each directino that we can
+		if (canGoUp)
+			EvenOutTemperatures(x, y, up, y);
+
+		if (canGoDown)
+			EvenOutTemperatures(x, y, down, y);
+
+		if (canGoLeft)
+			EvenOutTemperatures(x, y, x, left);
+
+		if (canGoRight)
+			EvenOutTemperatures(x, y, x, right);
+	}
 }
 
 //check if the particle is at the bottom of the screen and if we need to loop back to the top
@@ -249,20 +451,13 @@ void Particle::HandlePhysics()
 	}
 }
 
-//wall particles
-class Wall : public Particle
-{
-public:
-	Wall(int newX, int newY);
-	void Draw();
-	void HandlePhysics();
-};
-
-Wall::Wall(int newX, int newY)
+Wall::Wall(int newX, int newY, int newTemperature)
 {
 	Particle::Reset();
 	x = newX;
 	y = newY;
+	temperature = (float)newTemperature;
+	thermalConductivity = 0.001;
 	type = TYPE_WALL;
 }
 
@@ -278,19 +473,14 @@ void Wall::HandlePhysics()
 }
 
 //sand particles
-class Sand : public Particle
-{
-public:
-	Sand(int newX, int newY);
-	void Draw();
-	void HandlePhysics();
-};
 
-Sand::Sand(int newX, int newY)
+Sand::Sand(int newX, int newY, int newTemperature)
 {
 	Particle::Reset();
 	x = newX;
 	y = newY;
+	temperature = (float)newTemperature;
+	thermalConductivity = 0.005;
 	weight = 2;
 	type = TYPE_SAND;
 }
@@ -307,20 +497,13 @@ void Sand::HandlePhysics()
 }
 
 //water particles
-//always attempts to move downwards if nothing is in way, will always try to move either left or right if cant move down
-class Water : public Particle
-{
-public:
-	Water(int newX, int newY);
-	void Draw();
-	void HandlePhysics();
-};
-
-Water::Water(int newX, int newY)
+Water::Water(int newX, int newY, int newTemperature)
 {
 	Particle::Reset();
 	x = newX;
 	y = newY;
+	temperature = (float)newTemperature;
+	thermalConductivity = 0.015;
 	weight = 1;
 	type = TYPE_WATER;
 }
@@ -329,6 +512,25 @@ void Water::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 255, 0);
 	SDL_RenderDrawPoint(mainRenderer, x, y);
+}
+
+void Water::HandleEvents()
+{
+	//handle default events, this includes handling temperature shifts
+	Particle::HandleEvents();
+
+	//check if the water should freeze
+	if (temperature < waterFreezePoint)
+	{
+		int newX = x;
+		int newY = y;
+		int newTemp = temperature;
+		int newHealth = health;
+
+		DestroyParticle(x, y);
+		Particle* tempParticle = CreateParticle(TYPE_ICE, newX, newY, newTemp);
+		tempParticle->health = health;
+	}
 }
 
 void Water::HandlePhysics()
@@ -457,3 +659,47 @@ void Water::HandlePhysics()
 		}
 	}
 }
+
+//ice particles
+Ice::Ice(int newX, int newY, int newTemperature)
+{
+	Particle::Reset();
+	x = newX;
+	y = newY;
+	temperature = (float)newTemperature;
+	thermalConductivity = 0.020;
+	type = TYPE_ICE;
+}
+
+void Ice::Draw()
+{
+	SDL_SetRenderDrawColor(mainRenderer, 100, 255, 255, 0);
+	SDL_RenderDrawPoint(mainRenderer, x, y);
+}
+
+void Ice::HandleEvents()
+{
+	//handle default events first, this includes temperature shifting
+	Particle::HandleEvents();
+
+	//check if ice should melt
+	if (temperature > iceMeltPoint)
+	{
+		int newX = x;
+		int newY = y;
+		int newTemp = temperature;
+		int newHealth = health;
+
+		DestroyParticle(x, y);
+		Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);
+		tempParticle->health = health;
+	}
+}
+
+void Ice::HandlePhysics()
+{
+	//Ice does not fall, run no physics
+}
+
+
+

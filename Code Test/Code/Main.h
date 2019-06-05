@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 //global variables
 const std::string PROGRAM_NAME = "Testola";
@@ -22,12 +23,21 @@ bool loopScreen = true;
 
 float avgFPS = 0;
 
+int currentBrushTemperature = 20;
+
 //sdl window and renderer
 SDL_Window* mainWindow = nullptr;
 SDL_Renderer* mainRenderer = nullptr;
 
 int countedFrames = 0;
 bool running = false;
+
+//extra settings
+//water
+float waterFreezePoint = 0;
+
+//ice
+float iceMeltPoint = 0;
 
 //project
 #include "TimerHandle.h"

@@ -18,6 +18,8 @@ private:
 
 TTF brushName;
 TTF brushSize;
+TTF brushTemperature;
+TTF selectedParticleTemperature;
 TTF currentFrameRate;
 
 TTF::TTF()
