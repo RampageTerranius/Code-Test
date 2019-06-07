@@ -17,7 +17,7 @@ const std::string PROGRAM_NAME = "Testola";
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
 
-const int MAX_BRUSH_SIZE = 16;
+const int MAX_BRUSH_SIZE = 32;
 
 bool loopScreen = true;
 
@@ -34,18 +34,20 @@ bool running = false;
 
 //extra settings
 
+bool drawHeat = false;//when true will render particles color via heat isntead of handing off draw fucntiosn to the particle itsself
+
 //weight (-1 donates it does not calculate weight)
 int wallWeight = -1;
 int sandWeight = 10;
 int waterWeight = 3;
 int iceWeight = -1;
-int thermalFluidWeight = 10;
+int thermalFluidWeight = 8;
 
 //thermal conductivity
-float wallThermalConductivity = 0.001;
-float sandThermalConductivity = 0.005;
-float waterThermalConductivity = 0.025;
-float iceThermalConductivity = 0.03;
+float wallThermalConductivity = 0.0006;
+float sandThermalConductivity = 0.0025;
+float waterThermalConductivity = 0.0125;
+float iceThermalConductivity = 0.015;
 float thermalFluidThermalConductivity = 2.5;
 
 //other settings

@@ -2,7 +2,7 @@
 
 struct Keyboard
 {
-	bool w, s, a, d, x;
+	bool w, s, a, d, h, x;
 	bool plus, minus;
 	bool leftBracket, rightBracket;
 }keyboard;
@@ -86,6 +86,11 @@ void UpdateEventStructs(SDL_Event event)
 				SwitchBrushType(false);
 				break;
 
+			case SDLK_h:
+				keyboard.h = true;
+				drawHeat = !drawHeat;
+				break;
+
 			case SDLK_x:
 				keyboard.x = true;
 				loopScreen = !loopScreen;
@@ -129,6 +134,10 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_s:
 				keyboard.s = false;
+				break;
+
+			case SDLK_h:
+				keyboard.h = false;
 				break;
 
 			case SDLK_x:

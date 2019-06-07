@@ -217,10 +217,9 @@ void EvenOutTemperatures(int x1, int y1, int x2, int y2)
 			return;
 
 		//get the difference between both temperatures in an attempt to either increase or decrease the spread of temperature between objects
-		/*float temperatureDifference = std::abs(allParticles[x1][y1]->temperature - allParticles[x2][y2]->temperature) / (allParticles[x1][y1]->temperature + allParticles[x2][y2]->temperature);
-		float calculatedTemperatureChange = temperatureDifference * (std::abs(allParticles[x1][y1]->thermalConductivity + allParticles[x2][y2]->thermalConductivity) / 2);*/
+		float calculatedTemperatureDifference = (std::abs(((allParticles[x1][y1]->temperature - allParticles[x2][y2]->temperature) / allParticles[x1][y1]->temperature) * 100)) / 10;
 
-		float calculatedTemperatureChange = std::abs(allParticles[x1][y1]->thermalConductivity + allParticles[x2][y2]->thermalConductivity) / 2;
+		float calculatedTemperatureChange = calculatedTemperatureDifference * std::abs(allParticles[x1][y1]->thermalConductivity + allParticles[x2][y2]->thermalConductivity) ;
 
 
 		//check if the temperature change will mean they both even each other out or not
