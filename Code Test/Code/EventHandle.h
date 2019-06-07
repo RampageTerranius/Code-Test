@@ -5,6 +5,7 @@ struct Keyboard
 	bool w, s, a, d, h, x;
 	bool plus, minus;
 	bool leftBracket, rightBracket;
+	bool lShift, rShift;
 }keyboard;
 
 struct Mouse
@@ -106,12 +107,26 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_LEFTBRACKET:
 				keyboard.leftBracket = true;
-				currentBrushTemperature--;
+				if (keyboard.lShift || keyboard.rShift)
+					currentBrushTemperature -= 10;
+				else
+					currentBrushTemperature--;
 				break;
 
 			case SDLK_RIGHTBRACKET:
 				keyboard.rightBracket = true;
-				currentBrushTemperature++;
+				if (keyboard.lShift || keyboard.rShift)
+					currentBrushTemperature += 10;
+				else
+					currentBrushTemperature++;
+				break;
+
+			case SDLK_LSHIFT:
+				keyboard.lShift = true;
+				break;
+
+			case SDLK_RSHIFT:
+				keyboard.rShift = true;
 				break;
 			}
 			
@@ -150,6 +165,14 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_PLUS:
 				keyboard.plus = false;
+				break;
+
+			case SDLK_LSHIFT:
+				keyboard.lShift = false;
+				break;
+
+			case SDLK_RSHIFT:
+				keyboard.rShift = false;
 				break;
 			}
 			break;
