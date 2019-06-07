@@ -42,6 +42,15 @@ int sandWeight = 10;
 int waterWeight = 3;
 int iceWeight = -1;
 int thermalFluidWeight = 8;
+int acidWeight = 1;
+
+//health (-1 donates can not be broken)
+int wallHealth = 500;
+int sandHealth = 160;
+int waterHealth = 80;
+int iceHealth = 100;
+int thermalFluidHealth = 20;
+int acidHealth = 200;//acid loses health each time it damages another block
 
 //thermal conductivity
 float wallThermalConductivity = 0.0006;
@@ -49,11 +58,14 @@ float sandThermalConductivity = 0.0025;
 float waterThermalConductivity = 0.0125;
 float iceThermalConductivity = 0.015;
 float thermalFluidThermalConductivity = 2.5;
+float acidThermalConductivity = 0.2;
 
 //other settings
 //freeze and melt points
 float waterFreezePoint = 0;
 float iceMeltPoint = 0;
+
+int acidDamageChance = 10;//higher number means lower chance
 
 //project
 #include "TimerHandle.h"

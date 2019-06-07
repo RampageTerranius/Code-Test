@@ -8,6 +8,7 @@ enum ParticleType
 	TYPE_WATER,
 	TYPE_ICE,
 	TYPE_THERMALFLUID,
+	TYPE_ACID,
 	TYPE_TOTALTYPES
 };
 
@@ -17,6 +18,7 @@ std::string typeNames[] = { "Wall",
 							"Water",
 							"Ice",
 							"Thermal Fluid",
+							"Acid",
 							"TotalTypes"};//you should never be using this final string, if you are your working with a non existant particale type
 
 class Particle
@@ -68,10 +70,21 @@ public:
 	void HandlePhysics();
 };
 
+//basically just water but has a very high thermal conductivity
 class ThermalFluid : public Water
 {
 public:
 	ThermalFluid(int newX, int newY, int newTemperature);
+	void Draw();
+	void HandleEvents();
+	void HandlePhysics();
+};
+
+//basicalyl jsut water but it damaged blocks around it
+class Acid : public Water
+{
+public:
+	Acid(int newX, int newY, int newTemperature);
 	void Draw();
 	void HandleEvents();
 	void HandlePhysics();
@@ -88,6 +101,8 @@ public:
 	void HandleEvents();
 	void HandlePhysics();
 };
+
+
 
 //array and vector list handling all data to do with our entities
 Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
@@ -131,6 +146,11 @@ Particle* CreateParticle(ParticleType type, int x, int y, int temp)
 
 	case TYPE_THERMALFLUID:
 		allParticles[x][y] = new ThermalFluid(x, y, temp);
+		particleList.push_back(allParticles[x][y]);
+		return allParticles[x][y];
+
+	case TYPE_ACID:
+		allParticles[x][y] = new Acid(x, y, temp);
 		particleList.push_back(allParticles[x][y]);
 		return allParticles[x][y];
 	}
@@ -270,15 +290,21 @@ void Particle::Draw()
 
 void Particle::HandleEvents()
 {
+	//make sure were not working with a object that was deleted
+	if (this == nullptr)
+		return;
+
 	//temperature handle
 	if (thermalConductivity > 0)
 	{
 		//values to help with determining what ways to calculate
 		int up, down, left, right;
-		up = x--;
-		down = x++;
-		left = y--;
-		right = y++;
+		up = down = y;
+		left = right = x;
+		up--;
+		down++;
+		left--;
+		right++;
 
 		bool canGoUp, canGoDown, canGoLeft, canGoRight;
 		canGoUp = canGoDown = canGoLeft = canGoRight = false;
@@ -298,22 +324,21 @@ void Particle::HandleEvents()
 
 		//check and update each directino that we can
 		if (canGoUp)
-			EvenOutTemperatures(x, y, up, y);
+			EvenOutTemperatures(x, y, x, up);
 
 		if (canGoDown)
-			EvenOutTemperatures(x, y, down, y);
+			EvenOutTemperatures(x, y, y, down);
 
 		if (canGoLeft)
-			EvenOutTemperatures(x, y, x, left);
+			EvenOutTemperatures(x, y, left, y);
 
 		if (canGoRight)
-			EvenOutTemperatures(x, y, x, right);
+			EvenOutTemperatures(x, y, right, y);
 	}
 
 	//health check
-	if (health <= 0)	
-		DestroyParticle(x, y);
-	
+	if (health <= 0)
+		DestroyParticle(x, y);	
 }
 
 //check if the particle is at the bottom of the screen and if we need to loop back to the top
@@ -479,9 +504,10 @@ Wall::Wall(int newX, int newY, int newTemperature)
 	Particle::Reset();
 	x = newX;
 	y = newY;
-	weight = wallWeight;
 	temperature = (float)newTemperature;
 	thermalConductivity = wallThermalConductivity;
+	weight = wallWeight;
+	health = wallHealth;
 	type = TYPE_WALL;
 }
 
@@ -505,6 +531,7 @@ Sand::Sand(int newX, int newY, int newTemperature)
 	y = newY;
 	temperature = (float)newTemperature;
 	thermalConductivity = sandThermalConductivity;
+	health = sandHealth;
 	weight = sandWeight;
 	type = TYPE_SAND;
 }
@@ -528,6 +555,7 @@ Water::Water(int newX, int newY, int newTemperature)
 	y = newY;
 	temperature = (float)newTemperature;
 	thermalConductivity = waterThermalConductivity;
+	health = waterHealth;
 	weight = waterWeight;
 	type = TYPE_WATER;
 }
@@ -545,16 +573,16 @@ void Water::HandleEvents()
 	Particle::HandleEvents();
 
 	//check if the water should freeze
-	if (temperature < waterFreezePoint)
-	{
-		int newX = x;
-		int newY = y;
-		int newTemp = temperature;
-		int newHealth = health;
+	if (this != nullptr)
+		if (temperature < waterFreezePoint)
+		{
+			int newX = x;
+			int newY = y;
+			int newTemp = temperature;
 
-		DestroyParticle(x, y);
-		Particle* tempParticle = CreateParticle(TYPE_ICE, newX, newY, newTemp);
-	}
+			DestroyParticle(x, y);
+			Particle* tempParticle = CreateParticle(TYPE_ICE, newX, newY, newTemp);
+		}
 }
 
 void Water::HandlePhysics()
@@ -692,6 +720,7 @@ Ice::Ice(int newX, int newY, int newTemperature)
 	y = newY;
 	temperature = (float)newTemperature;
 	thermalConductivity = iceThermalConductivity;
+	health = iceHealth;
 	weight = iceWeight;
 	type = TYPE_ICE;
 }
@@ -708,16 +737,16 @@ void Ice::HandleEvents()
 	Particle::HandleEvents();
 
 	//check if ice should melt
-	if (temperature > iceMeltPoint)
-	{
-		int newX = x;
-		int newY = y;
-		int newTemp = temperature;
-		int newHealth = health;
+	if (this != nullptr)
+		if (temperature > iceMeltPoint)
+		{
+			int newX = x;
+			int newY = y;
+			int newTemp = temperature;
 
-		DestroyParticle(x, y);
-		Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);
-	}
+			DestroyParticle(x, y);
+			Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);
+		}
 }
 
 void Ice::HandlePhysics()
@@ -729,6 +758,7 @@ ThermalFluid::ThermalFluid(int newX, int newY, int newTemperature) : Water(newX,
 {
 	thermalConductivity = thermalFluidThermalConductivity;
 	weight = thermalFluidWeight;
+	health = thermalFluidHealth;
 	type = TYPE_THERMALFLUID;
 }
 
@@ -744,8 +774,104 @@ void ThermalFluid::HandleEvents()
 	Particle::HandleEvents();
 }
 
-//use defautl water physics
+//use default water physics
 void ThermalFluid::HandlePhysics()
+{
+	Water::HandlePhysics();
+}
+
+//acid particles
+Acid::Acid(int newX, int newY, int newTemperature) : Water(newX, newY, newTemperature)
+{
+	thermalConductivity = acidThermalConductivity;
+	weight = acidWeight;
+	health = acidHealth;
+	type = TYPE_ACID;
+}
+
+void Acid::Draw()
+{
+	SDL_SetRenderDrawColor(mainRenderer, 102, 0, 102, 0);
+	SDL_RenderDrawPoint(mainRenderer, x, y);
+}
+
+//acid needs to randomly damage other blocks around it that are not acid
+void Acid::HandleEvents()
+{
+	Particle::HandleEvents();
+
+	//make sure an object exists first
+	if (this == nullptr)
+		return;
+
+	//values to help with determining what ways to calculate
+	int up, down, left, right;
+	up = down = y;
+	left = right = x;
+	up--;
+	down++;
+	left--;
+	right++;
+
+	bool canDamageUp, canDamageDown, canDamageLeft, canDamageRight;
+	canDamageUp = canDamageDown = canDamageLeft = canDamageRight = false;
+
+	//check if blocks exist in each direction and attempt to target it for damage 
+	if (up >= 0)
+		if (allParticles[x][up] != nullptr)
+			if (allParticles[x][up]->type != TYPE_ACID)
+				canDamageUp = true;
+
+	if (down <= WINDOW_HEIGHT - 1)
+		if (allParticles[x][down] != nullptr)
+			if (allParticles[x][down]->type != TYPE_ACID)
+					canDamageDown = true;
+
+			
+
+	if (left >= 0)
+		if (allParticles[left][y] != nullptr)
+			if (allParticles[left][y]->type != TYPE_ACID)
+				canDamageLeft = true;
+
+	if (right <= WINDOW_WIDTH - 1)
+		if (allParticles[right][y] != nullptr)
+			if (allParticles[right][y]->type != TYPE_ACID)
+				canDamageRight = true;
+
+
+	//check each direction and attempt to damage any targeted blocks
+	if (canDamageUp)	
+		if ((rand() % acidDamageChance + 1) == 1)
+		{
+			allParticles[x][up]->health--;
+			health--;
+		}
+
+	if (canDamageDown)
+		if ((rand() % acidDamageChance + 1) == 1)
+		{
+			allParticles[x][down]->health--;	
+			health--;
+		}
+
+	if (canDamageLeft)	
+		if ((rand() % acidDamageChance + 1) == 1)
+		{
+			allParticles[left][y]->health--;	
+			health--;
+		}
+
+	if (canDamageRight)	
+		if ((rand() % acidDamageChance + 1) == 1)
+		{
+			allParticles[right][y]->health--;
+			health--;
+		}
+}
+
+//use default water physics
+void Acid::HandlePhysics()
 {
 	Water::HandlePhysics();
 }
