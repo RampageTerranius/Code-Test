@@ -6,6 +6,7 @@ struct Keyboard
 	bool plus, minus;
 	bool leftBracket, rightBracket;
 	bool lShift, rShift;
+	bool space;
 }keyboard;
 
 struct Mouse
@@ -128,6 +129,11 @@ void UpdateEventStructs(SDL_Event event)
 			case SDLK_RSHIFT:
 				keyboard.rShift = true;
 				break;
+
+			case SDLK_SPACE:
+				keyboard.space = true;
+				pauseParticles = !pauseParticles;
+				break;
 			}
 			
 			break;
@@ -173,6 +179,10 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_RSHIFT:
 				keyboard.rShift = false;
+				break;
+
+			case SDLK_SPACE:
+				keyboard.space = false;
 				break;
 			}
 			break;
@@ -232,8 +242,9 @@ void UpdateEventStructs(SDL_Event event)
 void CreateParticlesAtBrush(ParticleType type, int x, int y, int temperature)
 {
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
-
-	for(int i = currentBrushSize; i > -currentBrushSize; i--)
+	if (currentBrushSize == 1)
+		CreateParticle(type, mouse.x, mouse.y, temperature);
+	else for(int i = currentBrushSize; i > -currentBrushSize; i--)
 		for (int n = currentBrushSize; n > -currentBrushSize; n--)
 			CreateParticle(type, mouse.x + i, mouse.y + n, temperature);
 }
@@ -244,11 +255,10 @@ void DestroyParticlesAtBrush(int x, int y)
 	if (particleList.size() == 0)
 		return;
 
-	//always destroy the first particle
-	DestroyParticle(mouse.x, mouse.y);
-
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
-	for (int i = currentBrushSize; i > -currentBrushSize; i--)
+	if (currentBrushSize == 1)
+		DestroyParticle(mouse.x, mouse.y);
+	else for (int i = currentBrushSize; i > -currentBrushSize; i--)
 		for (int n = currentBrushSize; n > -currentBrushSize; n--)
 			DestroyParticle(mouse.x + i, mouse.y + n);
 }

@@ -19,8 +19,6 @@ const int WINDOW_HEIGHT = 768;
 
 const int MAX_BRUSH_SIZE = 32;
 
-bool loopScreen = true;
-
 float avgFPS = 0;
 
 int currentBrushTemperature = 20;
@@ -35,6 +33,8 @@ bool running = false;
 //extra settings
 
 bool drawHeat = false;//when true will render particles color via heat isntead of handing off draw fucntiosn to the particle itsself
+bool loopScreen = true;
+bool pauseParticles = false;
 
 //weight (-1 donates it does not calculate weight)
 int wallWeight = -1;
