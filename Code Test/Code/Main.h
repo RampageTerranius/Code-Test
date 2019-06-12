@@ -52,7 +52,9 @@ int settingWeight[]
 	//Acid
 	1,
 	//Steam
-	2
+	2,
+	//plant
+	-1
 };
 
 //health (-1 donates can not be broken)
@@ -71,7 +73,9 @@ int settingHealth[]
 	//Acid
 	200,//loses health each time it damages another block
 	//Steam
-	20
+	20,
+	//Plant
+	120
 };
 
 float settingThermalConductivity[]
@@ -89,7 +93,9 @@ float settingThermalConductivity[]
 	//Acid
 	0.2f,
 	//Steam
-	0.03f
+	0.03f,
+	//plant
+	0.026f
 };
 
 //other settings
@@ -99,7 +105,10 @@ float iceMeltPoint = 2;
 float steamCondensationPoint = 98;
 float waterBoilIntoSteamPoint = 100;
 
-int acidDamageChance = 10;//higher number means lower chance
+//randomised event chances
+int acidDamageChance = 10;//higher number means lower chance (calculated as (1 / acidDamageChance) meaning if chance was 10 there is a 1 in 10 chance per tick to damage a block)
+int plantSpreadChance = 30;//higher number means lower chance (calculated as (1 / plantSpreadChance) meaning if chance was 10 there is a 1 in 10 chance per tick to spread plant through a water block)
+
 
 //affects how bit of a multiplier is used depending on the percentage difference in temperature between two different particles
 // is calculated like so

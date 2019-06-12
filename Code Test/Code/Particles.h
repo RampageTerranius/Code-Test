@@ -10,6 +10,7 @@ enum ParticleType
 	TYPE_THERMALFLUID,
 	TYPE_ACID,
 	TYPE_STEAM,
+	TYPE_PLANT,
 	TYPE_TOTALTYPES
 };
 
@@ -21,6 +22,7 @@ std::string typeNames[] = { "Wall",
 							"Thermal Fluid",
 							"Acid",
 							"Steam",
+							"Plant",
 							"TotalTypes"};//you should never be using this final string, if you are your working with a non existant particale type
 
 class Particle
@@ -49,6 +51,17 @@ class Wall : public Particle
 public:
 	Wall(int newX, int newY, float newTemperature);
 	void Draw();
+	void HandlePhysics();
+};
+
+//plant particles
+//does not move but can convert neighbouring water particles into plant particles
+class Plant : public Wall
+{
+public:
+	Plant(int newX, int newY, float newTemperature);
+	void Draw();
+	void HandleEvents();
 	void HandlePhysics();
 };
 
@@ -171,7 +184,11 @@ Particle* CreateParticle(ParticleType type, int x, int y, float temp)
 		allParticles[x][y] = new Steam(x, y, temp);
 		particleList.push_back(allParticles[x][y]);
 		return allParticles[x][y];
-		break;
+
+	case TYPE_PLANT:
+		allParticles[x][y] = new Plant(x, y, temp);
+		particleList.push_back(allParticles[x][y]);
+		return allParticles[x][y];
 	}
 
 	//we didnt have a type, return nullptr
@@ -226,7 +243,6 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 		allParticles[x1][y1]->x = x1;
 	}	
 }
-
 
 //attempt to drop the particle downwards
 bool DropParticle(int x, int y, bool randomize)
@@ -1139,4 +1155,136 @@ void Steam::HandlePhysics()
 			return;
 		}
 	}
+}
+
+//plant particles
+Plant::Plant(int newX, int newY, float newTemperature) : Wall(newX, newY, newTemperature)
+{
+	type = TYPE_PLANT;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
+}
+
+
+void Plant::Draw()
+{
+	SDL_SetRenderDrawColor(mainRenderer, 20, 150, 20, 0);
+	SDL_RenderDrawPoint(mainRenderer, x, y);	
+}
+
+void Plant::HandleEvents()
+{
+	//handle default events first
+	Particle::HandleEvents();
+
+	int up, down, left, right;
+
+	up = down = y;
+	left = right = x;
+
+	up--;
+	down++;
+	left--;
+	right++;
+
+
+	bool canGoUp, canGoDown, canGoLeft, canGoRight;
+	canGoUp = canGoDown = canGoLeft = canGoRight = false;
+
+	if (y > 0 && y < WINDOW_HEIGHT - 1)
+	{
+		if (allParticles[x][up] != nullptr)
+			if (allParticles[x][up]->type == TYPE_WATER)
+			{
+				switch (rand() % plantSpreadChance)
+				{
+				case 0:
+					canGoUp = true;
+					break;
+				}
+			}
+
+		if (allParticles[x][down] != nullptr)
+			if (allParticles[x][down]->type == TYPE_WATER)
+			{
+				switch (rand() % plantSpreadChance)
+				{
+				case 0:
+					canGoDown = true;
+					break;
+				}
+			}
+	}
+
+	if (x > 0 && x < WINDOW_WIDTH - 1)
+	{
+		if (allParticles[left][y] != nullptr)
+			if (allParticles[left][y]->type == TYPE_WATER)
+			{
+				switch (rand() % plantSpreadChance)
+				{
+				case 0:
+					canGoLeft = true;
+					break;
+				}
+			}
+
+		if (allParticles[right][y] != nullptr)
+			if (allParticles[right][y]->type == TYPE_WATER)
+			{
+				switch (rand() % plantSpreadChance)
+				{
+				case 0:
+					canGoRight = true;
+					break;
+				}
+			}
+	}
+
+	if (canGoUp)
+	{
+		int newX = x;
+		int newY = up;
+		float newTemp = temperature;
+
+		DestroyParticle(x, up);
+		Particle* tempParticle = CreateParticle(TYPE_PLANT, newX, newY, newTemp);
+	}
+
+	if (canGoDown)
+	{
+		int newX = x;
+		int newY = down;
+		float newTemp = temperature;
+
+		DestroyParticle(x, down);
+		Particle* tempParticle = CreateParticle(TYPE_PLANT, newX, newY, newTemp);
+	}
+
+	if (canGoLeft)
+	{
+		int newX = left;
+		int newY = y;
+		float newTemp = temperature;
+
+		DestroyParticle(left, y);
+		Particle* tempParticle = CreateParticle(TYPE_PLANT, newX, newY, newTemp);
+	}
+
+	if (canGoRight)
+	{
+		int newX = right;
+		int newY = y;
+		float newTemp = temperature;
+
+		DestroyParticle(right, y);
+		Particle* tempParticle = CreateParticle(TYPE_PLANT, newX, newY, newTemp);
+	}
+}
+
+//no physics, do not attempt to move at all
+void Plant::HandlePhysics()
+{
+
 }
