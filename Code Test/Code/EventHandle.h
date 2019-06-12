@@ -256,7 +256,7 @@ void DestroyParticlesAtBrush(int x, int y)
 		return;
 
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
-	if (currentBrushSize == 1)
+	if (currentBrushSize == 1)		
 		DestroyParticle(mouse.x, mouse.y);
 	else for (int i = currentBrushSize; i > -currentBrushSize; i--)
 		for (int n = currentBrushSize; n > -currentBrushSize; n--)

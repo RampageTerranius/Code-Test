@@ -33,7 +33,7 @@ class Particle
 		virtual void Draw();
 		bool CheckIfAtBottom();
 		bool CheckIfAtTop();
-		virtual void HandleEvents();
+		virtual bool HandleEvents();
 		virtual void HandlePhysics();
 
 		int x, y;
@@ -61,7 +61,7 @@ class Plant : public Wall
 public:
 	Plant(int newX, int newY, float newTemperature);
 	void Draw();
-	void HandleEvents();
+	bool HandleEvents();
 	void HandlePhysics();
 };
 
@@ -82,7 +82,7 @@ class Water : public Particle
 public:
 	Water(int newX, int newY, float newTemperature);
 	void Draw();
-	void HandleEvents();
+	bool HandleEvents();
 	void HandlePhysics();
 };
 
@@ -92,7 +92,7 @@ class ThermalFluid : public Water
 public:
 	ThermalFluid(int newX, int newY, float newTemperature);
 	void Draw();
-	void HandleEvents();
+	bool HandleEvents();
 	void HandlePhysics();
 };
 
@@ -102,7 +102,7 @@ class Acid : public Water
 public:
 	Acid(int newX, int newY, float newTemperature);
 	void Draw();
-	void HandleEvents();
+	bool HandleEvents();
 	void HandlePhysics();
 };
 
@@ -114,7 +114,7 @@ class Ice : public Particle
 public:
 	Ice(int newX, int newY, float newTemperature);
 	void Draw();
-	void HandleEvents();
+	bool HandleEvents();
 	void HandlePhysics();
 };
 
@@ -126,7 +126,7 @@ class Steam : public Particle
 public:
 	Steam(int newX, int newY, float newTemperature);
 	void Draw();
-	void HandleEvents();
+	bool HandleEvents();
 	void HandlePhysics();
 };
 
@@ -198,6 +198,10 @@ Particle* CreateParticle(ParticleType type, int x, int y, float temp)
 //destroys the particle at the given location and wipes the memory of it
 void DestroyParticle(int x, int y)
 {
+	//check if a particle even exists in teh area we want to delete and cancel if there is none
+	if (allParticles[x][y] == nullptr)
+		return;
+
 	//iterate through all particles in the list
 	for (size_t i = 0; i < particleList.size() - 1; i++)
 	{
@@ -207,10 +211,6 @@ void DestroyParticle(int x, int y)
 		//if the x/y are the same wipe the particle
 		if (tempX == x && tempY == y)
 		{
-			//if there is no data to work with then cancel now
-			if (allParticles[tempX][tempY] == nullptr)
-				return;
-
 			//clear the vector first
 			particleList.erase(particleList.begin() + i);
 
@@ -382,12 +382,8 @@ void Particle::Draw()
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
-void Particle::HandleEvents()
+bool Particle::HandleEvents()
 {
-	//make sure were not working with a object that was deleted
-	if (this == nullptr)
-		return;
-
 	//temperature handle
 	if (thermalConductivity > 0)
 	{
@@ -432,7 +428,12 @@ void Particle::HandleEvents()
 
 	//health check
 	if (health <= 0)
-		DestroyParticle(x, y);	
+	{
+		DestroyParticle(x, y);
+		return true;
+	}
+
+	return false;
 }
 
 //check if the particle is at the bottom of the screen and if we need to loop back to the top
@@ -683,10 +684,11 @@ void Water::Draw()
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
-void Water::HandleEvents()
+bool Water::HandleEvents()
 {
 	//handle default events, this includes handling temperature shifts
-	Particle::HandleEvents();
+	if (Particle::HandleEvents())
+		return true;
 
 	//check if the water should freeze
 	if (this != nullptr)
@@ -698,6 +700,8 @@ void Water::HandleEvents()
 
 			DestroyParticle(x, y);
 			Particle* tempParticle = CreateParticle(TYPE_ICE, newX, newY, newTemp);
+
+			return true;
 		}
 	//check if should turn into steam
 		else if (temperature > waterBoilIntoSteamPoint)
@@ -708,7 +712,11 @@ void Water::HandleEvents()
 
 			DestroyParticle(x, y);
 			Particle* tempParticle = CreateParticle(TYPE_STEAM, newX, newY, newTemp);
+
+			return true;
 		}
+
+	return false;
 }
 
 void Water::HandlePhysics()
@@ -855,22 +863,25 @@ void Ice::Draw()
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
-void Ice::HandleEvents()
+bool Ice::HandleEvents()
 {
 	//handle default events first, this includes temperature shifting
-	Particle::HandleEvents();
+	if (Particle::HandleEvents())
+		return true;
 
-	//check if ice should melt
-	if (this != nullptr)
-		if (temperature > iceMeltPoint)
-		{
-			int newX = x;
-			int newY = y;
-			float newTemp = temperature;
+	//check if ice should melt	
+	if (temperature > iceMeltPoint)
+	{
+		int newX = x;
+		int newY = y;
+		float newTemp = temperature;
 
-			DestroyParticle(x, y);
-			Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);
-		}
+		DestroyParticle(x, y);
+		Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);
+		return true;
+	}
+
+	return false;
 }
 
 void Ice::HandlePhysics()
@@ -893,9 +904,11 @@ void ThermalFluid::Draw()
 }
 
 //use default event handling, nothing else required
-void ThermalFluid::HandleEvents()
+bool ThermalFluid::HandleEvents()
 {
 	Particle::HandleEvents();
+
+	return false;
 }
 
 //use default water physics
@@ -920,13 +933,14 @@ void Acid::Draw()
 }
 
 //acid needs to randomly damage other blocks around it that are not acid
-void Acid::HandleEvents()
+bool Acid::HandleEvents()
 {
-	Particle::HandleEvents();
+	if (Particle::HandleEvents())
+		return true;
 
 	//make sure an object exists first
 	if (this == nullptr)
-		return;
+		return true;
 
 	//values to help with determining what ways to calculate
 	int up, down, left, right;
@@ -949,9 +963,7 @@ void Acid::HandleEvents()
 	if (down <= WINDOW_HEIGHT - 1)
 		if (allParticles[x][down] != nullptr)
 			if (allParticles[x][down]->type != TYPE_ACID)
-					canDamageDown = true;
-
-			
+					canDamageDown = true;			
 
 	if (left >= 0)
 		if (allParticles[left][y] != nullptr)
@@ -992,6 +1004,8 @@ void Acid::HandleEvents()
 			allParticles[right][y]->health--;
 			health--;
 		}
+
+	return false;
 }
 
 //use default water physics
@@ -1020,10 +1034,11 @@ void Steam::Draw()
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
-void Steam::HandleEvents()
+bool Steam::HandleEvents()
 {
 	//handle default events first, this includes temperature shifting
-	Particle::HandleEvents();
+	if (Particle::HandleEvents())
+		return true;
 
 	if (temperature < steamCondensationPoint)
 	{
@@ -1034,6 +1049,8 @@ void Steam::HandleEvents()
 		DestroyParticle(x, y);
 		Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);
 	}
+
+	return false;
 }
 
 //custom physics for steam, steam will be the basic gas type
@@ -1173,10 +1190,11 @@ void Plant::Draw()
 	SDL_RenderDrawPoint(mainRenderer, x, y);	
 }
 
-void Plant::HandleEvents()
+bool Plant::HandleEvents()
 {
 	//handle default events first
-	Particle::HandleEvents();
+	if (Particle::HandleEvents())
+		return true;
 
 	int up, down, left, right;
 
@@ -1281,6 +1299,11 @@ void Plant::HandleEvents()
 		DestroyParticle(right, y);
 		Particle* tempParticle = CreateParticle(TYPE_PLANT, newX, newY, newTemp);
 	}
+
+	if (canGoUp || canGoDown || canGoLeft || canGoRight)
+		return true;
+	else
+		return false;
 }
 
 //no physics, do not attempt to move at all
