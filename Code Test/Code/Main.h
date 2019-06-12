@@ -30,11 +30,13 @@ SDL_Renderer* mainRenderer = nullptr;
 int countedFrames = 0;
 bool running = false;
 
-//extra settings
+//ingame settings, these are the default settings for the given options
 
 bool drawHeat = false;//when true will render particles color via heat isntead of handing off draw fucntiosn to the particle itsself
 bool loopScreen = true;
 bool pauseParticles = false;
+bool renderBrush = true;
+
 
 //weight (-1 donates it does not calculate weight)
 int settingWeight[]

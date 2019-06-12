@@ -44,6 +44,33 @@ void Render()
 
 	}
 
+	//render a box showing the brush location
+	if (renderBrush)
+	{
+		SDL_SetRenderDrawColor(mainRenderer, 255, 255, 255, 0);
+
+		if (currentBrushSize == 1)		
+			SDL_RenderDrawPoint(mainRenderer, mouse.x, mouse.y);
+		else
+		{			
+			//draw left side of box
+			for (int i = currentBrushSize; i > -currentBrushSize; i--)
+				SDL_RenderDrawPoint(mainRenderer, mouse.x - currentBrushSize, mouse.y + i);			
+
+			//draw right side of box
+			for (int i = currentBrushSize; i > -currentBrushSize; i--)
+				SDL_RenderDrawPoint(mainRenderer, mouse.x + currentBrushSize, mouse.y + i);			
+
+			//draw top of box
+			for (int i = currentBrushSize; i > -currentBrushSize; i--)
+				SDL_RenderDrawPoint(mainRenderer, mouse.x + i, mouse.y - currentBrushSize);
+
+			//draw bottom of box
+			for (int i = currentBrushSize; i > -currentBrushSize; i--)
+				SDL_RenderDrawPoint(mainRenderer, mouse.x + i, mouse.y + currentBrushSize);
+		}
+	}
+
 	//render what type of brush is selected at the top left
 	brushName.SetText(typeNames[currentBrushType]);
 	brushName.Draw(mainRenderer, 20, 20);
