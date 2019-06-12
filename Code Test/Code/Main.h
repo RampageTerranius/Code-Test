@@ -37,35 +37,75 @@ bool loopScreen = true;
 bool pauseParticles = false;
 
 //weight (-1 donates it does not calculate weight)
-int wallWeight = -1;
-int sandWeight = 10;
-int waterWeight = 3;
-int iceWeight = -1;
-int thermalFluidWeight = 8;
-int acidWeight = 1;
+int settingWeight[]
+{
+	//Wall
+	-1,
+	//Sand
+	10,
+	//Water
+	3,
+	//Ice
+	-1,
+	//Thermal
+	8,
+	//Acid
+	1,
+	//Steam
+	2
+};
 
 //health (-1 donates can not be broken)
-int wallHealth = 500;
-int sandHealth = 160;
-int waterHealth = 80;
-int iceHealth = 100;
-int thermalFluidHealth = 20;
-int acidHealth = 200;//acid loses health each time it damages another block
+int settingHealth[]
+{
+	//Wall
+	500,
+	//Sand
+	160,
+	//Water
+	80,
+	//Ice
+	100,
+	//Thermal
+	20,
+	//Acid
+	200,//loses health each time it damages another block
+	//Steam
+	20
+};
 
-//thermal conductivity
-float wallThermalConductivity = 0.0006;
-float sandThermalConductivity = 0.0025;
-float waterThermalConductivity = 0.0125;
-float iceThermalConductivity = 0.015;
-float thermalFluidThermalConductivity = 2.5;
-float acidThermalConductivity = 0.2;
+float settingThermalConductivity[]
+{
+	//Wall
+	0.0006f,
+	//Sand
+	0.0025f,
+	//Water
+	0.0125f,
+	//Ice
+	0.015f,
+	//Thermal
+	2.5f,
+	//Acid
+	0.2f,
+	//Steam
+	0.03f
+};
 
 //other settings
 //freeze and melt points
 float waterFreezePoint = 0;
-float iceMeltPoint = 0;
+float iceMeltPoint = 2;
+float steamCondensationPoint = 98;
+float waterBoilIntoSteamPoint = 100;
 
 int acidDamageChance = 10;//higher number means lower chance
+
+//affects how bit of a multiplier is used depending on the percentage difference in temperature between two different particles
+// is calculated like so
+// abs( (allParticles[x1][y1]->temperature - allParticles[x2][y2]->temperature) / allParticles[x1][y1]->temperature) * 100 ) / temperatureDifferenceDivisor
+//lower number = faster spread
+int temperatureDifferenceDivisor = 15;
 
 //project
 #include "TimerHandle.h"

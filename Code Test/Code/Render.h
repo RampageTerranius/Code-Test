@@ -7,7 +7,7 @@ void Render()
 	SDL_RenderClear(mainRenderer);
 
 	//render all particles	
-	for (int i = 0; i < particleList.size(); i++)
+	for (size_t i = 0; i < particleList.size(); i++)
 	{
 		if (drawHeat)
 		{
@@ -25,13 +25,13 @@ void Render()
 			
 			if (particle->temperature >= tempMiddle)
 			{
-				r = 255 * (1.0 - (std::abs(particle->temperature - tempHighest) / (particle->temperature + tempHighest)));
+				r = 255 * (int)(1.0 - (std::abs(particle->temperature - tempHighest) / (particle->temperature + tempHighest)));
 				if (r > 255)
 					r = 255;
 			}
 			else
 			{
-				b = 255 * (std::abs(particle->temperature - tempLowest) / (particle->temperature + tempLowest));
+				b = 255 * (int)(std::abs(particle->temperature - tempLowest) / (particle->temperature + tempLowest));
 				if (b > 255)
 					b = 255;
 			}

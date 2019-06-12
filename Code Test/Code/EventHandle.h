@@ -239,7 +239,7 @@ void UpdateEventStructs(SDL_Event event)
 	}
 }
 
-void CreateParticlesAtBrush(ParticleType type, int x, int y, int temperature)
+void CreateParticlesAtBrush(ParticleType type, int x, int y, float temperature)
 {
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
 	if (currentBrushSize == 1)
@@ -270,7 +270,7 @@ void EventHandle(SDL_Event& event)
 
 	//on left click paint particles using brush
 	if (mouse.left)
-		CreateParticlesAtBrush(currentBrushType, mouse.x, mouse.y, currentBrushTemperature);	
+		CreateParticlesAtBrush(currentBrushType, mouse.x, mouse.y, (float)currentBrushTemperature);	
 
 	if (mouse.right)
 		DestroyParticlesAtBrush(mouse.x, mouse.y);

@@ -9,6 +9,7 @@ enum ParticleType
 	TYPE_ICE,
 	TYPE_THERMALFLUID,
 	TYPE_ACID,
+	TYPE_STEAM,
 	TYPE_TOTALTYPES
 };
 
@@ -19,6 +20,7 @@ std::string typeNames[] = { "Wall",
 							"Ice",
 							"Thermal Fluid",
 							"Acid",
+							"Steam",
 							"TotalTypes"};//you should never be using this final string, if you are your working with a non existant particale type
 
 class Particle
@@ -28,6 +30,7 @@ class Particle
 		void Reset();		
 		virtual void Draw();
 		bool CheckIfAtBottom();
+		bool CheckIfAtTop();
 		virtual void HandleEvents();
 		virtual void HandlePhysics();
 
@@ -44,7 +47,7 @@ class Particle
 class Wall : public Particle
 {
 public:
-	Wall(int newX, int newY, int newTemperature);
+	Wall(int newX, int newY, float newTemperature);
 	void Draw();
 	void HandlePhysics();
 };
@@ -53,7 +56,7 @@ public:
 class Sand : public Particle
 {
 public:
-	Sand(int newX, int newY, int newTemperature);
+	Sand(int newX, int newY, float newTemperature);
 	void Draw();
 	void HandlePhysics();
 };
@@ -64,7 +67,7 @@ public:
 class Water : public Particle
 {
 public:
-	Water(int newX, int newY, int newTemperature);
+	Water(int newX, int newY, float newTemperature);
 	void Draw();
 	void HandleEvents();
 	void HandlePhysics();
@@ -74,7 +77,7 @@ public:
 class ThermalFluid : public Water
 {
 public:
-	ThermalFluid(int newX, int newY, int newTemperature);
+	ThermalFluid(int newX, int newY, float newTemperature);
 	void Draw();
 	void HandleEvents();
 	void HandlePhysics();
@@ -84,7 +87,7 @@ public:
 class Acid : public Water
 {
 public:
-	Acid(int newX, int newY, int newTemperature);
+	Acid(int newX, int newY, float newTemperature);
 	void Draw();
 	void HandleEvents();
 	void HandlePhysics();
@@ -96,19 +99,29 @@ public:
 class Ice : public Particle
 {
 public:
-	Ice(int newX, int newY, int newTemperature);
+	Ice(int newX, int newY, float newTemperature);
 	void Draw();
 	void HandleEvents();
 	void HandlePhysics();
 };
 
-
+//steam aprticles
+//move upwards in a randomised direction, somewhat like a reverese water particle
+//turns back into water when cools down
+class Steam : public Particle
+{
+public:
+	Steam(int newX, int newY, float newTemperature);
+	void Draw();
+	void HandleEvents();
+	void HandlePhysics();
+};
 
 //array and vector list handling all data to do with our entities
 Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
 std::vector<Particle*> particleList;
 
-Particle* CreateParticle(ParticleType type, int x, int y, int temp)
+Particle* CreateParticle(ParticleType type, int x, int y, float temp)
 {
 	//check that we have no entity in this section to begin with
 	if (allParticles[x][y] != nullptr)
@@ -153,6 +166,12 @@ Particle* CreateParticle(ParticleType type, int x, int y, int temp)
 		allParticles[x][y] = new Acid(x, y, temp);
 		particleList.push_back(allParticles[x][y]);
 		return allParticles[x][y];
+
+	case TYPE_STEAM:
+		allParticles[x][y] = new Steam(x, y, temp);
+		particleList.push_back(allParticles[x][y]);
+		return allParticles[x][y];
+		break;
 	}
 
 	//we didnt have a type, return nullptr
@@ -163,7 +182,7 @@ Particle* CreateParticle(ParticleType type, int x, int y, int temp)
 void DestroyParticle(int x, int y)
 {
 	//iterate through all particles in the list
-	for (int i = 0; i < particleList.size() - 1; i++)
+	for (size_t i = 0; i < particleList.size() - 1; i++)
 	{
 		int tempX, tempY;
 		tempX = particleList.at(i)->x;
@@ -208,18 +227,77 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 	}	
 }
 
-bool DropParticle(int x, int y)
+
+//attempt to drop the particle downwards
+bool DropParticle(int x, int y, bool randomize)
 {
-	if (allParticles[x][y + 1] == nullptr)
+	int tempX = x;
+
+	//attempt to randomize the way it will move while going down
+	if (randomize)
+	{
+		tempX += (rand() % 3) - 1;
+
+		if (tempX < 0)
+			return false;
+
+		if (tempX > WINDOW_WIDTH - 1)
+			return false;
+	}
+
+	//if there is no particle directly below then just drop down
+	if (allParticles[tempX][y + 1] == nullptr)
 	{
 		//update the array
-		MoveParticles(x, y, x, y + 1);
+		MoveParticles(x, y, tempX, y + 1);
 		return true;
 	}
-	else if (allParticles[x][y + 1]->weight != -1)
-		if (allParticles[x][y]->weight > allParticles[x][y + 1]->weight)
+	//other wise if the particle directly below has less weight then swap particles
+	else if (allParticles[tempX][y + 1]->weight != -1)
+		if (allParticles[x][y]->weight > allParticles[tempX][y + 1]->weight)
 		{
-			MoveParticles(x, y, x, y + 1);
+			MoveParticles(x, y, tempX, y + 1);
+			return true;
+		}
+
+	return false;
+}
+
+//overload for legacy version of DropParticle
+bool DropParticle(int x, int y)
+{
+	return DropParticle(x, y, false);
+}
+
+//attempt to ascend the particle directly upwards
+bool AscendParticle(int x, int y, bool randomize)
+{
+	int tempX = x;
+
+	//attempt to randomize the way it will move while going up
+	if (randomize)
+	{
+		tempX += (rand() % 3) - 1;
+
+		if (tempX < 0)
+			return false;
+
+		if (tempX > WINDOW_WIDTH - 1)
+			return false;
+	}
+
+	//if there is no particle directly above then just ascend
+	if (allParticles[tempX][y - 1] == nullptr)
+	{
+		//update the array
+		MoveParticles(x, y, tempX, y - 1);
+		return true;
+	}
+	//other wise if the particle directly above has more weight then swap particles
+	else if (allParticles[tempX][y - 1]->weight != -1)
+		if (allParticles[x][y]->weight < allParticles[tempX][y - 1]->weight)
+		{
+			MoveParticles(x, y, tempX, y - 1);
 			return true;
 		}
 
@@ -237,7 +315,7 @@ void EvenOutTemperatures(int x1, int y1, int x2, int y2)
 			return;
 
 		//get the difference between both temperatures in an attempt to either increase or decrease the spread of temperature between objects
-		float calculatedTemperatureDifference = (std::abs(((allParticles[x1][y1]->temperature - allParticles[x2][y2]->temperature) / allParticles[x1][y1]->temperature) * 100)) / 10;
+		float calculatedTemperatureDifference = (std::abs(((allParticles[x1][y1]->temperature - allParticles[x2][y2]->temperature) / allParticles[x1][y1]->temperature) * 100)) / temperatureDifferenceDivisor;
 
 		float calculatedTemperatureChange = calculatedTemperatureDifference * std::abs(allParticles[x1][y1]->thermalConductivity + allParticles[x2][y2]->thermalConductivity) ;
 
@@ -364,6 +442,29 @@ bool Particle::CheckIfAtBottom()
 	return false;
 }
 
+bool Particle::CheckIfAtTop()
+{
+	//check if at bottom of screen
+	if (y == 0)
+	{
+		//check if we need to loop the particles from bottom to top
+		if (loopScreen)
+		{
+			if (allParticles[x][WINDOW_HEIGHT - 1] == nullptr)
+				MoveParticles(x, y, x, WINDOW_HEIGHT - 1);
+
+			//even if we cant move return true as we are stil lat the bottom and cant move else where
+			return true;
+		}
+		else
+			return true;//we are not to loop, stop here
+	}
+
+	//we are not at the bottom
+	return false;
+}
+
+
 //default particle physics
 //by default we want to treat everything as sand
 void Particle::HandlePhysics()
@@ -468,17 +569,15 @@ void Particle::HandlePhysics()
 		MoveParticles(x, y, left, down);
 		return;
 	}
-
 	//if the bottom right is empty and the bottom left isnt the drop to the bottom right
-	if (allParticles[right][down] == nullptr && allParticles[left][down] != nullptr)
+	else if (allParticles[right][down] == nullptr && allParticles[left][down] != nullptr)
 	{
 		//update the array
 		MoveParticles(x, y, right, down);
 		return;
 	}
-
 	//if both sides are free randomly choose one direction and drop down that side	
-	if (allParticles[right][down] == nullptr && allParticles[left][down] == nullptr)
+	else if (allParticles[right][down] == nullptr && allParticles[left][down] == nullptr)
 	{
 		int randomNum = rand() % 2 + 1;
 
@@ -499,16 +598,16 @@ void Particle::HandlePhysics()
 	}
 }
 
-Wall::Wall(int newX, int newY, int newTemperature)
+Wall::Wall(int newX, int newY, float newTemperature)
 {
 	Particle::Reset();
+	type = TYPE_WALL;
 	x = newX;
 	y = newY;
 	temperature = (float)newTemperature;
-	thermalConductivity = wallThermalConductivity;
-	weight = wallWeight;
-	health = wallHealth;
-	type = TYPE_WALL;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
 }
 
 void Wall::Draw()
@@ -524,16 +623,17 @@ void Wall::HandlePhysics()
 
 //sand particles
 
-Sand::Sand(int newX, int newY, int newTemperature)
+Sand::Sand(int newX, int newY, float newTemperature)
 {
 	Particle::Reset();
+	type = TYPE_SAND;
 	x = newX;
 	y = newY;
 	temperature = (float)newTemperature;
-	thermalConductivity = sandThermalConductivity;
-	health = sandHealth;
-	weight = sandWeight;
-	type = TYPE_SAND;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
+	
 }
 
 void Sand::Draw()
@@ -548,16 +648,16 @@ void Sand::HandlePhysics()
 }
 
 //water particles
-Water::Water(int newX, int newY, int newTemperature)
+Water::Water(int newX, int newY, float newTemperature)
 {
 	Particle::Particle();
+	type = TYPE_WATER;
 	x = newX;
 	y = newY;
 	temperature = (float)newTemperature;
-	thermalConductivity = waterThermalConductivity;
-	health = waterHealth;
-	weight = waterWeight;
-	type = TYPE_WATER;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
 }
 
 
@@ -578,10 +678,20 @@ void Water::HandleEvents()
 		{
 			int newX = x;
 			int newY = y;
-			int newTemp = temperature;
+			float newTemp = temperature;
 
 			DestroyParticle(x, y);
 			Particle* tempParticle = CreateParticle(TYPE_ICE, newX, newY, newTemp);
+		}
+	//check if should turn into steam
+		else if (temperature > waterBoilIntoSteamPoint)
+		{
+			int newX = x;
+			int newY = y;
+			float newTemp = temperature;
+
+			DestroyParticle(x, y);
+			Particle* tempParticle = CreateParticle(TYPE_STEAM, newX, newY, newTemp);
 		}
 }
 
@@ -685,13 +795,11 @@ void Water::HandlePhysics()
 	//if left is empty only
 	if (allParticles[left][y] == nullptr && allParticles[right][y] != nullptr)
 		MoveParticles(x, y, left, y);
-
 	//if right is empty only
-	if (allParticles[right][y] == nullptr && allParticles[left][y] != nullptr)
+	else if (allParticles[right][y] == nullptr && allParticles[left][y] != nullptr)
 		MoveParticles(x, y, right, y);
-
 	//both ways are free, randomly choose one and move	
-	if (allParticles[right][y] == nullptr && allParticles[left][y] == nullptr)
+	else if (allParticles[right][y] == nullptr && allParticles[left][y] == nullptr)
 	{
 		int randomNum = rand() % 2 + 1;
 
@@ -713,16 +821,16 @@ void Water::HandlePhysics()
 }
 
 //ice particles
-Ice::Ice(int newX, int newY, int newTemperature)
+Ice::Ice(int newX, int newY, float newTemperature)
 {
 	Particle::Reset();
+	type = TYPE_ICE;
 	x = newX;
 	y = newY;
 	temperature = (float)newTemperature;
-	thermalConductivity = iceThermalConductivity;
-	health = iceHealth;
-	weight = iceWeight;
-	type = TYPE_ICE;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
 }
 
 void Ice::Draw()
@@ -742,7 +850,7 @@ void Ice::HandleEvents()
 		{
 			int newX = x;
 			int newY = y;
-			int newTemp = temperature;
+			float newTemp = temperature;
 
 			DestroyParticle(x, y);
 			Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);
@@ -754,12 +862,12 @@ void Ice::HandlePhysics()
 	//Ice does not fall, run no physics
 }
 
-ThermalFluid::ThermalFluid(int newX, int newY, int newTemperature) : Water(newX, newY, newTemperature)
+ThermalFluid::ThermalFluid(int newX, int newY, float newTemperature) : Water(newX, newY, newTemperature)
 {
-	thermalConductivity = thermalFluidThermalConductivity;
-	weight = thermalFluidWeight;
-	health = thermalFluidHealth;
 	type = TYPE_THERMALFLUID;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
 }
 
 void ThermalFluid::Draw()
@@ -781,12 +889,12 @@ void ThermalFluid::HandlePhysics()
 }
 
 //acid particles
-Acid::Acid(int newX, int newY, int newTemperature) : Water(newX, newY, newTemperature)
+Acid::Acid(int newX, int newY, float newTemperature) : Water(newX, newY, newTemperature)
 {
-	thermalConductivity = acidThermalConductivity;
-	weight = acidWeight;
-	health = acidHealth;
 	type = TYPE_ACID;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
 }
 
 void Acid::Draw()
@@ -874,4 +982,161 @@ void Acid::HandleEvents()
 void Acid::HandlePhysics()
 {
 	Water::HandlePhysics();
+}
+
+
+//steam particles
+Steam::Steam(int newX, int newY, float newTemperature)
+{
+	Particle::Reset();
+	type = TYPE_STEAM;
+	x = newX;
+	y = newY;
+	temperature = (float)newTemperature;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
+}
+
+void Steam::Draw()
+{
+	SDL_SetRenderDrawColor(mainRenderer, 200, 255, 255, 0);
+	SDL_RenderDrawPoint(mainRenderer, x, y);
+}
+
+void Steam::HandleEvents()
+{
+	//handle default events first, this includes temperature shifting
+	Particle::HandleEvents();
+
+	if (temperature < steamCondensationPoint)
+	{
+		int newX = x;
+		int newY = y;
+		float newTemp = temperature;
+
+		DestroyParticle(x, y);
+		Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);
+	}
+}
+
+//custom physics for steam, steam will be the basic gas type
+void Steam::HandlePhysics()
+{
+	int up, left, right;
+	up = y;
+	left = right = x;
+	up--;
+	left--;
+	right++;
+
+	//check if we are at the top of the screen and if we can loop around
+	if (CheckIfAtTop())
+		return;
+
+	//attempt to move the particle directly upwards
+	if (AscendParticle(x, y, true))
+		return;
+
+	//check if we are surrounded
+	if (allParticles[left][y] != nullptr && allParticles[right][y] != nullptr)
+	{
+		//if we are check if we can move via gravity with the surrounding blocks
+		bool canGoLeft, canGoRight;
+		canGoLeft = canGoRight = false;
+
+		if (allParticles[left][y]->weight != -1)
+			if (allParticles[x][y]->weight < allParticles[left][y]->weight)
+				canGoLeft = true;
+
+		if (allParticles[right][y]->weight != -1)
+			if (allParticles[x][y]->weight < allParticles[right][y]->weight)
+				canGoRight = true;
+
+		//can go either way
+		if (canGoLeft && canGoRight)
+		{
+			switch (rand() % 2 + 1)
+			{
+				//go left
+			case 1:
+				MoveParticles(left, y, x, y);
+				return;
+
+				//go right
+			case 2:
+				MoveParticles(right, y, x, y);
+				return;
+			}
+		}
+
+		//can only go left
+		if (canGoLeft)
+		{
+			MoveParticles(left, y, x, y);
+			return;
+		}
+
+		//can only go right
+		if (canGoRight)
+		{
+			MoveParticles(right, y, x, y);
+			return;
+		}
+
+		//neither way is less weight and we know that were surrounded, do not run any further code
+		return;
+	}
+
+	//there is an object under this one, try and move to the left or right
+	if (x == 0)//check if we are on the left most edge
+	{
+		//we are on the left most edge, try to drop to the bottom right
+		if (allParticles[right][y] == nullptr)
+		{
+			//update the array
+			MoveParticles(x, y, right, y);
+			return;
+		}
+		return;//even if we cant drop, we know that we can not go anywhere so stop here
+	}
+
+	if (x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
+	{
+		//we are on the right most edge, try to drop to the bottom left
+		if (allParticles[left][y] == nullptr)
+		{
+			//update the array
+			MoveParticles(x, y, left, y);
+			return;
+		}
+		return;//even if we cant drop, we know that we can not go anywhere so stop here
+	}
+
+	//if left is empty only
+	if (allParticles[left][y] == nullptr && allParticles[right][y] != nullptr)
+		MoveParticles(x, y, left, y);	
+	//if right is empty only
+	else if (allParticles[right][y] == nullptr && allParticles[left][y] != nullptr)
+		MoveParticles(x, y, right, y);	
+	//both ways are free, randomly choose one and move	
+	else if (allParticles[right][y] == nullptr && allParticles[left][y] == nullptr)
+	{
+		int randomNum = rand() % 2 + 1;
+
+		switch (randomNum)
+		{
+			//go left
+		case 1:
+			//update the array
+			MoveParticles(x, y, left, y);
+			return;
+
+			//go right
+		case 2:
+			//update the array
+			MoveParticles(x, y, right, y);
+			return;
+		}
+	}
 }
