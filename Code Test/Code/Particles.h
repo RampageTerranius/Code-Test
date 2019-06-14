@@ -11,6 +11,9 @@ enum ParticleType
 	TYPE_ACID,
 	TYPE_STEAM,
 	TYPE_PLANT,
+	TYPE_SALT,
+	TYPE_SALTWATER,
+	TYPE_SALTICE,
 	TYPE_TOTALTYPES
 };
 
@@ -23,6 +26,9 @@ std::string typeNames[] = { "Wall",
 							"Acid",
 							"Steam",
 							"Plant",
+							"Salt",
+							"Salt Water",
+							"Salt Ice",
 							"TotalTypes"};//you should never be using this final string, if you are your working with a non existant particale type
 
 class Particle
@@ -106,6 +112,28 @@ public:
 	void HandlePhysics();
 };
 
+//salt water particles
+//basically just standard water but a bit mroe heavier and will damage any plants it touches
+class SaltWater : public Water
+{
+public:
+	SaltWater(int newX, int newY, float newTemperature);
+	void Draw();
+	bool HandleEvents();
+	void HandlePhysics();
+};
+
+//salt particle
+//basically sand but can combine with water to become salt water
+class Salt : public Sand
+{
+public:
+	Salt(int newX, int newY, float newTemperature);
+	void Draw();
+	bool HandleEvents();
+	void HandlePhysics();
+};
+
 //ice particles
 //does not move
 //can melt into water
@@ -113,6 +141,18 @@ class Ice : public Particle
 {
 public:
 	Ice(int newX, int newY, float newTemperature);
+	void Draw();
+	bool HandleEvents();
+	void HandlePhysics();
+};
+
+//salt ice particles
+//does not move
+//can melt into salt water
+class SaltIce : public Particle
+{
+public:
+	SaltIce(int newX, int newY, float newTemperature);
 	void Draw();
 	bool HandleEvents();
 	void HandlePhysics();
@@ -189,6 +229,25 @@ Particle* CreateParticle(ParticleType type, int x, int y, float temp)
 		allParticles[x][y] = new Plant(x, y, temp);
 		particleList.push_back(allParticles[x][y]);
 		return allParticles[x][y];
+
+	case TYPE_SALT:
+		allParticles[x][y] = new Salt(x, y, temp);
+		particleList.push_back(allParticles[x][y]);
+		return allParticles[x][y];
+
+	case TYPE_SALTWATER:
+		allParticles[x][y] = new SaltWater(x, y, temp);
+		particleList.push_back(allParticles[x][y]);
+		return allParticles[x][y];
+
+	case TYPE_SALTICE:
+		allParticles[x][y] = new SaltIce(x, y, temp);
+		particleList.push_back(allParticles[x][y]);
+		return allParticles[x][y];
+
+	default:
+		std::cout << "Attempt to create a unknown particle type at " + std::to_string(x) + "|" + std::to_string(y) + "\n";
+		break;
 	}
 
 	//we didnt have a type, return nullptr
@@ -691,30 +750,29 @@ bool Water::HandleEvents()
 		return true;
 
 	//check if the water should freeze
-	if (this != nullptr)
-		if (temperature < waterFreezePoint)
-		{
-			int newX = x;
-			int newY = y;
-			float newTemp = temperature;
+	if (temperature < waterFreezePoint)
+	{
+		int newX = x;
+		int newY = y;
+		float newTemp = temperature;
 
-			DestroyParticle(x, y);
-			Particle* tempParticle = CreateParticle(TYPE_ICE, newX, newY, newTemp);
+		DestroyParticle(x, y);
+		Particle* tempParticle = CreateParticle(TYPE_ICE, newX, newY, newTemp);
 
-			return true;
-		}
+		return true;
+	}
 	//check if should turn into steam
-		else if (temperature > waterBoilIntoSteamPoint)
-		{
-			int newX = x;
-			int newY = y;
-			float newTemp = temperature;
+	else if (temperature > waterBoilIntoSteamPoint)
+	{
+		int newX = x;
+		int newY = y;
+		float newTemp = temperature;
 
-			DestroyParticle(x, y);
-			Particle* tempParticle = CreateParticle(TYPE_STEAM, newX, newY, newTemp);
+		DestroyParticle(x, y);
+		Particle* tempParticle = CreateParticle(TYPE_STEAM, newX, newY, newTemp);
 
-			return true;
-		}
+		return true;
+	}
 
 	return false;
 }
@@ -1210,8 +1268,10 @@ bool Plant::HandleEvents()
 	bool canGoUp, canGoDown, canGoLeft, canGoRight;
 	canGoUp = canGoDown = canGoLeft = canGoRight = false;
 
+	//check up and down
 	if (y > 0 && y < WINDOW_HEIGHT - 1)
 	{
+		//check if can spread upwards
 		if (allParticles[x][up] != nullptr)
 			if (allParticles[x][up]->type == TYPE_WATER)
 			{
@@ -1223,6 +1283,7 @@ bool Plant::HandleEvents()
 				}
 			}
 
+		//check if cna spread downwards
 		if (allParticles[x][down] != nullptr)
 			if (allParticles[x][down]->type == TYPE_WATER)
 			{
@@ -1235,8 +1296,10 @@ bool Plant::HandleEvents()
 			}
 	}
 
+	//check left and right
 	if (x > 0 && x < WINDOW_WIDTH - 1)
 	{
+		//check if cna spread left
 		if (allParticles[left][y] != nullptr)
 			if (allParticles[left][y]->type == TYPE_WATER)
 			{
@@ -1248,6 +1311,7 @@ bool Plant::HandleEvents()
 				}
 			}
 
+		//check if cna spread right
 		if (allParticles[right][y] != nullptr)
 			if (allParticles[right][y]->type == TYPE_WATER)
 			{
@@ -1260,6 +1324,7 @@ bool Plant::HandleEvents()
 			}
 	}
 
+	//check what directions we can spread and spread in those directions
 	if (canGoUp)
 	{
 		int newX = x;
@@ -1310,4 +1375,225 @@ bool Plant::HandleEvents()
 void Plant::HandlePhysics()
 {
 
+}
+
+//salt particle
+Salt::Salt(int newX, int newY, float newTemperature) : Sand(newX, newY, newTemperature)
+{
+	type = TYPE_SALT;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
+}
+
+void Salt::Draw()
+{
+	SDL_SetRenderDrawColor(mainRenderer, 230, 230, 230, 0);
+	SDL_RenderDrawPoint(mainRenderer, x, y);
+}
+
+bool Salt::HandleEvents()
+{
+	//default event handling
+	if (Particle::HandleEvents())
+		return true;
+
+	//salt event handling
+	int up, down, left, right;
+
+	up = down = y;
+	left = right = x;
+
+	up--;
+	down++;
+	left--;
+	right++;
+
+	//up
+	if (allParticles[x][up] != nullptr)
+		if (allParticles[x][up]->type == TYPE_WATER)
+		{
+			//get some temporary variables as both particles will be deleted soon and we do not want to possibly call upon a deleted object
+			float temp = (allParticles[x][up]->temperature + allParticles[x][y]->temperature) / 2;
+			int x1, y1, x2, y2;
+
+			x1 = x;
+			y1 = y;
+			x2 = x;
+			y2 = up;
+
+			DestroyParticle(x1, y1);
+			DestroyParticle(x2, y2);
+
+			CreateParticle(TYPE_SALTWATER, x2, y2, temp);
+			return true;
+		}
+
+	//down
+	if (allParticles[x][down] != nullptr)
+		if (allParticles[x][down]->type == TYPE_WATER)
+		{
+			//get some temporary variables as both particles will be deleted soon and we do not want to possibly call downon a deleted object
+			float temp = (allParticles[x][down]->temperature + allParticles[x][y]->temperature) / 2;
+			int x1, y1, x2, y2;
+
+			x1 = x;
+			y1 = y;
+			x2 = x;
+			y2 = down;
+
+			DestroyParticle(x1, y1);
+			DestroyParticle(x2, y2);
+
+			CreateParticle(TYPE_SALTWATER, x2, y2, temp);
+			return true;
+		}
+
+	//left
+	if (allParticles[left][y] != nullptr)
+		if (allParticles[left][y]->type == TYPE_WATER)
+		{
+			//get some temporary variables as both particles will be deleted soon and we do not want to possibly call upon a deleted object
+			float temp = (allParticles[left][y]->temperature + allParticles[x][y]->temperature) / 2;
+			int x1, y1, x2, y2;
+
+			x1 = x;
+			y1 = y;
+			x2 = left;
+			y2 = y;
+
+			DestroyParticle(x1, y1);
+			DestroyParticle(x2, y2);
+
+			CreateParticle(TYPE_SALTWATER, x2, y2, temp);
+			return true;
+		}
+
+	//right
+	if (allParticles[right][y] != nullptr)
+		if (allParticles[right][y]->type == TYPE_WATER)
+		{
+			//get some temporary variables as both particles will be deleted soon and we do not want to possibly call upon a deleted object
+			float temp = (allParticles[right][y]->temperature + allParticles[x][y]->temperature) / 2;
+			int x1, y1, x2, y2;
+
+			x1 = x;
+			y1 = y;
+			x2 = right;
+			y2 = y;
+
+			DestroyParticle(x1, y1);
+			DestroyParticle(x2, y2);
+
+			CreateParticle(TYPE_SALTWATER, x2, y2, temp);
+			return true;
+		}	
+
+	return false;
+}
+
+//use default sand physics
+void Salt::HandlePhysics()
+{
+	Sand::HandlePhysics();	
+}
+
+//salt water particle
+SaltWater::SaltWater(int newX, int newY, float newTemperature) : Water(newX, newY, newTemperature)
+{
+	type = TYPE_SALTWATER;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
+}
+
+void SaltWater::Draw()
+{
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 150, 0);
+	SDL_RenderDrawPoint(mainRenderer, x, y);
+}
+
+bool SaltWater::HandleEvents()
+{
+	//handle default events, this includes handling temperature shifts
+	if (Particle::HandleEvents())
+		return true;
+
+	//check if the salt water should freeze
+	if (temperature < (waterFreezePoint * saltWaterEventTempMultiplier))
+	{
+		int newX = x;
+		int newY = y;
+		float newTemp = temperature;
+
+		DestroyParticle(x, y);
+		Particle* tempParticle = CreateParticle(TYPE_SALTICE, newX, newY, newTemp);
+
+		return true;
+	}
+	//check if should turn into steam
+	else if (temperature > (waterBoilIntoSteamPoint * saltWaterEventTempMultiplier))
+	{
+		int newX = x;
+		int newY = y;
+		float newTemp = temperature;
+
+		DestroyParticle(x, y);
+		Particle* tempParticle = CreateParticle(TYPE_STEAM, newX, newY, newTemp);
+
+		return true;
+	}
+
+	return false;
+}
+
+//use default sand physics
+void SaltWater::HandlePhysics()
+{
+	Water::HandlePhysics();
+}
+
+//salt ice particles
+SaltIce::SaltIce(int newX, int newY, float newTemperature)
+{
+	Particle::Reset();
+	type = TYPE_SALTICE;
+	x = newX;
+	y = newY;
+	temperature = (float)newTemperature;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
+}
+
+void SaltIce::Draw()
+{
+	SDL_SetRenderDrawColor(mainRenderer, 100, 255, 150, 0);
+	SDL_RenderDrawPoint(mainRenderer, x, y);
+}
+
+bool SaltIce::HandleEvents()
+{
+	//handle default events first, this includes temperature shifting
+	if (Particle::HandleEvents())
+		return true;
+
+	//check if ice should melt	
+	if (temperature > (iceMeltPoint * saltWaterEventTempMultiplier))
+	{
+		int newX = x;
+		int newY = y;
+		float newTemp = temperature;
+
+		DestroyParticle(x, y);
+		Particle* tempParticle = CreateParticle(TYPE_SALTWATER, newX, newY, newTemp);
+		return true;
+	}
+
+	return false;
+}
+
+void SaltIce::HandlePhysics()
+{
+	//salt ice does not fall, run no physics
 }

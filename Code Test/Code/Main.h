@@ -56,7 +56,11 @@ int settingWeight[]
 	//Steam
 	2,
 	//plant
-	-1
+	-1,
+	//salt
+	10,
+	//salt water
+	4
 };
 
 //health (-1 donates can not be broken)
@@ -77,6 +81,12 @@ int settingHealth[]
 	//Steam
 	20,
 	//Plant
+	120,
+	//salt
+	140,
+	//salt water
+	100,
+	//salt ice
 	120
 };
 
@@ -97,15 +107,22 @@ float settingThermalConductivity[]
 	//Steam
 	0.03f,
 	//plant
-	0.026f
+	0.026f,
+	//salt
+	0.0185f,
+	//salt water
+	0.015f,
+	//salt ice
+	0.0175f,
 };
 
 //other settings
-//freeze and melt points
+//freeze/melt/boil points
 float waterFreezePoint = 0;
 float iceMeltPoint = 2;
 float steamCondensationPoint = 98;
 float waterBoilIntoSteamPoint = 100;
+float saltWaterEventTempMultiplier = 1.2;//a value of 1.1 would give a 10% increase over water boil/freeze points
 
 //randomised event chances
 int acidDamageChance = 10;//higher number means lower chance (calculated as (1 / acidDamageChance) meaning if chance was 10 there is a 1 in 10 chance per tick to damage a block)

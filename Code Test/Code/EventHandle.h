@@ -243,7 +243,7 @@ void CreateParticlesAtBrush(ParticleType type, int x, int y, float temperature)
 {
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
 	if (currentBrushSize == 1)
-		CreateParticle(type, mouse.x, mouse.y, temperature);
+		CreateParticle(type, mouse.x, mouse.y, temperature);	
 	else for(int i = currentBrushSize; i > -currentBrushSize; i--)
 		for (int n = currentBrushSize; n > -currentBrushSize; n--)
 			CreateParticle(type, mouse.x + i, mouse.y + n, temperature);
