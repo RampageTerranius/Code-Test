@@ -36,6 +36,7 @@ bool drawHeat = false;//when true will render particles color via heat isntead o
 bool loopScreen = true;
 bool pauseParticles = false;
 bool renderBrush = true;
+bool createAsSource = false;//if the blocks created should be source particles or standard particles
 
 
 //weight (-1 donates it does not calculate weight)
@@ -50,7 +51,7 @@ int settingWeight[]
 	//Ice
 	-1,
 	//Thermal
-	8,
+	4,
 	//Acid
 	1,
 	//Steam
@@ -58,9 +59,15 @@ int settingWeight[]
 	//plant
 	-1,
 	//salt
-	10,
+    6,
 	//salt water
-	4
+	5,
+	//salt ice,
+	-1,
+
+	//the following must ALWAYS be at the end
+	//source
+	-1
 };
 
 //health (-1 donates can not be broken)
@@ -87,7 +94,11 @@ int settingHealth[]
 	//salt water
 	100,
 	//salt ice
-	120
+	120,
+
+	//the following must ALWAYS be at the end
+	//source
+	300
 };
 
 float settingThermalConductivity[]
@@ -114,6 +125,53 @@ float settingThermalConductivity[]
 	0.015f,
 	//salt ice
 	0.0175f,
+
+	//the following must ALWAYS be at the end
+	//source
+	0
+};
+
+class Color
+{
+public:
+	Color(int newR, int newG, int newB, int newA);
+	int r, g, b, a;
+};
+
+Color::Color(int newR, int newG, int newB, int newA)
+{
+	r = newR;
+	g = newG;
+	b = newB;
+	a = newA;
+}
+
+//color settings
+//format is R, G, B, A
+Color settingColor[]
+{
+	//Wall
+	{87, 87, 87, 0},
+	//Sand
+	{207, 226, 34, 0},
+	//Water
+	{0, 0, 255, 0},
+	//Ice
+	{100, 255, 255, 0},
+	//Thermal
+	{150, 50, 255, 0},
+	//Acid
+	{102, 0, 102, 0},
+	//Steam
+	{200, 255, 255, 0},
+	//plant
+	{20, 150, 20, 0},
+	//salt
+	{230, 230, 230, 0},
+	//salt water
+	{0, 0, 150, 0},
+	//salt ice
+	{100, 255, 150, 0}
 };
 
 //other settings
@@ -122,7 +180,7 @@ float waterFreezePoint = 0;
 float iceMeltPoint = 2;
 float steamCondensationPoint = 98;
 float waterBoilIntoSteamPoint = 100;
-float saltWaterEventTempMultiplier = 1.2;//a value of 1.1 would give a 10% increase over water boil/freeze points
+float saltWaterEventTempMultiplier = 1.2f;//a value of 1.1 would give a 10% increase over water boil/freeze points
 
 //randomised event chances
 int acidDamageChance = 10;//higher number means lower chance (calculated as (1 / acidDamageChance) meaning if chance was 10 there is a 1 in 10 chance per tick to damage a block)

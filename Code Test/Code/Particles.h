@@ -14,6 +14,9 @@ enum ParticleType
 	TYPE_SALT,
 	TYPE_SALTWATER,
 	TYPE_SALTICE,
+
+	//the following must ALWAYS be at the end
+	TYPE_SOURCE,
 	TYPE_TOTALTYPES
 };
 
@@ -29,6 +32,9 @@ std::string typeNames[] = { "Wall",
 							"Salt",
 							"Salt Water",
 							"Salt Ice",
+
+							//the following must ALWAYS be at the end
+							"Source - "
 							"TotalTypes"};//you should never be using this final string, if you are your working with a non existant particale type
 
 class Particle
@@ -158,7 +164,7 @@ public:
 	void HandlePhysics();
 };
 
-//steam aprticles
+//steam particles
 //move upwards in a randomised direction, somewhat like a reverese water particle
 //turns back into water when cools down
 class Steam : public Particle
@@ -170,11 +176,26 @@ public:
 	void HandlePhysics();
 };
 
+//source particle
+//creates other particles of the given source type around it
+//can be a source for any other type of block, useful for self repairing walls or for self replenishing water for example
+class Source : public Particle
+{
+public:
+	Source(ParticleType type, int newX, int newY, float newTemperature);
+	void Draw();
+	bool HandleEvents();
+	void HandlePhysics();
+
+	ParticleType sourceType;
+};
+
+
 //array and vector list handling all data to do with our entities
 Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
 std::vector<Particle*> particleList;
 
-Particle* CreateParticle(ParticleType type, int x, int y, float temp)
+Particle* CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 {
 	//check that we have no entity in this section to begin with
 	if (allParticles[x][y] != nullptr)
@@ -188,76 +209,91 @@ Particle* CreateParticle(ParticleType type, int x, int y, float temp)
 		return nullptr;;
 
 	//check what type of entity we need to create and assign it the required data as well as update the entityexists list
-	switch (type)
+	if (!asSource)
 	{
-	case TYPE_WALL:
-		allParticles[x][y] = new Wall(x, y, temp);
+		switch (type)
+		{
+		case TYPE_WALL:
+			allParticles[x][y] = new Wall(x, y, temp);
+			particleList.push_back(allParticles[x][y]);
+			return allParticles[x][y];
+
+		case TYPE_SAND:
+			allParticles[x][y] = new Sand(x, y, temp);
+			particleList.push_back(allParticles[x][y]);
+			return allParticles[x][y];
+
+		case TYPE_WATER:
+			allParticles[x][y] = new Water(x, y, temp);
+			particleList.push_back(allParticles[x][y]);
+			return allParticles[x][y];
+
+		case TYPE_ICE:
+			allParticles[x][y] = new Ice(x, y, temp);
+			particleList.push_back(allParticles[x][y]);
+			return allParticles[x][y];
+
+		case TYPE_THERMALFLUID:
+			allParticles[x][y] = new ThermalFluid(x, y, temp);
+			particleList.push_back(allParticles[x][y]);
+			return allParticles[x][y];
+
+		case TYPE_ACID:
+			allParticles[x][y] = new Acid(x, y, temp);
+			particleList.push_back(allParticles[x][y]);
+			return allParticles[x][y];
+
+		case TYPE_STEAM:
+			allParticles[x][y] = new Steam(x, y, temp);
+			particleList.push_back(allParticles[x][y]);
+			return allParticles[x][y];
+
+		case TYPE_PLANT:
+			allParticles[x][y] = new Plant(x, y, temp);
+			particleList.push_back(allParticles[x][y]);
+			return allParticles[x][y];
+
+		case TYPE_SALT:
+			allParticles[x][y] = new Salt(x, y, temp);
+			particleList.push_back(allParticles[x][y]);
+			return allParticles[x][y];
+
+		case TYPE_SALTWATER:
+			allParticles[x][y] = new SaltWater(x, y, temp);
+			particleList.push_back(allParticles[x][y]);
+			return allParticles[x][y];
+
+		case TYPE_SALTICE:
+			allParticles[x][y] = new SaltIce(x, y, temp);
+			particleList.push_back(allParticles[x][y]);
+			return allParticles[x][y];
+
+		default:
+			std::cout << "Attempt to create a unknown particle type at " + std::to_string(x) + "|" + std::to_string(y) + "\n";
+			break;
+		}
+	}
+	else
+	{
+		allParticles[x][y] = new Source(type, x, y, temp);
 		particleList.push_back(allParticles[x][y]);
 		return allParticles[x][y];
-
-	case TYPE_SAND:
-		allParticles[x][y] = new Sand(x, y, temp);
-		particleList.push_back(allParticles[x][y]);
-		return allParticles[x][y];
-
-	case TYPE_WATER:
-		allParticles[x][y] = new Water(x, y, temp);
-		particleList.push_back(allParticles[x][y]);
-		return allParticles[x][y];
-
-	case TYPE_ICE:
-		allParticles[x][y] = new Ice(x, y, temp);
-		particleList.push_back(allParticles[x][y]);
-		return allParticles[x][y];
-
-	case TYPE_THERMALFLUID:
-		allParticles[x][y] = new ThermalFluid(x, y, temp);
-		particleList.push_back(allParticles[x][y]);
-		return allParticles[x][y];
-
-	case TYPE_ACID:
-		allParticles[x][y] = new Acid(x, y, temp);
-		particleList.push_back(allParticles[x][y]);
-		return allParticles[x][y];
-
-	case TYPE_STEAM:
-		allParticles[x][y] = new Steam(x, y, temp);
-		particleList.push_back(allParticles[x][y]);
-		return allParticles[x][y];
-
-	case TYPE_PLANT:
-		allParticles[x][y] = new Plant(x, y, temp);
-		particleList.push_back(allParticles[x][y]);
-		return allParticles[x][y];
-
-	case TYPE_SALT:
-		allParticles[x][y] = new Salt(x, y, temp);
-		particleList.push_back(allParticles[x][y]);
-		return allParticles[x][y];
-
-	case TYPE_SALTWATER:
-		allParticles[x][y] = new SaltWater(x, y, temp);
-		particleList.push_back(allParticles[x][y]);
-		return allParticles[x][y];
-
-	case TYPE_SALTICE:
-		allParticles[x][y] = new SaltIce(x, y, temp);
-		particleList.push_back(allParticles[x][y]);
-		return allParticles[x][y];
-
-	default:
-		std::cout << "Attempt to create a unknown particle type at " + std::to_string(x) + "|" + std::to_string(y) + "\n";
-		break;
 	}
 
 	//we didnt have a type, return nullptr
 	return nullptr;
 }
 
+//overload for default mode
+Particle* CreateParticle(ParticleType type, int x, int y, float temp)
+{
+	return CreateParticle(type, x, y, temp, false);
+}
+
 //destroys the particle at the given location and wipes the memory of it
 void DestroyParticle(int x, int y)
 {
-	//check if a particle even exists in teh area we want to delete and cancel if there is none
+	//check if a particle even exists in the area we want to delete and cancel if there is none
 	if (allParticles[x][y] == nullptr)
 		return;
 
@@ -680,7 +716,7 @@ Wall::Wall(int newX, int newY, float newTemperature)
 	type = TYPE_WALL;
 	x = newX;
 	y = newY;
-	temperature = (float)newTemperature;
+	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
 	weight = settingWeight[type];
@@ -688,7 +724,7 @@ Wall::Wall(int newX, int newY, float newTemperature)
 
 void Wall::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, 87, 87, 87, 0);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
@@ -705,7 +741,7 @@ Sand::Sand(int newX, int newY, float newTemperature)
 	type = TYPE_SAND;
 	x = newX;
 	y = newY;
-	temperature = (float)newTemperature;
+	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
 	weight = settingWeight[type];
@@ -714,7 +750,7 @@ Sand::Sand(int newX, int newY, float newTemperature)
 
 void Sand::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, 207, 226, 34, 0);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
@@ -730,7 +766,7 @@ Water::Water(int newX, int newY, float newTemperature)
 	type = TYPE_WATER;
 	x = newX;
 	y = newY;
-	temperature = (float)newTemperature;
+	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
 	weight = settingWeight[type];
@@ -739,7 +775,7 @@ Water::Water(int newX, int newY, float newTemperature)
 
 void Water::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 255, 0);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
@@ -909,7 +945,7 @@ Ice::Ice(int newX, int newY, float newTemperature)
 	type = TYPE_ICE;
 	x = newX;
 	y = newY;
-	temperature = (float)newTemperature;
+	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
 	weight = settingWeight[type];
@@ -917,7 +953,7 @@ Ice::Ice(int newX, int newY, float newTemperature)
 
 void Ice::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, 100, 255, 255, 0);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
@@ -957,7 +993,7 @@ ThermalFluid::ThermalFluid(int newX, int newY, float newTemperature) : Water(new
 
 void ThermalFluid::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, 150, 50, 255, 0);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
@@ -986,7 +1022,7 @@ Acid::Acid(int newX, int newY, float newTemperature) : Water(newX, newY, newTemp
 
 void Acid::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, 102, 0, 102, 0);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
@@ -1080,7 +1116,7 @@ Steam::Steam(int newX, int newY, float newTemperature)
 	type = TYPE_STEAM;
 	x = newX;
 	y = newY;
-	temperature = (float)newTemperature;
+	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
 	weight = settingWeight[type];
@@ -1088,7 +1124,7 @@ Steam::Steam(int newX, int newY, float newTemperature)
 
 void Steam::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, 200, 255, 255, 0);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
@@ -1244,7 +1280,7 @@ Plant::Plant(int newX, int newY, float newTemperature) : Wall(newX, newY, newTem
 
 void Plant::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, 20, 150, 20, 0);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
 	SDL_RenderDrawPoint(mainRenderer, x, y);	
 }
 
@@ -1388,7 +1424,7 @@ Salt::Salt(int newX, int newY, float newTemperature) : Sand(newX, newY, newTempe
 
 void Salt::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, 230, 230, 230, 0);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
@@ -1509,7 +1545,7 @@ SaltWater::SaltWater(int newX, int newY, float newTemperature) : Water(newX, new
 
 void SaltWater::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 150, 0);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
@@ -1560,7 +1596,7 @@ SaltIce::SaltIce(int newX, int newY, float newTemperature)
 	type = TYPE_SALTICE;
 	x = newX;
 	y = newY;
-	temperature = (float)newTemperature;
+	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
 	weight = settingWeight[type];
@@ -1568,7 +1604,7 @@ SaltIce::SaltIce(int newX, int newY, float newTemperature)
 
 void SaltIce::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, 100, 255, 150, 0);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
 	SDL_RenderDrawPoint(mainRenderer, x, y);
 }
 
@@ -1596,4 +1632,65 @@ bool SaltIce::HandleEvents()
 void SaltIce::HandlePhysics()
 {
 	//salt ice does not fall, run no physics
+}
+
+//source particles
+//creates copies of its self in the surrounding blocks that are empty
+Source::Source(ParticleType newSourceType, int newX, int newY, float newTemperature)
+{
+	Particle::Reset();
+	type = TYPE_SOURCE;
+	x = newX;
+	y = newY;
+	temperature = newTemperature;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
+	sourceType = newSourceType;
+}
+void Source::Draw()
+{
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[sourceType].r, settingColor[sourceType].g, settingColor[sourceType].b, settingColor[sourceType].a);
+	SDL_RenderDrawPoint(mainRenderer, x, y);
+}
+
+bool Source::HandleEvents()
+{
+	Particle::HandleEvents();
+
+	//Source event handle
+	//attempt to create new particles around this particle using its sourceType value
+
+	//values to help with determining what ways to calculate
+	int up, down, left, right;
+	up = down = y;
+	left = right = x;
+	up--;
+	down++;
+	left--;
+	right++;
+
+	if (up >= 0)
+		if (allParticles[x][up] == nullptr)
+			CreateParticle(sourceType, x, up, temperature);
+
+	if (down <= WINDOW_HEIGHT - 1)
+		if (allParticles[x][down] == nullptr)
+			CreateParticle(sourceType, x, down, temperature);
+
+	if (left >= 0)
+		if (allParticles[left][y] == nullptr)
+			CreateParticle(sourceType, left, y, temperature);
+
+	if (right <= WINDOW_WIDTH - 1)
+		if (allParticles[right][y] == nullptr)
+			CreateParticle(sourceType, right, y, temperature);
+
+	return false;
+}
+
+//source blocks will not need to move
+void Source::HandlePhysics()
+{
+	//no physics
 }

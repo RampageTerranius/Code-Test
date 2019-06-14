@@ -72,7 +72,11 @@ void Render()
 	}
 
 	//render what type of brush is selected at the top left
-	brushName.SetText(typeNames[currentBrushType]);
+	
+	if (!createAsSource)
+		brushName.SetText(typeNames[currentBrushType]);
+	else 
+		brushName.SetText("Source - " + typeNames[currentBrushType]);
 	brushName.Draw(mainRenderer, 20, 20);
 
 	//render what brush size is selected under that
@@ -86,8 +90,17 @@ void Render()
 	//render selected particle type and temperature
 	if (allParticles[mouse.x][mouse.y] != nullptr)
 	{
+		
 		selectedParticleTemperature.SetText(std::to_string(allParticles[mouse.x][mouse.y]->temperature) + "c");
-		selectedParticleName.SetText(typeNames[allParticles[mouse.x][mouse.y]->type]);
+		
+		//check if source block
+		if (allParticles[mouse.x][mouse.y]->type != TYPE_SOURCE)
+			selectedParticleName.SetText(typeNames[allParticles[mouse.x][mouse.y]->type]);
+		else
+		{
+			Source* s = (Source*)allParticles[mouse.x][mouse.y];
+			selectedParticleName.SetText(typeNames[allParticles[mouse.x][mouse.y]->type] + typeNames[s->sourceType]);
+		}
 	}
 	else
 	{

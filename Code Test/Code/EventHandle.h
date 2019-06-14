@@ -2,7 +2,7 @@
 
 struct Keyboard
 {
-	bool w, s, a, d, h, x;
+	bool w, s, a, d, e, h, x;
 	bool plus, minus;
 	bool leftBracket, rightBracket;
 	bool lShift, rShift;
@@ -64,7 +64,6 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_a:
 				keyboard.a = true;
-				keyboard.leftBracket = true;
 				currentBrushSize--;
 				if (currentBrushSize < 1)
 					currentBrushSize = 1;
@@ -72,10 +71,14 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_d:
 				keyboard.d = true;
-				keyboard.rightBracket = true;
 				currentBrushSize++;
 				if (currentBrushSize > MAX_BRUSH_SIZE)
 					currentBrushSize = MAX_BRUSH_SIZE;
+				break;
+
+			case SDLK_e:
+				keyboard.e = true;
+				createAsSource = !createAsSource;
 				break;
 
 			case SDLK_w:
@@ -147,6 +150,10 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_d:
 				keyboard.d = false;
+				break;
+
+			case SDLK_e:
+				keyboard.e = false;
 				break;
 
 			case SDLK_w:
@@ -243,10 +250,10 @@ void CreateParticlesAtBrush(ParticleType type, int x, int y, float temperature)
 {
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
 	if (currentBrushSize == 1)
-		CreateParticle(type, mouse.x, mouse.y, temperature);	
+		CreateParticle(type, mouse.x, mouse.y, temperature, createAsSource);	
 	else for(int i = currentBrushSize; i > -currentBrushSize; i--)
 		for (int n = currentBrushSize; n > -currentBrushSize; n--)
-			CreateParticle(type, mouse.x + i, mouse.y + n, temperature);
+			CreateParticle(type, mouse.x + i, mouse.y + n, temperature, createAsSource);
 }
 
 void DestroyParticlesAtBrush(int x, int y)
