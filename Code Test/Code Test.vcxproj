@@ -32,6 +32,9 @@
   <ItemGroup>
     <ClCompile Include="Code\Main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\..\..\Tyler%27s PC\source\repos\Code-Test\Code Test\Todo.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{61035966-CBAE-4504-900C-384A65F5CD1E}</ProjectGuid>

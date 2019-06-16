@@ -1,0 +1,21 @@
+CURRENTLY KNOWN BUGS/ISSUES::
+
+TOP PRIORITY:
+deletion of blocks causes MAJOR lag that becomes much worse with mroe particles as it has to check through every single particle in the particle list multiple times each time a delete call is used
+full rebuild of particlelist system needed
+
+MAJOR:
+game slows down as more particles are emulated on screen
+
+MINOR:
+sand like particles will be blocked from falling by water like particles that happen to be falling near them
+
+
+
+PARTICLE IDEAS::
+lava - water liek particle that damages other particles and potentially sets others on fire, will turn into stone when it coosl down
+stone - sand like particle, will turn into lava at high temperatures
+
+gas like particles - this has already semi started with the steam particle, want to add multiple other gasses at later stages that have different bouyancy and different reactions to different particles
+explosive particles - stuff liek c4, gunpower etc. will blow up causing fire and potentially damaging other blocks around it
+living particles - semi started with plant particles. other stuff liek bugs, seeds, wood, leaf particles etc
