@@ -30,7 +30,7 @@ void SwitchBrushType(bool gotoNext)
 		i++;
 
 		//make sure we havent gone over the struct size
-		if (i > TYPE_TOTALTYPES - 1)	
+		if (i > TYPE_TOTALTYPES - 2)	
 			i = 0;		
 
 		//cast the int as eType and update the current brush
@@ -42,7 +42,7 @@ void SwitchBrushType(bool gotoNext)
 
 		//make sure we havent gone under the struct size
 		if (i < 0)		
-			i = TYPE_TOTALTYPES - 1;
+			i = TYPE_TOTALTYPES - 2;
 
 		//cast the int as eType and update the current brush
 		currentBrushType = static_cast<ParticleType>(i);

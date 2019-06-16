@@ -64,6 +64,8 @@ int settingWeight[]
 	5,
 	//salt ice,
 	-1,
+	//glitch
+	-1,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -95,6 +97,8 @@ int settingHealth[]
 	100,
 	//salt ice
 	120,
+	//glitch
+	50,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -125,6 +129,8 @@ float settingThermalConductivity[]
 	0.015f,
 	//salt ice
 	0.0175f,
+	//glitch
+	0,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -171,7 +177,9 @@ Color settingColor[]
 	//salt water
 	{0, 0, 150, 0},
 	//salt ice
-	{100, 255, 150, 0}
+	{100, 255, 150, 0},
+	//gltich(this color is not used here, glitch particles colro is randomized)
+	{0, 0, 0, 0}
 };
 
 //other settings
@@ -185,6 +193,7 @@ float saltWaterEventTempMultiplier = 1.2f;//a value of 1.1 would give a 10% incr
 //randomised event chances
 int acidDamageChance = 10;//higher number means lower chance (calculated as (1 / acidDamageChance) meaning if chance was 10 there is a 1 in 10 chance per tick to damage a block)
 int plantSpreadChance = 30;//higher number means lower chance (calculated as (1 / plantSpreadChance) meaning if chance was 10 there is a 1 in 10 chance per tick to spread plant through a water block)
+int glitchSpreadChance = 120;
 
 
 //affects how bit of a multiplier is used depending on the percentage difference in temperature between two different particles

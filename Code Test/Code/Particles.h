@@ -14,6 +14,7 @@ enum ParticleType
 	TYPE_SALT,
 	TYPE_SALTWATER,
 	TYPE_SALTICE,
+	TYPE_GLITCH,
 
 	//the following must ALWAYS be at the end
 	TYPE_SOURCE,
@@ -32,9 +33,10 @@ std::string typeNames[] = { "Wall",
 							"Salt",
 							"Salt Water",
 							"Salt Ice",
+							"GLITCH",
 
 							//the following must ALWAYS be at the end
-							"Source - "
+							"Source - ",
 							"TotalTypes"};//you should never be using this final string, if you are your working with a non existant particale type
 
 class Particle
@@ -72,6 +74,17 @@ class Plant : public Wall
 {
 public:
 	Plant(int newX, int newY, float newTemperature);
+	void Draw();
+	bool HandleEvents();
+	void HandlePhysics();
+};
+
+//glitch particle
+//slowly consumes all space, will delete and remove other blocks in its way
+class Glitch : public Wall
+{
+public:
+	Glitch(int newX, int newY, float newTemperature);
 	void Draw();
 	bool HandleEvents();
 	void HandlePhysics();
@@ -265,6 +278,11 @@ Particle* CreateParticle(ParticleType type, int x, int y, float temp, bool asSou
 
 		case TYPE_SALTICE:
 			allParticles[x][y] = new SaltIce(x, y, temp);
+			particleList.push_back(allParticles[x][y]);
+			return allParticles[x][y];
+
+		case TYPE_GLITCH:
+			allParticles[x][y] = new Glitch(x, y, temp);
 			particleList.push_back(allParticles[x][y]);
 			return allParticles[x][y];
 
@@ -1656,7 +1674,8 @@ void Source::Draw()
 
 bool Source::HandleEvents()
 {
-	Particle::HandleEvents();
+	if (Particle::HandleEvents())
+		return true;
 
 	//Source event handle
 	//attempt to create new particles around this particle using its sourceType value
@@ -1691,6 +1710,104 @@ bool Source::HandleEvents()
 
 //source blocks will not need to move
 void Source::HandlePhysics()
+{
+	//no physics
+}
+
+//glitch particles
+Glitch::Glitch(int newX, int newY, float newTemperature) : Wall(newX, newY, newTemperature)
+{
+	Particle::Reset();
+	type = TYPE_GLITCH;
+	x = newX;
+	y = newY;
+	temperature = newTemperature;
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
+}
+void Glitch::Draw()
+{
+	SDL_SetRenderDrawColor(mainRenderer, (rand() % 255), (rand() % 255), (rand() % 255), 0);
+	SDL_RenderDrawPoint(mainRenderer, x, y);
+}
+
+bool Glitch::HandleEvents()
+{
+	if (Particle::HandleEvents())
+		return true;
+
+	//Glitch event handle
+	//attempt to create new glitch particles around this particle and delete any other blocks that are in the way
+
+	//values to help with determining what ways to calculate
+	int up, down, left, right;
+	up = down = y;
+	left = right = x;
+	up--;
+	down++;
+	left--;
+	right++;
+
+	//attempt to spread to other blocks
+	if (up >= 0)
+		if (allParticles[x][up] == nullptr)
+		{
+			if ((rand() % glitchSpreadChance) - 1 == 0)
+				CreateParticle(TYPE_GLITCH, x, up, temperature);
+		}
+		else if (allParticles[x][up]->type != TYPE_GLITCH)
+			if ((rand() % glitchSpreadChance) - 1 == 0)
+			{
+				DestroyParticle(x, up);
+				CreateParticle(TYPE_GLITCH, x, up, temperature);
+			}
+
+	if (down <= WINDOW_HEIGHT - 1)
+		if (allParticles[x][down] == nullptr)
+		{		
+			if ((rand() % glitchSpreadChance) - 1 == 0)
+				CreateParticle(TYPE_GLITCH, x, down, temperature);
+		}
+		else if (allParticles[x][down]->type != TYPE_GLITCH)
+			if ((rand() % glitchSpreadChance) - 1 == 0)
+			{
+				DestroyParticle(x, down);
+				CreateParticle(TYPE_GLITCH, x, down, temperature);
+			}
+			
+
+	if (left >= 0)
+		if (allParticles[left][y] == nullptr)
+		{
+			if ((rand() % glitchSpreadChance) - 1 == 0)
+				CreateParticle(TYPE_GLITCH, left, y, temperature);
+		}
+		else if (allParticles[left][y]->type != TYPE_GLITCH)
+			if ((rand() % glitchSpreadChance) - 1 == 0)
+			{
+				DestroyParticle(left, y);
+				CreateParticle(TYPE_GLITCH, left, y, temperature);
+			}
+
+	if (right <= WINDOW_WIDTH - 1)
+		if (allParticles[right][y] == nullptr)
+		{
+			if ((rand() % glitchSpreadChance) - 1 == 0)
+				CreateParticle(TYPE_GLITCH, right, y, temperature);
+		}
+		else if (allParticles[right][y]->type != TYPE_GLITCH)
+			if ((rand() % glitchSpreadChance) - 1 == 0)
+			{
+				DestroyParticle(right, y);
+				CreateParticle(TYPE_GLITCH, right, y, temperature);
+			}
+
+	return false;
+}
+
+//source blocks will not need to move
+void Glitch::HandlePhysics()
 {
 	//no physics
 }
