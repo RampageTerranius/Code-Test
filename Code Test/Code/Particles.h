@@ -525,12 +525,12 @@ bool Particle::HandleEvents()
 			canGoRight = true;
 
 
-		//check and update each directino that we can
+		//check and update each direction that we can
 		if (canGoUp)
 			EvenOutTemperatures(x, y, x, up);
 
 		if (canGoDown)
-			EvenOutTemperatures(x, y, y, down);
+			EvenOutTemperatures(x, y, x, down);
 
 		if (canGoLeft)
 			EvenOutTemperatures(x, y, left, y);
