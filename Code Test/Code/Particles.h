@@ -327,6 +327,11 @@ void DestroyParticle(int x, int y)
 			//clear the vector first
 			particleList.erase(particleList.begin() + i);
 
+			/*auto it = particleList.begin() + i;
+
+			*it = std::move(particleList.back());
+			particleList.pop_back();*/
+
 			//make sure we COMPLETELY wipe the particle, the particle was made by hand via new Particle() and therefore we MUST handle the deletion manually		
 			delete allParticles[tempX][tempY];
 			allParticles[tempX][tempY] = nullptr;
