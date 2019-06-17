@@ -11,17 +11,17 @@
 #include <cmath>
 
 //global variables
-const std::string PROGRAM_NAME = "Testola";
+const std::string PROGRAM_NAME = "Falling Sand";
 
 //used to determine default screen size and frame rate
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
 
-const int MAX_BRUSH_SIZE = 32;
+const int MAX_BRUSH_SIZE = 32;//the total largest size the brush may be
 
 float avgFPS = 0;
 
-int currentBrushTemperature = 20;
+int currentBrushTemperature = 20;//changing this will change the default brush temperature
 
 //sdl window and renderer
 SDL_Window* mainWindow = nullptr;
@@ -32,10 +32,10 @@ bool running = false;
 
 //ingame settings, these are the default settings for the given options
 
-bool drawHeat = false;//when true will render particles color via heat isntead of handing off draw fucntiosn to the particle itsself
-bool loopScreen = true;
-bool pauseParticles = false;
-bool renderBrush = true;
+bool drawHeat = false;//when true will render particles color via heat instead of handing off draw fucntions to the particle its self
+bool loopScreen = true;//when true particles that attempt to drop downwards while at the bottom of the screen will instead loop to the top of the screen, does the same for particles attempting to move upwards as well
+bool pauseParticles = false;//when true particles physics and events will be paused, does nto pause the entire program
+bool renderBrush = true;//when true will show an outline of where particles will be brushed to
 bool createAsSource = false;//if the blocks created should be source particles or standard particles
 
 
