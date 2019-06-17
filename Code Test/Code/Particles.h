@@ -50,7 +50,7 @@ class Particle
 		virtual bool HandleEvents();
 		virtual void HandlePhysics();
 
-		int x, y;
+		SDL_Point point;
 		int weight;
 		int health;
 		float temperature;
@@ -319,8 +319,8 @@ void DestroyParticle(int x, int y)
 	for (size_t i = 0; i < particleList.size() - 1; i++)
 	{
 		int tempX, tempY;
-		tempX = particleList[i]->x;
-		tempY = particleList[i]->y;
+		tempX = particleList[i]->point.x;
+		tempY = particleList[i]->point.y;
 		//if the x/y are the same wipe the particle
 		if (tempX == x && tempY == y)
 		{
@@ -350,15 +350,15 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 	//update the internal location data for the first point now that its been moved
 	if (allParticles[x2][y2] != nullptr)
 	{
-		allParticles[x2][y2]->y = y2;
-		allParticles[x2][y2]->x = x2;
+		allParticles[x2][y2]->point.y = y2;
+		allParticles[x2][y2]->point.x = x2;
 	}
 
 	//update the internal location data for the second point now that its been moved
 	if (allParticles[x1][y1] != nullptr)
 	{
-		allParticles[x1][y1]->y = y1;
-		allParticles[x1][y1]->x = x1;
+		allParticles[x1][y1]->point.y = y1;
+		allParticles[x1][y1]->point.x = x1;
 	}	
 }
 
@@ -485,7 +485,7 @@ Particle::Particle()
 
 void Particle::Reset()
 {
-	x = y = 0;
+	point.x = point.y = 0;
 	weight = -1;
 	temperature = 0;
 	thermalConductivity = 0;
@@ -497,7 +497,7 @@ void Particle::Reset()
 void Particle::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, 255, 255, 255, 0);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool Particle::HandleEvents()
@@ -507,8 +507,8 @@ bool Particle::HandleEvents()
 	{
 		//values to help with determining what ways to calculate
 		int up, down, left, right;
-		up = down = y;
-		left = right = x;
+		up = down = point.y;
+		left = right = point.x;
 		up--;
 		down++;
 		left--;
@@ -532,22 +532,22 @@ bool Particle::HandleEvents()
 
 		//check and update each direction that we can
 		if (canGoUp)
-			EvenOutTemperatures(x, y, x, up);
+			EvenOutTemperatures(point.x, point.y, point.x, up);
 
 		if (canGoDown)
-			EvenOutTemperatures(x, y, x, down);
+			EvenOutTemperatures(point.x, point.y, point.x, down);
 
 		if (canGoLeft)
-			EvenOutTemperatures(x, y, left, y);
+			EvenOutTemperatures(point.x, point.y, left, point.y);
 
 		if (canGoRight)
-			EvenOutTemperatures(x, y, right, y);
+			EvenOutTemperatures(point.x, point.y, right, point.y);
 	}
 
 	//health check
 	if (health <= 0)
 	{
-		DestroyParticle(x, y);
+		DestroyParticle(point.x, point.y);
 		return true;
 	}
 
@@ -558,13 +558,13 @@ bool Particle::HandleEvents()
 bool Particle::CheckIfAtBottom()
 {
 	//check if at bottom of screen
-	if (y == WINDOW_HEIGHT - 1)
+	if (point.y == WINDOW_HEIGHT - 1)
 	{
 		//check if we need to loop the particles from bottom to top
 		if (loopScreen)
 		{
-			if (allParticles[x][0] == nullptr)
-				MoveParticles(x, y, x, 0);
+			if (allParticles[point.x][0] == nullptr)
+				MoveParticles(point.x, point.y, point.x, 0);
 
 			//even if we cant move return true as we are stil lat the bottom and cant move else where
 			return true;
@@ -580,13 +580,13 @@ bool Particle::CheckIfAtBottom()
 bool Particle::CheckIfAtTop()
 {
 	//check if at bottom of screen
-	if (y == 0)
+	if (point.y == 0)
 	{
 		//check if we need to loop the particles from bottom to top
 		if (loopScreen)
 		{
-			if (allParticles[x][WINDOW_HEIGHT - 1] == nullptr)
-				MoveParticles(x, y, x, WINDOW_HEIGHT - 1);
+			if (allParticles[point.x][WINDOW_HEIGHT - 1] == nullptr)
+				MoveParticles(point.x, point.y, point.x, WINDOW_HEIGHT - 1);
 
 			//even if we cant move return true as we are stil lat the bottom and cant move else where
 			return true;
@@ -609,14 +609,14 @@ void Particle::HandlePhysics()
 		return;
 
 	//check if an object exists under this one
-	if (DropParticle(x, y))
+	if (DropParticle(point.x, point.y))
 		return;
 
 	int left, right, down;
-	left = right = x;
+	left = right = point.x;
 	left--;
 	right++;
-	down = y + 1;
+	down = point.y + 1;
 
 	if (left < 0)
 		left = 0;
@@ -625,7 +625,7 @@ void Particle::HandlePhysics()
 		right = WINDOW_WIDTH - 1;
 
 	//check if we are surrounded
-	if (allParticles[left][down] != nullptr && allParticles[x][down] != nullptr && allParticles[right][down] != nullptr)
+	if (allParticles[left][down] != nullptr && allParticles[point.x][down] != nullptr && allParticles[right][down] != nullptr)
 	{
 		//if we are check if we can move via gravity with the surrounding blocks
 
@@ -633,11 +633,11 @@ void Particle::HandlePhysics()
 		canGoLeft = canGoRight = false;
 
 		if (allParticles[left][down]->weight != -1)
-			if (allParticles[x][y]->weight < allParticles[left][down]->weight)
+			if (allParticles[point.x][point.y]->weight < allParticles[left][down]->weight)
 				canGoLeft = true;
 
 		if (allParticles[right][down]->weight != -1)
-			if (allParticles[x][y]->weight < allParticles[right][down]->weight)
+			if (allParticles[point.x][point.y]->weight < allParticles[right][down]->weight)
 				canGoRight = true;
 
 		if (canGoLeft && canGoRight)
@@ -646,25 +646,25 @@ void Particle::HandlePhysics()
 			{
 				//go left
 			case 1:
-				MoveParticles(left, down, x, y);
+				MoveParticles(left, down, point.x, point.y);
 				return;
 
 				//go right
 			case 2:
-				MoveParticles(right, down, x, y);
+				MoveParticles(right, down, point.x, point.y);
 				return;
 			}
 		}
 
 		if (canGoLeft)
 		{
-			MoveParticles(left, down, x, y);
+			MoveParticles(left, down, point.x, point.y);
 			return;
 		}
 
 		if (canGoRight)
 		{
-			MoveParticles(right, down, x, y);
+			MoveParticles(right, down, point.x, point.y);
 			return;
 		}
 
@@ -673,25 +673,25 @@ void Particle::HandlePhysics()
 	}	
 	
 	//since there is an object under this one lets check if we can fall to the left or right
-	if (x == 0)//check if we are on the left most edge
+	if (point.x == 0)//check if we are on the left most edge
 	{
 		//we are on the left most edge, try to drop to the bottom right
 		if (allParticles[right][down] == nullptr)
 		{
 			//update the array
-			MoveParticles(x, y, right, down);
+			MoveParticles(point.x, point.y, right, down);
 			return;
 		}
 		return;//even if we cant drop, we know that we can not go anywhere so stop here
 	}	
 
-	if (x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
+	if (point.x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
 	{
 		//we are on the right most edge, try to drop to the bottom left
 		if (allParticles[left][down] == nullptr)
 		{
 			//update the array
-			MoveParticles(x, y, left, down);
+			MoveParticles(point.x, point.y, left, down);
 			return;
 		}
 		return;//even if we cant drop, we know that we can not go anywhere so stop here
@@ -701,14 +701,14 @@ void Particle::HandlePhysics()
 	if (allParticles[left][down] == nullptr && allParticles[right][down] != nullptr)
 	{
 		//update the array
-		MoveParticles(x, y, left, down);
+		MoveParticles(point.x, point.y, left, down);
 		return;
 	}
 	//if the bottom right is empty and the bottom left isnt the drop to the bottom right
 	else if (allParticles[right][down] == nullptr && allParticles[left][down] != nullptr)
 	{
 		//update the array
-		MoveParticles(x, y, right, down);
+		MoveParticles(point.x, point.y, right, down);
 		return;
 	}
 	//if both sides are free randomly choose one direction and drop down that side	
@@ -721,13 +721,13 @@ void Particle::HandlePhysics()
 			//go left
 		case 1:
 			//update the array
-			MoveParticles(x, y, left, down);
+			MoveParticles(point.x, point.y, left, down);
 			return;
 
 			//go right
 		case 2:
 			//update the array
-			MoveParticles(x, y, right, down);
+			MoveParticles(point.x, point.y, right, down);
 			return;
 		}
 	}
@@ -737,8 +737,8 @@ Wall::Wall(int newX, int newY, float newTemperature)
 {
 	Particle::Reset();
 	type = TYPE_WALL;
-	x = newX;
-	y = newY;
+	point.x = newX;
+	point.y = newY;
 	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
@@ -748,7 +748,7 @@ Wall::Wall(int newX, int newY, float newTemperature)
 void Wall::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 void Wall::HandlePhysics()
@@ -762,8 +762,8 @@ Sand::Sand(int newX, int newY, float newTemperature)
 {
 	Particle::Reset();
 	type = TYPE_SAND;
-	x = newX;
-	y = newY;
+	point.x = newX;
+	point.y = newY;
 	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
@@ -774,7 +774,7 @@ Sand::Sand(int newX, int newY, float newTemperature)
 void Sand::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 void Sand::HandlePhysics()
@@ -787,8 +787,8 @@ Water::Water(int newX, int newY, float newTemperature)
 {
 	Particle::Particle();
 	type = TYPE_WATER;
-	x = newX;
-	y = newY;
+	point.x = newX;
+	point.y = newY;
 	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
@@ -799,7 +799,7 @@ Water::Water(int newX, int newY, float newTemperature)
 void Water::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool Water::HandleEvents()
@@ -811,11 +811,11 @@ bool Water::HandleEvents()
 	//check if the water should freeze
 	if (temperature < waterFreezePoint)
 	{
-		int newX = x;
-		int newY = y;
+		int newX = point.x;
+		int newY = point.y;
 		float newTemp = temperature;
 
-		DestroyParticle(x, y);
+		DestroyParticle(point.x, point.y);
 		Particle* tempParticle = CreateParticle(TYPE_ICE, newX, newY, newTemp);
 
 		return true;
@@ -823,11 +823,11 @@ bool Water::HandleEvents()
 	//check if should turn into steam
 	else if (temperature > waterBoilIntoSteamPoint)
 	{
-		int newX = x;
-		int newY = y;
+		int newX = point.x;
+		int newY = point.y;
 		float newTemp = temperature;
 
-		DestroyParticle(x, y);
+		DestroyParticle(point.x, point.y);
 		Particle* tempParticle = CreateParticle(TYPE_STEAM, newX, newY, newTemp);
 
 		return true;
@@ -843,14 +843,14 @@ void Water::HandlePhysics()
 		return;
 
 	//check if an object exists under this one
-	if (DropParticle(x, y))
+	if (DropParticle(point.x, point.y))
 		return;
 
 	int left, right, down;
-	left = right = x;
+	left = right = point.x;
 	left--;
 	right++;
-	down = y + 1;
+	down = point.y + 1;
 
 	if (left < 0)
 		left = 0;
@@ -859,18 +859,18 @@ void Water::HandlePhysics()
 		right = WINDOW_WIDTH - 1;
 
 	//check if we are surrounded
-	if (allParticles[left][y] != nullptr && allParticles[x][down] != nullptr && allParticles[right][y] != nullptr)
+	if (allParticles[left][point.y] != nullptr && allParticles[point.x][down] != nullptr && allParticles[right][point.y] != nullptr)
 	{
 		//if we are check if we can move via gravity with the surrounding blocks
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
 
-		if (allParticles[left][y]->weight != -1)
-			if (allParticles[x][y]->weight < allParticles[left][y]->weight)
+		if (allParticles[left][point.y]->weight != -1)
+			if (allParticles[point.x][point.y]->weight < allParticles[left][point.y]->weight)
 				canGoLeft = true;
 
-		if (allParticles[right][y]->weight != -1)
-			if (allParticles[x][y]->weight < allParticles[right][y]->weight)
+		if (allParticles[right][point.y]->weight != -1)
+			if (allParticles[point.x][point.y]->weight < allParticles[right][point.y]->weight)
 				canGoRight = true;
 
 		//can go either way
@@ -880,12 +880,12 @@ void Water::HandlePhysics()
 			{
 				//go left
 			case 1:
-				MoveParticles(left, y, x, y);
+				MoveParticles(left, point.y, point.x, point.y);
 				return;
 
 				//go right
 			case 2:
-				MoveParticles(right, y, x, y);
+				MoveParticles(right, point.y, point.x, point.y);
 				return;
 			}
 		}
@@ -893,14 +893,14 @@ void Water::HandlePhysics()
 		//can only go left
 		if (canGoLeft)
 		{
-			MoveParticles(left, y, x, y);
+			MoveParticles(left, point.y, point.x, point.y);
 			return;
 		}
 
 		//can only go right
 		if (canGoRight)
 		{
-			MoveParticles(right, y, x, y);
+			MoveParticles(right, point.y, point.x, point.y);
 			return;
 		}
 
@@ -909,38 +909,38 @@ void Water::HandlePhysics()
 	}
 
 	//there is an object under this one, try and move to the left or right
-	if (x == 0)//check if we are on the left most edge
+	if (point.x == 0)//check if we are on the left most edge
 	{
 		//we are on the left most edge, try to drop to the bottom right
-		if (allParticles[right][y] == nullptr)
+		if (allParticles[right][point.y] == nullptr)
 		{
 			//update the array
-			MoveParticles(x, y, right, y);
+			MoveParticles(point.x, point.y, right, point.y);
 			return;
 		}
 		return;//even if we cant drop, we know that we can not go anywhere so stop here
 	}
 
-	if (x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
+	if (point.x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
 	{
 		//we are on the right most edge, try to drop to the bottom left
-		if (allParticles[left][y] == nullptr)
+		if (allParticles[left][point.y] == nullptr)
 		{
 			//update the array
-			MoveParticles(x, y, left, y);
+			MoveParticles(point.x, point.y, left, point.y);
 			return;
 		}
 		return;//even if we cant drop, we know that we can not go anywhere so stop here
 	}
 	
 	//if left is empty only
-	if (allParticles[left][y] == nullptr && allParticles[right][y] != nullptr)
-		MoveParticles(x, y, left, y);
+	if (allParticles[left][point.y] == nullptr && allParticles[right][point.y] != nullptr)
+		MoveParticles(point.x, point.y, left, point.y);
 	//if right is empty only
-	else if (allParticles[right][y] == nullptr && allParticles[left][y] != nullptr)
-		MoveParticles(x, y, right, y);
+	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] != nullptr)
+		MoveParticles(point.x, point.y, right, point.y);
 	//both ways are free, randomly choose one and move	
-	else if (allParticles[right][y] == nullptr && allParticles[left][y] == nullptr)
+	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] == nullptr)
 	{
 		int randomNum = rand() % 2 + 1;
 
@@ -949,13 +949,13 @@ void Water::HandlePhysics()
 			//go left
 		case 1:
 			//update the array
-			MoveParticles(x, y, left, y);
+			MoveParticles(point.x, point.y, left, point.y);
 			return;
 
 			//go right
 		case 2:
 			//update the array
-			MoveParticles(x, y, right, y);
+			MoveParticles(point.x, point.y, right, point.y);
 			return;
 		}
 	}
@@ -966,8 +966,8 @@ Ice::Ice(int newX, int newY, float newTemperature)
 {
 	Particle::Reset();
 	type = TYPE_ICE;
-	x = newX;
-	y = newY;
+	point.x = newX;
+	point.y = newY;
 	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
@@ -977,7 +977,7 @@ Ice::Ice(int newX, int newY, float newTemperature)
 void Ice::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool Ice::HandleEvents()
@@ -989,11 +989,11 @@ bool Ice::HandleEvents()
 	//check if ice should melt	
 	if (temperature > iceMeltPoint)
 	{
-		int newX = x;
-		int newY = y;
+		int newX = point.x;
+		int newY = point.y;
 		float newTemp = temperature;
 
-		DestroyParticle(x, y);
+		DestroyParticle(point.x, point.y);
 		Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);
 		return true;
 	}
@@ -1017,7 +1017,7 @@ ThermalFluid::ThermalFluid(int newX, int newY, float newTemperature) : Water(new
 void ThermalFluid::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 //use default event handling, nothing else required
@@ -1046,7 +1046,7 @@ Acid::Acid(int newX, int newY, float newTemperature) : Water(newX, newY, newTemp
 void Acid::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 //acid needs to randomly damage other blocks around it that are not acid
@@ -1061,8 +1061,8 @@ bool Acid::HandleEvents()
 
 	//values to help with determining what ways to calculate
 	int up, down, left, right;
-	up = down = y;
-	left = right = x;
+	up = down = point.y;
+	left = right = point.x;
 	up--;
 	down++;
 	left--;
@@ -1073,23 +1073,23 @@ bool Acid::HandleEvents()
 
 	//check if blocks exist in each direction and attempt to target it for damage 
 	if (up >= 0)
-		if (allParticles[x][up] != nullptr)
-			if (allParticles[x][up]->type != TYPE_ACID)
+		if (allParticles[point.x][up] != nullptr)
+			if (allParticles[point.x][up]->type != TYPE_ACID)
 				canDamageUp = true;
 
 	if (down <= WINDOW_HEIGHT - 1)
-		if (allParticles[x][down] != nullptr)
-			if (allParticles[x][down]->type != TYPE_ACID)
+		if (allParticles[point.x][down] != nullptr)
+			if (allParticles[point.x][down]->type != TYPE_ACID)
 					canDamageDown = true;			
 
 	if (left >= 0)
-		if (allParticles[left][y] != nullptr)
-			if (allParticles[left][y]->type != TYPE_ACID)
+		if (allParticles[left][point.y] != nullptr)
+			if (allParticles[left][point.y]->type != TYPE_ACID)
 				canDamageLeft = true;
 
 	if (right <= WINDOW_WIDTH - 1)
-		if (allParticles[right][y] != nullptr)
-			if (allParticles[right][y]->type != TYPE_ACID)
+		if (allParticles[right][point.y] != nullptr)
+			if (allParticles[right][point.y]->type != TYPE_ACID)
 				canDamageRight = true;
 
 
@@ -1097,28 +1097,28 @@ bool Acid::HandleEvents()
 	if (canDamageUp)	
 		if ((rand() % acidDamageChance + 1) == 1)
 		{
-			allParticles[x][up]->health--;
+			allParticles[point.x][up]->health--;
 			health--;
 		}
 
 	if (canDamageDown)
 		if ((rand() % acidDamageChance + 1) == 1)
 		{
-			allParticles[x][down]->health--;	
+			allParticles[point.x][down]->health--;
 			health--;
 		}
 
 	if (canDamageLeft)	
 		if ((rand() % acidDamageChance + 1) == 1)
 		{
-			allParticles[left][y]->health--;	
+			allParticles[left][point.y]->health--;
 			health--;
 		}
 
 	if (canDamageRight)	
 		if ((rand() % acidDamageChance + 1) == 1)
 		{
-			allParticles[right][y]->health--;
+			allParticles[right][point.y]->health--;
 			health--;
 		}
 
@@ -1137,8 +1137,8 @@ Steam::Steam(int newX, int newY, float newTemperature)
 {
 	Particle::Reset();
 	type = TYPE_STEAM;
-	x = newX;
-	y = newY;
+	point.x = newX;
+	point.y = newY;
 	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
@@ -1148,7 +1148,7 @@ Steam::Steam(int newX, int newY, float newTemperature)
 void Steam::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool Steam::HandleEvents()
@@ -1159,11 +1159,11 @@ bool Steam::HandleEvents()
 
 	if (temperature < steamCondensationPoint)
 	{
-		int newX = x;
-		int newY = y;
+		int newX = point.x;
+		int newY = point.y;
 		float newTemp = temperature;
 
-		DestroyParticle(x, y);
+		DestroyParticle(point.x, point.y);
 		Particle* tempParticle = CreateParticle(TYPE_WATER, newX, newY, newTemp);
 	}
 
@@ -1174,8 +1174,8 @@ bool Steam::HandleEvents()
 void Steam::HandlePhysics()
 {
 	int up, left, right;
-	up = y;
-	left = right = x;
+	up = point.y;
+	left = right = point.x;
 	up--;
 	left--;
 	right++;
@@ -1185,22 +1185,22 @@ void Steam::HandlePhysics()
 		return;
 
 	//attempt to move the particle directly upwards
-	if (AscendParticle(x, y, true))
+	if (AscendParticle(point.x, point.y, true))
 		return;
 
 	//check if we are surrounded
-	if (allParticles[left][y] != nullptr && allParticles[right][y] != nullptr)
+	if (allParticles[left][point.y] != nullptr && allParticles[right][point.y] != nullptr)
 	{
 		//if we are check if we can move via gravity with the surrounding blocks
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
 
-		if (allParticles[left][y]->weight != -1)
-			if (allParticles[x][y]->weight < allParticles[left][y]->weight)
+		if (allParticles[left][point.y]->weight != -1)
+			if (allParticles[point.x][point.y]->weight < allParticles[left][point.y]->weight)
 				canGoLeft = true;
 
-		if (allParticles[right][y]->weight != -1)
-			if (allParticles[x][y]->weight < allParticles[right][y]->weight)
+		if (allParticles[right][point.y]->weight != -1)
+			if (allParticles[point.x][point.y]->weight < allParticles[right][point.y]->weight)
 				canGoRight = true;
 
 		//can go either way
@@ -1210,12 +1210,12 @@ void Steam::HandlePhysics()
 			{
 				//go left
 			case 1:
-				MoveParticles(left, y, x, y);
+				MoveParticles(left, point.y, point.x, point.y);
 				return;
 
 				//go right
 			case 2:
-				MoveParticles(right, y, x, y);
+				MoveParticles(right, point.y, point.x, point.y);
 				return;
 			}
 		}
@@ -1223,14 +1223,14 @@ void Steam::HandlePhysics()
 		//can only go left
 		if (canGoLeft)
 		{
-			MoveParticles(left, y, x, y);
+			MoveParticles(left, point.y, point.x, point.y);
 			return;
 		}
 
 		//can only go right
 		if (canGoRight)
 		{
-			MoveParticles(right, y, x, y);
+			MoveParticles(right, point.y, point.x, point.y);
 			return;
 		}
 
@@ -1239,38 +1239,38 @@ void Steam::HandlePhysics()
 	}
 
 	//there is an object under this one, try and move to the left or right
-	if (x == 0)//check if we are on the left most edge
+	if (point.x == 0)//check if we are on the left most edge
 	{
 		//we are on the left most edge, try to drop to the bottom right
-		if (allParticles[right][y] == nullptr)
+		if (allParticles[right][point.y] == nullptr)
 		{
 			//update the array
-			MoveParticles(x, y, right, y);
+			MoveParticles(point.x, point.y, right, point.y);
 			return;
 		}
 		return;//even if we cant drop, we know that we can not go anywhere so stop here
 	}
 
-	if (x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
+	if (point.x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
 	{
 		//we are on the right most edge, try to drop to the bottom left
-		if (allParticles[left][y] == nullptr)
+		if (allParticles[left][point.y] == nullptr)
 		{
 			//update the array
-			MoveParticles(x, y, left, y);
+			MoveParticles(point.x, point.y, left, point.y);
 			return;
 		}
 		return;//even if we cant drop, we know that we can not go anywhere so stop here
 	}
 
 	//if left is empty only
-	if (allParticles[left][y] == nullptr && allParticles[right][y] != nullptr)
-		MoveParticles(x, y, left, y);	
+	if (allParticles[left][point.y] == nullptr && allParticles[right][point.y] != nullptr)
+		MoveParticles(point.x, point.y, left, point.y);	
 	//if right is empty only
-	else if (allParticles[right][y] == nullptr && allParticles[left][y] != nullptr)
-		MoveParticles(x, y, right, y);	
+	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] != nullptr)
+		MoveParticles(point.x, point.y, right, point.y);	
 	//both ways are free, randomly choose one and move	
-	else if (allParticles[right][y] == nullptr && allParticles[left][y] == nullptr)
+	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] == nullptr)
 	{
 		int randomNum = rand() % 2 + 1;
 
@@ -1279,13 +1279,13 @@ void Steam::HandlePhysics()
 			//go left
 		case 1:
 			//update the array
-			MoveParticles(x, y, left, y);
+			MoveParticles(point.x, point.y, left, point.y);
 			return;
 
 			//go right
 		case 2:
 			//update the array
-			MoveParticles(x, y, right, y);
+			MoveParticles(point.x, point.y, right, point.y);
 			return;
 		}
 	}
@@ -1304,7 +1304,7 @@ Plant::Plant(int newX, int newY, float newTemperature) : Wall(newX, newY, newTem
 void Plant::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
-	SDL_RenderDrawPoint(mainRenderer, x, y);	
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool Plant::HandleEvents()
@@ -1315,8 +1315,8 @@ bool Plant::HandleEvents()
 
 	int up, down, left, right;
 
-	up = down = y;
-	left = right = x;
+	up = down = point.y;
+	left = right = point.x;
 
 	up--;
 	down++;
@@ -1328,11 +1328,11 @@ bool Plant::HandleEvents()
 	canGoUp = canGoDown = canGoLeft = canGoRight = false;
 
 	//check up and down
-	if (y > 0 && y < WINDOW_HEIGHT - 1)
+	if (point.y > 0 && point.y < WINDOW_HEIGHT - 1)
 	{
 		//check if can spread upwards
-		if (allParticles[x][up] != nullptr)
-			if (allParticles[x][up]->type == TYPE_WATER)
+		if (allParticles[point.x][up] != nullptr)
+			if (allParticles[point.x][up]->type == TYPE_WATER)
 			{
 				switch (rand() % plantSpreadChance)
 				{
@@ -1343,8 +1343,8 @@ bool Plant::HandleEvents()
 			}
 
 		//check if cna spread downwards
-		if (allParticles[x][down] != nullptr)
-			if (allParticles[x][down]->type == TYPE_WATER)
+		if (allParticles[point.x][down] != nullptr)
+			if (allParticles[point.x][down]->type == TYPE_WATER)
 			{
 				switch (rand() % plantSpreadChance)
 				{
@@ -1356,11 +1356,11 @@ bool Plant::HandleEvents()
 	}
 
 	//check left and right
-	if (x > 0 && x < WINDOW_WIDTH - 1)
+	if (point.x > 0 && point.x < WINDOW_WIDTH - 1)
 	{
 		//check if cna spread left
-		if (allParticles[left][y] != nullptr)
-			if (allParticles[left][y]->type == TYPE_WATER)
+		if (allParticles[left][point.y] != nullptr)
+			if (allParticles[left][point.y]->type == TYPE_WATER)
 			{
 				switch (rand() % plantSpreadChance)
 				{
@@ -1371,8 +1371,8 @@ bool Plant::HandleEvents()
 			}
 
 		//check if cna spread right
-		if (allParticles[right][y] != nullptr)
-			if (allParticles[right][y]->type == TYPE_WATER)
+		if (allParticles[right][point.y] != nullptr)
+			if (allParticles[right][point.y]->type == TYPE_WATER)
 			{
 				switch (rand() % plantSpreadChance)
 				{
@@ -1386,41 +1386,41 @@ bool Plant::HandleEvents()
 	//check what directions we can spread and spread in those directions
 	if (canGoUp)
 	{
-		int newX = x;
+		int newX = point.x;
 		int newY = up;
 		float newTemp = temperature;
 
-		DestroyParticle(x, up);
+		DestroyParticle(point.x, up);
 		Particle* tempParticle = CreateParticle(TYPE_PLANT, newX, newY, newTemp);
 	}
 
 	if (canGoDown)
 	{
-		int newX = x;
+		int newX = point.x;
 		int newY = down;
 		float newTemp = temperature;
 
-		DestroyParticle(x, down);
+		DestroyParticle(point.x, down);
 		Particle* tempParticle = CreateParticle(TYPE_PLANT, newX, newY, newTemp);
 	}
 
 	if (canGoLeft)
 	{
 		int newX = left;
-		int newY = y;
+		int newY = point.y;
 		float newTemp = temperature;
 
-		DestroyParticle(left, y);
+		DestroyParticle(left, point.y);
 		Particle* tempParticle = CreateParticle(TYPE_PLANT, newX, newY, newTemp);
 	}
 
 	if (canGoRight)
 	{
 		int newX = right;
-		int newY = y;
+		int newY = point.y;
 		float newTemp = temperature;
 
-		DestroyParticle(right, y);
+		DestroyParticle(right, point.y);
 		Particle* tempParticle = CreateParticle(TYPE_PLANT, newX, newY, newTemp);
 	}
 
@@ -1448,7 +1448,7 @@ Salt::Salt(int newX, int newY, float newTemperature) : Sand(newX, newY, newTempe
 void Salt::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool Salt::HandleEvents()
@@ -1460,8 +1460,8 @@ bool Salt::HandleEvents()
 	//salt event handling
 	int up, down, left, right;
 
-	up = down = y;
-	left = right = x;
+	up = down = point.y;
+	left = right = point.x;
 
 	up--;
 	down++;
@@ -1469,16 +1469,16 @@ bool Salt::HandleEvents()
 	right++;
 
 	//up
-	if (allParticles[x][up] != nullptr)
-		if (allParticles[x][up]->type == TYPE_WATER)
+	if (allParticles[point.x][up] != nullptr)
+		if (allParticles[point.x][up]->type == TYPE_WATER)
 		{
 			//get some temporary variables as both particles will be deleted soon and we do not want to possibly call upon a deleted object
-			float temp = (allParticles[x][up]->temperature + allParticles[x][y]->temperature) / 2;
+			float temp = (allParticles[point.x][up]->temperature + allParticles[point.x][point.y]->temperature) / 2;
 			int x1, y1, x2, y2;
 
-			x1 = x;
-			y1 = y;
-			x2 = x;
+			x1 = point.x;
+			y1 = point.y;
+			x2 = point.x;
 			y2 = up;
 
 			DestroyParticle(x1, y1);
@@ -1489,16 +1489,16 @@ bool Salt::HandleEvents()
 		}
 
 	//down
-	if (allParticles[x][down] != nullptr)
-		if (allParticles[x][down]->type == TYPE_WATER)
+	if (allParticles[point.x][down] != nullptr)
+		if (allParticles[point.x][down]->type == TYPE_WATER)
 		{
 			//get some temporary variables as both particles will be deleted soon and we do not want to possibly call downon a deleted object
-			float temp = (allParticles[x][down]->temperature + allParticles[x][y]->temperature) / 2;
+			float temp = (allParticles[point.x][down]->temperature + allParticles[point.x][point.y]->temperature) / 2;
 			int x1, y1, x2, y2;
 
-			x1 = x;
-			y1 = y;
-			x2 = x;
+			x1 = point.x;
+			y1 = point.y;
+			x2 = point.x;
 			y2 = down;
 
 			DestroyParticle(x1, y1);
@@ -1509,17 +1509,17 @@ bool Salt::HandleEvents()
 		}
 
 	//left
-	if (allParticles[left][y] != nullptr)
-		if (allParticles[left][y]->type == TYPE_WATER)
+	if (allParticles[left][point.y] != nullptr)
+		if (allParticles[left][point.y]->type == TYPE_WATER)
 		{
 			//get some temporary variables as both particles will be deleted soon and we do not want to possibly call upon a deleted object
-			float temp = (allParticles[left][y]->temperature + allParticles[x][y]->temperature) / 2;
+			float temp = (allParticles[left][point.y]->temperature + allParticles[point.x][point.y]->temperature) / 2;
 			int x1, y1, x2, y2;
 
-			x1 = x;
-			y1 = y;
+			x1 = point.x;
+			y1 = point.y;
 			x2 = left;
-			y2 = y;
+			y2 = point.y;
 
 			DestroyParticle(x1, y1);
 			DestroyParticle(x2, y2);
@@ -1529,17 +1529,17 @@ bool Salt::HandleEvents()
 		}
 
 	//right
-	if (allParticles[right][y] != nullptr)
-		if (allParticles[right][y]->type == TYPE_WATER)
+	if (allParticles[right][point.y] != nullptr)
+		if (allParticles[right][point.y]->type == TYPE_WATER)
 		{
 			//get some temporary variables as both particles will be deleted soon and we do not want to possibly call upon a deleted object
-			float temp = (allParticles[right][y]->temperature + allParticles[x][y]->temperature) / 2;
+			float temp = (allParticles[right][point.y]->temperature + allParticles[point.x][point.y]->temperature) / 2;
 			int x1, y1, x2, y2;
 
-			x1 = x;
-			y1 = y;
+			x1 = point.x;
+			y1 = point.y;
 			x2 = right;
-			y2 = y;
+			y2 = point.y;
 
 			DestroyParticle(x1, y1);
 			DestroyParticle(x2, y2);
@@ -1569,7 +1569,7 @@ SaltWater::SaltWater(int newX, int newY, float newTemperature) : Water(newX, new
 void SaltWater::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool SaltWater::HandleEvents()
@@ -1581,11 +1581,11 @@ bool SaltWater::HandleEvents()
 	//check if the salt water should freeze
 	if (temperature < (waterFreezePoint * saltWaterEventTempMultiplier))
 	{
-		int newX = x;
-		int newY = y;
+		int newX = point.x;
+		int newY = point.y;
 		float newTemp = temperature;
 
-		DestroyParticle(x, y);
+		DestroyParticle(point.x, point.y);
 		Particle* tempParticle = CreateParticle(TYPE_SALTICE, newX, newY, newTemp);
 
 		return true;
@@ -1593,11 +1593,11 @@ bool SaltWater::HandleEvents()
 	//check if should turn into steam
 	else if (temperature > (waterBoilIntoSteamPoint * saltWaterEventTempMultiplier))
 	{
-		int newX = x;
-		int newY = y;
+		int newX = point.x;
+		int newY = point.y;
 		float newTemp = temperature;
 
-		DestroyParticle(x, y);
+		DestroyParticle(point.x, point.y);
 		Particle* tempParticle = CreateParticle(TYPE_STEAM, newX, newY, newTemp);
 
 		return true;
@@ -1617,8 +1617,8 @@ SaltIce::SaltIce(int newX, int newY, float newTemperature)
 {
 	Particle::Reset();
 	type = TYPE_SALTICE;
-	x = newX;
-	y = newY;
+	point.x = newX;
+	point.y = newY;
 	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
@@ -1628,7 +1628,7 @@ SaltIce::SaltIce(int newX, int newY, float newTemperature)
 void SaltIce::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, settingColor[type].r, settingColor[type].g, settingColor[type].b, settingColor[type].a);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool SaltIce::HandleEvents()
@@ -1640,11 +1640,11 @@ bool SaltIce::HandleEvents()
 	//check if ice should melt	
 	if (temperature > (iceMeltPoint * saltWaterEventTempMultiplier))
 	{
-		int newX = x;
-		int newY = y;
+		int newX = point.x;
+		int newY = point.y;
 		float newTemp = temperature;
 
-		DestroyParticle(x, y);
+		DestroyParticle(point.x, point.y);
 		Particle* tempParticle = CreateParticle(TYPE_SALTWATER, newX, newY, newTemp);
 		return true;
 	}
@@ -1663,8 +1663,8 @@ Source::Source(ParticleType newSourceType, int newX, int newY, float newTemperat
 {
 	Particle::Reset();
 	type = TYPE_SOURCE;
-	x = newX;
-	y = newY;
+	point.x = newX;
+	point.y = newY;
 	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
@@ -1674,7 +1674,7 @@ Source::Source(ParticleType newSourceType, int newX, int newY, float newTemperat
 void Source::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, settingColor[sourceType].r, settingColor[sourceType].g, settingColor[sourceType].b, settingColor[sourceType].a);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool Source::HandleEvents()
@@ -1687,28 +1687,28 @@ bool Source::HandleEvents()
 
 	//values to help with determining what ways to calculate
 	int up, down, left, right;
-	up = down = y;
-	left = right = x;
+	up = down = point.y;
+	left = right = point.x;
 	up--;
 	down++;
 	left--;
 	right++;
 
 	if (up >= 0)
-		if (allParticles[x][up] == nullptr)
-			CreateParticle(sourceType, x, up, temperature);
+		if (allParticles[point.x][up] == nullptr)
+			CreateParticle(sourceType, point.x, up, temperature);
 
 	if (down <= WINDOW_HEIGHT - 1)
-		if (allParticles[x][down] == nullptr)
-			CreateParticle(sourceType, x, down, temperature);
+		if (allParticles[point.x][down] == nullptr)
+			CreateParticle(sourceType, point.x, down, temperature);
 
 	if (left >= 0)
-		if (allParticles[left][y] == nullptr)
-			CreateParticle(sourceType, left, y, temperature);
+		if (allParticles[left][point.y] == nullptr)
+			CreateParticle(sourceType, left, point.y, temperature);
 
 	if (right <= WINDOW_WIDTH - 1)
-		if (allParticles[right][y] == nullptr)
-			CreateParticle(sourceType, right, y, temperature);
+		if (allParticles[right][point.y] == nullptr)
+			CreateParticle(sourceType, right, point.y, temperature);
 
 	return false;
 }
@@ -1724,8 +1724,8 @@ Glitch::Glitch(int newX, int newY, float newTemperature) : Wall(newX, newY, newT
 {
 	Particle::Reset();
 	type = TYPE_GLITCH;
-	x = newX;
-	y = newY;
+	point.x = newX;
+	point.y = newY;
 	temperature = newTemperature;
 	thermalConductivity = settingThermalConductivity[type];
 	health = settingHealth[type];
@@ -1734,7 +1734,7 @@ Glitch::Glitch(int newX, int newY, float newTemperature) : Wall(newX, newY, newT
 void Glitch::Draw()
 {
 	SDL_SetRenderDrawColor(mainRenderer, (rand() % 255), (rand() % 255), (rand() % 255), 0);
-	SDL_RenderDrawPoint(mainRenderer, x, y);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool Glitch::HandleEvents()
@@ -1747,8 +1747,8 @@ bool Glitch::HandleEvents()
 
 	//values to help with determining what ways to calculate
 	int up, down, left, right;
-	up = down = y;
-	left = right = x;
+	up = down = point.y;
+	left = right = point.x;
 	up--;
 	down++;
 	left--;
@@ -1756,56 +1756,56 @@ bool Glitch::HandleEvents()
 
 	//attempt to spread to other blocks
 	if (up >= 0)
-		if (allParticles[x][up] == nullptr)
+		if (allParticles[point.x][up] == nullptr)
 		{
 			if ((rand() % glitchSpreadChance) - 1 == 0)
-				CreateParticle(TYPE_GLITCH, x, up, temperature);
+				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
 		}
-		else if (allParticles[x][up]->type != TYPE_GLITCH)
+		else if (allParticles[point.x][up]->type != TYPE_GLITCH)
 			if ((rand() % glitchSpreadChance) - 1 == 0)
 			{
-				DestroyParticle(x, up);
-				CreateParticle(TYPE_GLITCH, x, up, temperature);
+				DestroyParticle(point.x, up);
+				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
 			}
 
 	if (down <= WINDOW_HEIGHT - 1)
-		if (allParticles[x][down] == nullptr)
+		if (allParticles[point.x][down] == nullptr)
 		{		
 			if ((rand() % glitchSpreadChance) - 1 == 0)
-				CreateParticle(TYPE_GLITCH, x, down, temperature);
+				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
 		}
-		else if (allParticles[x][down]->type != TYPE_GLITCH)
+		else if (allParticles[point.x][down]->type != TYPE_GLITCH)
 			if ((rand() % glitchSpreadChance) - 1 == 0)
 			{
-				DestroyParticle(x, down);
-				CreateParticle(TYPE_GLITCH, x, down, temperature);
+				DestroyParticle(point.x, down);
+				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
 			}
 			
 
 	if (left >= 0)
-		if (allParticles[left][y] == nullptr)
+		if (allParticles[left][point.y] == nullptr)
 		{
 			if ((rand() % glitchSpreadChance) - 1 == 0)
-				CreateParticle(TYPE_GLITCH, left, y, temperature);
+				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
 		}
-		else if (allParticles[left][y]->type != TYPE_GLITCH)
+		else if (allParticles[left][point.y]->type != TYPE_GLITCH)
 			if ((rand() % glitchSpreadChance) - 1 == 0)
 			{
-				DestroyParticle(left, y);
-				CreateParticle(TYPE_GLITCH, left, y, temperature);
+				DestroyParticle(left, point.y);
+				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
 			}
 
 	if (right <= WINDOW_WIDTH - 1)
-		if (allParticles[right][y] == nullptr)
+		if (allParticles[right][point.y] == nullptr)
 		{
 			if ((rand() % glitchSpreadChance) - 1 == 0)
-				CreateParticle(TYPE_GLITCH, right, y, temperature);
+				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
 		}
-		else if (allParticles[right][y]->type != TYPE_GLITCH)
+		else if (allParticles[right][point.y]->type != TYPE_GLITCH)
 			if ((rand() % glitchSpreadChance) - 1 == 0)
 			{
-				DestroyParticle(right, y);
-				CreateParticle(TYPE_GLITCH, right, y, temperature);
+				DestroyParticle(right, point.y);
+				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
 			}
 
 	return false;

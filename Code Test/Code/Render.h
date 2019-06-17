@@ -7,7 +7,7 @@ void Render()
 	SDL_RenderClear(mainRenderer);
 
 	//render all particles	
-	for (auto i : particleList)
+	for (Particle* i : particleList)
 	{
 		if (drawHeat)
 		{
@@ -37,7 +37,7 @@ void Render()
 			}
 
 			SDL_SetRenderDrawColor(mainRenderer, r, g, b, 0);
-			SDL_RenderDrawPoint(mainRenderer, particle->x, particle->y);
+			SDL_RenderDrawPoint(mainRenderer, particle->point.x, particle->point.y);
 		}
 		else
 			i->Draw();

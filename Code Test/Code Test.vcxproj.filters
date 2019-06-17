@@ -49,7 +49,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\..\..\..\Tyler%27s PC\source\repos\Code-Test\Code Test\Todo.txt">
+    <Text Include="Todo.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

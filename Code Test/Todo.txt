@@ -5,6 +5,7 @@ deletion of blocks causes MAJOR lag that becomes much worse with mroe particles 
 full rebuild of particlelist system needed
 
 MAJOR:
+change from using SDL_RenderDrawPoint to SDL_RenderDrawPoints, will need to store an array of SDL_Point* to do so, should speed up drawing of particles however
 game slows down as more particles are emulated on screen
 
 MINOR:

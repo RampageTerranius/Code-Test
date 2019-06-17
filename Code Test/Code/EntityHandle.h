@@ -4,11 +4,11 @@ void EntityHandle()
 {
 	if (!pauseParticles)
 	{
-		for (auto i : particleList)
+		for (Particle* i : particleList)
 			i->HandleEvents();
 
 		//handling entities
-		for (auto i : particleList)
+		for (Particle* i : particleList)
 			i->HandlePhysics();
 	}
 }
