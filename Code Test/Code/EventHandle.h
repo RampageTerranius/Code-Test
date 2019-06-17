@@ -30,10 +30,10 @@ void SwitchBrushType(bool gotoNext)
 		i++;
 
 		//make sure we havent gone over the struct size
-		if (i > TYPE_TOTALTYPES - 2)	
-			i = 0;		
+		if (i > TYPE_TOTALTYPES - 2)
+			i = 0;
 
-		//cast the int as eType and update the current brush
+		//cast the int as particleType and update the current brush
 		currentBrushType = static_cast<ParticleType>(i);
 	}
 	else//if told to goto last brush type
@@ -41,10 +41,10 @@ void SwitchBrushType(bool gotoNext)
 		i--;
 
 		//make sure we havent gone under the struct size
-		if (i < 0)		
+		if (i < 0)
 			i = TYPE_TOTALTYPES - 2;
 
-		//cast the int as eType and update the current brush
+		//cast the int as particleType and update the current brush
 		currentBrushType = static_cast<ParticleType>(i);
 	}
 }
@@ -205,7 +205,7 @@ void UpdateEventStructs(SDL_Event event)
 				mouse.y = 0;
 			if (mouse.y > WINDOW_HEIGHT - 1)
 				mouse.y = WINDOW_HEIGHT - 1;
-			break;			
+			break;
 
 			//on mouse button down
 		case SDL_MOUSEBUTTONDOWN:
@@ -242,7 +242,7 @@ void UpdateEventStructs(SDL_Event event)
 				break;
 			}
 			break;
-		}		
+		}
 	}
 }
 
@@ -250,7 +250,7 @@ void CreateParticlesAtBrush(ParticleType type, int x, int y, float temperature)
 {
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
 	if (currentBrushSize == 1)
-		CreateParticle(type, mouse.x, mouse.y, temperature, createAsSource);	
+		CreateParticle(type, mouse.x, mouse.y, temperature, createAsSource);
 	else for(int i = currentBrushSize; i > -currentBrushSize; i--)
 		for (int n = currentBrushSize; n > -currentBrushSize; n--)
 			CreateParticle(type, mouse.x + i, mouse.y + n, temperature, createAsSource);
@@ -263,7 +263,7 @@ void DestroyParticlesAtBrush(int x, int y)
 		return;
 
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
-	if (currentBrushSize == 1)		
+	if (currentBrushSize == 1)
 		DestroyParticle(mouse.x, mouse.y);
 	else for (int i = currentBrushSize; i > -currentBrushSize; i--)
 		for (int n = currentBrushSize; n > -currentBrushSize; n--)
@@ -277,7 +277,7 @@ void EventHandle(SDL_Event& event)
 
 	//on left click paint particles using brush
 	if (mouse.left)
-		CreateParticlesAtBrush(currentBrushType, mouse.x, mouse.y, (float)currentBrushTemperature);	
+		CreateParticlesAtBrush(currentBrushType, mouse.x, mouse.y, (float)currentBrushTemperature);
 
 	if (mouse.right)
 		DestroyParticlesAtBrush(mouse.x, mouse.y);

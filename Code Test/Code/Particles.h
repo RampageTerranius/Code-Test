@@ -228,62 +228,62 @@ Particle* CreateParticle(ParticleType type, int x, int y, float temp, bool asSou
 		{
 		case TYPE_WALL:
 			allParticles[x][y] = new Wall(x, y, temp);
-			particleList.push_back(allParticles[x][y]);
+			particleList.emplace_back(allParticles[x][y]);
 			return allParticles[x][y];
 
 		case TYPE_SAND:
 			allParticles[x][y] = new Sand(x, y, temp);
-			particleList.push_back(allParticles[x][y]);
+			particleList.emplace_back(allParticles[x][y]);
 			return allParticles[x][y];
 
 		case TYPE_WATER:
 			allParticles[x][y] = new Water(x, y, temp);
-			particleList.push_back(allParticles[x][y]);
+			particleList.emplace_back(allParticles[x][y]);
 			return allParticles[x][y];
 
 		case TYPE_ICE:
 			allParticles[x][y] = new Ice(x, y, temp);
-			particleList.push_back(allParticles[x][y]);
+			particleList.emplace_back(allParticles[x][y]);
 			return allParticles[x][y];
 
 		case TYPE_THERMALFLUID:
 			allParticles[x][y] = new ThermalFluid(x, y, temp);
-			particleList.push_back(allParticles[x][y]);
+			particleList.emplace_back(allParticles[x][y]);
 			return allParticles[x][y];
 
 		case TYPE_ACID:
 			allParticles[x][y] = new Acid(x, y, temp);
-			particleList.push_back(allParticles[x][y]);
+			particleList.emplace_back(allParticles[x][y]);
 			return allParticles[x][y];
 
 		case TYPE_STEAM:
 			allParticles[x][y] = new Steam(x, y, temp);
-			particleList.push_back(allParticles[x][y]);
+			particleList.emplace_back(allParticles[x][y]);
 			return allParticles[x][y];
 
 		case TYPE_PLANT:
 			allParticles[x][y] = new Plant(x, y, temp);
-			particleList.push_back(allParticles[x][y]);
+			particleList.emplace_back(allParticles[x][y]);
 			return allParticles[x][y];
 
 		case TYPE_SALT:
 			allParticles[x][y] = new Salt(x, y, temp);
-			particleList.push_back(allParticles[x][y]);
+			particleList.emplace_back(allParticles[x][y]);
 			return allParticles[x][y];
 
 		case TYPE_SALTWATER:
 			allParticles[x][y] = new SaltWater(x, y, temp);
-			particleList.push_back(allParticles[x][y]);
+			particleList.emplace_back(allParticles[x][y]);
 			return allParticles[x][y];
 
 		case TYPE_SALTICE:
 			allParticles[x][y] = new SaltIce(x, y, temp);
-			particleList.push_back(allParticles[x][y]);
+			particleList.emplace_back(allParticles[x][y]);
 			return allParticles[x][y];
 
 		case TYPE_GLITCH:
 			allParticles[x][y] = new Glitch(x, y, temp);
-			particleList.push_back(allParticles[x][y]);
+			particleList.emplace_back(allParticles[x][y]);
 			return allParticles[x][y];
 
 		default:
@@ -294,7 +294,7 @@ Particle* CreateParticle(ParticleType type, int x, int y, float temp, bool asSou
 	else
 	{
 		allParticles[x][y] = new Source(type, x, y, temp);
-		particleList.push_back(allParticles[x][y]);
+		particleList.emplace_back(allParticles[x][y]);
 		return allParticles[x][y];
 	}
 
@@ -319,8 +319,8 @@ void DestroyParticle(int x, int y)
 	for (size_t i = 0; i < particleList.size() - 1; i++)
 	{
 		int tempX, tempY;
-		tempX = particleList.at(i)->x;
-		tempY = particleList.at(i)->y;
+		tempX = particleList[i]->x;
+		tempY = particleList[i]->y;
 		//if the x/y are the same wipe the particle
 		if (tempX == x && tempY == y)
 		{

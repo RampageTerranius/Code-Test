@@ -7,7 +7,7 @@ void Render()
 	SDL_RenderClear(mainRenderer);
 
 	//render all particles	
-	for (size_t i = 0; i < particleList.size(); i++)
+	for (auto i : particleList)
 	{
 		if (drawHeat)
 		{
@@ -15,7 +15,7 @@ void Render()
 			float tempMiddle = 0;
 			float tempLowest = -50;
 
-			Particle* particle = particleList.at(i);
+			Particle* particle = i;
 
 			int r, g, b;
 
@@ -40,7 +40,7 @@ void Render()
 			SDL_RenderDrawPoint(mainRenderer, particle->x, particle->y);
 		}
 		else
-			particleList.at(i)->Draw();
+			i->Draw();
 
 	}
 
