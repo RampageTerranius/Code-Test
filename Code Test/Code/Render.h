@@ -10,34 +10,32 @@ void Render()
 	for (Particle* i : particleList)
 	{
 		if (drawHeat)
-		{
+		{			
 			float tempHighest = 80;
 			float tempMiddle = 0;
 			float tempLowest = -50;
-
-			Particle* particle = i;
 
 			int r, g, b;
 
 			r = g = b = 20;
 
-			float temp = particle->temperature;
+			float temp = i->temperature;
 			
-			if (particle->temperature >= tempMiddle)
+			if (i->temperature >= tempMiddle)
 			{
-				r = 255 * (int)(1.0 - (std::abs(particle->temperature - tempHighest) / (particle->temperature + tempHighest)));
+				r = 255 * (int)(1.0 - (std::abs(i->temperature - tempHighest) / (i->temperature + tempHighest)));
 				if (r > 255)
 					r = 255;
 			}
 			else
 			{
-				b = 255 * (int)(std::abs(particle->temperature - tempLowest) / (particle->temperature + tempLowest));
+				b = 255 * (int)(std::abs(i->temperature - tempLowest) / (i->temperature + tempLowest));
 				if (b > 255)
 					b = 255;
 			}
 
 			SDL_SetRenderDrawColor(mainRenderer, r, g, b, 0);
-			SDL_RenderDrawPoint(mainRenderer, particle->point.x, particle->point.y);
+			SDL_RenderDrawPoint(mainRenderer, i->point.x, i->point.y);
 		}
 		else
 			i->Draw();
@@ -89,8 +87,7 @@ void Render()
 
 	//render selected particle type and temperature
 	if (allParticles[mouse.x][mouse.y] != nullptr)
-	{
-		
+	{		
 		selectedParticleTemperature.SetText(std::to_string(allParticles[mouse.x][mouse.y]->temperature) + "c");
 		
 		//check if source block
