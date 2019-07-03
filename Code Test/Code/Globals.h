@@ -7,7 +7,6 @@
 #include <SDL.h>
 
 #include "ParticleTypes.h"
-#include "Color.h"
 #include "TTF.h"
 #include "mouse.h"
 #include "keyboard.h"
