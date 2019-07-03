@@ -1,5 +1,10 @@
 #pragma once
 
+//sdl
+#include <SDL.h>
+
+#include "Globals.h"
+
 //class for handling timers
 class Timer
 {
@@ -8,7 +13,6 @@ class Timer
 		void Stop();
 		void Pause();
 		void Unpause();
-
 		int GetTicks();
 		
 
@@ -83,7 +87,7 @@ int Timer::GetTicks()
 
 void TimerHandle(Timer* cap, Timer* fps)
 {	
-	avgFPS = countedFrames / (fps->GetTicks() / 1000.f);
-	if (avgFPS > 2000000)	
-		avgFPS = 0;
+	globals.avgFPS = globals.countedFrames / (fps->GetTicks() / 1000.f);
+	if (globals.avgFPS > 2000000)
+		globals.avgFPS = 0;
 }

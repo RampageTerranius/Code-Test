@@ -1,6 +1,14 @@
-#pragma once
+#include "Shutdown + Startup.h"
 
-#include "Globals.h"
+#include <string>
+
+
+//sdl
+#include <SDL.h>
+#include <SDL_ttf.h>
+#include <iostream>
+
+#include "Particles.h"
 
 bool Setup()
 {
@@ -37,46 +45,74 @@ bool Setup()
 
 	//create main window
 	Uint32 windowFlags = SDL_WINDOW_OPENGL;
-	mainWindow = SDL_CreateWindow(PROGRAM_NAME.c_str(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windowFlags);
+	globals.mainWindow = SDL_CreateWindow(globals.PROGRAM_NAME.c_str(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windowFlags);
 
 	Uint32 renderFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
-	mainRenderer = SDL_CreateRenderer(mainWindow, -1, renderFlags);
+	globals.mainRenderer = SDL_CreateRenderer(globals.mainWindow, -1, renderFlags);
 
 	//setup ttf objects
-	if (!brushName.SetFont("pxl.ttf", 24))
+	if (!globals.brushName.SetFont("pxl.ttf", 24))
 	{
 		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
 		return false;
 	}
-	
-	if (!brushSize.SetFont("pxl.ttf", 24))
+
+	if (!globals.brushSize.SetFont("pxl.ttf", 24))
 	{
 		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
 		return false;
 	}
-	if (!brushTemperature.SetFont("pxl.ttf", 24))
+	if (!globals.brushTemperature.SetFont("pxl.ttf", 24))
 	{
 		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
 		return false;
 	}
-	if (!selectedParticleName.SetFont("pxl.ttf", 24))
+	if (!globals.selectedParticleName.SetFont("pxl.ttf", 24))
 	{
 		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
 		return false;
 	}
-	if (!selectedParticleTemperature.SetFont("pxl.ttf", 24))
+	if (!globals.selectedParticleTemperature.SetFont("pxl.ttf", 24))
 	{
 		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
 		return false;
 	}
-	if (!currentFrameRate.SetFont("pxl.ttf", 24))
+	if (!globals.currentFrameRate.SetFont("pxl.ttf", 24))
 	{
 		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
 		return false;
 	}
 
 	//reserve the particlelist vector to the size of the screen
-	particleList.reserve(WINDOW_HEIGHT * WINDOW_WIDTH);
+	globals.particleList.reserve(WINDOW_HEIGHT * WINDOW_WIDTH);
 
 	return true;
+}
+
+
+void Shutdown()
+{
+	//destroy the main window before shutdown
+	SDL_DestroyWindow(globals.mainWindow);
+
+	//destroy the main renderer before shutdown
+	SDL_DestroyRenderer(globals.mainRenderer);
+
+	//clear up the pointer array used for the particles
+	for (int i = 0; i < WINDOW_WIDTH - 1; i++)
+		for (int n = 0; n < WINDOW_HEIGHT - 1; n++)
+		{
+			delete globals.allParticles[i][n];
+			globals.allParticles[i][n] = nullptr;
+		}
+
+	//clean up all TTF files
+	globals.brushName.Clear();
+	globals.brushSize.Clear();
+	globals.brushTemperature.Clear();
+	globals.selectedParticleTemperature.Clear();
+	globals.selectedParticleName.Clear();
+	globals.currentFrameRate.Clear();
+
+	SDL_Quit();
 }

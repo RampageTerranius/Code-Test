@@ -3,7 +3,7 @@
 int main(int argc, char* argv[])
 {
 	//run setup and check that it was sucessful
-	running = Setup();
+	globals.running = Setup();
 
 	//handles all input given by the user
 	SDL_Event event;
@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
 	fpsTimer.Start();
 
-	while(running)
+	while(globals.running)
 	{
 		capTimer.Start();
 

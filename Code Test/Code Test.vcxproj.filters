@@ -27,12 +27,6 @@
     <ClInclude Include="Code\Render.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Setup.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Shutdown.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Code\TimerHandle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -42,9 +36,45 @@
     <ClInclude Include="Code\TTF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ParticleTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Mouse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Keyboard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Color.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Shutdown + Startup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\TTF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Render.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Particles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\EventHandle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Color.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Shutdown + Startup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -19,18 +19,28 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\Color.h" />
     <ClInclude Include="Code\EntityHandle.h" />
     <ClInclude Include="Code\EventHandle.h" />
+    <ClInclude Include="Code\Globals.h" />
+    <ClInclude Include="Code\Keyboard.h" />
     <ClInclude Include="Code\Main.h" />
+    <ClInclude Include="Code\Mouse.h" />
     <ClInclude Include="Code\Particles.h" />
+    <ClInclude Include="Code\ParticleTypes.h" />
     <ClInclude Include="Code\Render.h" />
-    <ClInclude Include="Code\Setup.h" />
-    <ClInclude Include="Code\Shutdown.h" />
+    <ClInclude Include="Code\Shutdown + Startup.h" />
     <ClInclude Include="Code\TimerHandle.h" />
     <ClInclude Include="Code\TTF.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Code\Color.cpp" />
+    <ClCompile Include="Code\EventHandle.cpp" />
     <ClCompile Include="Code\Main.cpp" />
+    <ClCompile Include="Code\Particles.cpp" />
+    <ClCompile Include="Code\Render.cpp" />
+    <ClCompile Include="Code\Shutdown + Startup.cpp" />
+    <ClCompile Include="Code\TTF.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Todo.txt" />

@@ -2,13 +2,13 @@
 //runs code to do with all particles currently loaded
 void EntityHandle()
 {
-	if (!pauseParticles)
+	if (!globals.pauseParticles)
 	{
-		for (Particle* i : particleList)
+		for (Particle* i : globals.particleList)
 			i->HandleEvents();
 
 		//handling entities
-		for (Particle* i : particleList)
+		for (Particle* i : globals.particleList)
 			i->HandlePhysics();
 	}
 }
