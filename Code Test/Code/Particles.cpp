@@ -3,9 +3,9 @@
 void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 {
 	//check that we have no entity in this section to begin with
-	if (globals.allParticles[x][y] != nullptr)
+	if (allParticles[x][y] != nullptr)
 	{
-		std::cout << "Attempt to create a particle of type " + typeNames[type] + " at " + std::to_string(x) + "|" + std::to_string(y) + " when a particle already exists here of type " + typeNames[globals.allParticles[x][y]->type] + "\n";
+		std::cout << "Attempt to create a particle of type " + typeNames[type] + " at " + std::to_string(x) + "|" + std::to_string(y) + " when a particle already exists here of type " + typeNames[allParticles[x][y]->type] + "\n";
 		return;
 	}
 
@@ -19,63 +19,63 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 		switch (type)
 		{
 		case TYPE_WALL:
-			globals.allParticles[x][y] = new Wall(x, y, temp);
-			globals.particleList.emplace_back(globals.allParticles[x][y]);
+			allParticles[x][y] = new Wall(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
 			return;
 
 		case TYPE_SAND:
-			globals.allParticles[x][y] = new Sand(x, y, temp);
-			globals.particleList.emplace_back(globals.allParticles[x][y]);
+			allParticles[x][y] = new Sand(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
 			return;
 
 		case TYPE_WATER:
-			globals.allParticles[x][y] = new Water(x, y, temp);
-			globals.particleList.emplace_back(globals.allParticles[x][y]);
+			allParticles[x][y] = new Water(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
 			return;
 
 		case TYPE_ICE:
-			globals.allParticles[x][y] = new Ice(x, y, temp);
-			globals.particleList.emplace_back(globals.allParticles[x][y]);
+			allParticles[x][y] = new Ice(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
 			return;
 
 		case TYPE_THERMALFLUID:
-			globals.allParticles[x][y] = new ThermalFluid(x, y, temp);
-			globals.particleList.emplace_back(globals.allParticles[x][y]);
+			allParticles[x][y] = new ThermalFluid(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
 			return;
 
 		case TYPE_ACID:
-			globals.allParticles[x][y] = new Acid(x, y, temp);
-			globals.particleList.emplace_back(globals.allParticles[x][y]);
+			allParticles[x][y] = new Acid(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
 			return;
 
 		case TYPE_STEAM:
-			globals.allParticles[x][y] = new Steam(x, y, temp);
-			globals.particleList.emplace_back(globals.allParticles[x][y]);
+			allParticles[x][y] = new Steam(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
 			return;
 
 		case TYPE_PLANT:
-			globals.allParticles[x][y] = new Plant(x, y, temp);
-			globals.particleList.emplace_back(globals.allParticles[x][y]);
+			allParticles[x][y] = new Plant(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
 			return;
 
 		case TYPE_SALT:
-			globals.allParticles[x][y] = new Salt(x, y, temp);
-			globals.particleList.emplace_back(globals.allParticles[x][y]);
+			allParticles[x][y] = new Salt(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
 			return;
 
 		case TYPE_SALTWATER:
-			globals.allParticles[x][y] = new SaltWater(x, y, temp);
-			globals.particleList.emplace_back(globals.allParticles[x][y]);
+			allParticles[x][y] = new SaltWater(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
 			return;
 
 		case TYPE_SALTICE:
-			globals.allParticles[x][y] = new SaltIce(x, y, temp);
-			globals.particleList.emplace_back(globals.allParticles[x][y]);
+			allParticles[x][y] = new SaltIce(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
 			return;
 
 		case TYPE_GLITCH:
-			globals.allParticles[x][y] = new Glitch(x, y, temp);
-			globals.particleList.emplace_back(globals.allParticles[x][y]);
+			allParticles[x][y] = new Glitch(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
 			return;
 
 		default:
@@ -85,8 +85,8 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 	}
 	else
 	{
-		globals.allParticles[x][y] = new Source(type, x, y, temp);
-		globals.particleList.emplace_back(globals.allParticles[x][y]);
+		allParticles[x][y] = new Source(type, x, y, temp);
+		particleList.emplace_back(allParticles[x][y]);
 		return;
 	}
 }
@@ -101,24 +101,24 @@ void CreateParticle(ParticleType type, int x, int y, float temp)
 void DestroyParticle(int x, int y)
 {
 	//check if a particle even exists in the area we want to delete and cancel if there is none
-	if (globals.allParticles[x][y] == nullptr)
+	if (allParticles[x][y] == nullptr)
 		return;
 
 	//iterate through all particles in the list
-	for (size_t i = 0; i < globals.particleList.size() - 1; i++)
+	for (size_t i = 0; i < particleList.size() - 1; i++)
 	{
 		int tempX, tempY;
-		tempX = globals.particleList[i]->point.x;
-		tempY = globals.particleList[i]->point.y;
+		tempX = particleList[i]->point.x;
+		tempY = particleList[i]->point.y;
 		//if the x/y are the same wipe the particle
 		if (tempX == x && tempY == y)
 		{
 			//clear the vector first
-			globals.particleList.erase(globals.particleList.begin() + i);
+			particleList.erase(particleList.begin() + i);
 
 			//make sure we COMPLETELY wipe the particle, the particle was made by hand via new Particle() and therefore we MUST handle the deletion manually		
-			delete globals.allParticles[tempX][tempY];
-			globals.allParticles[tempX][tempY] = nullptr;
+			delete allParticles[tempX][tempY];
+			allParticles[tempX][tempY] = nullptr;
 
 			return;
 		}
@@ -129,20 +129,20 @@ void DestroyParticle(int x, int y)
 void MoveParticles(int x1, int y1, int x2, int y2)
 {
 	//get both the particles we want to move
-	std::swap(globals.allParticles[x1][y1], globals.allParticles[x2][y2]);
+	std::swap(allParticles[x1][y1], allParticles[x2][y2]);
 
 	//update the internal location data for the first point now that its been moved
-	if (globals.allParticles[x2][y2] != nullptr)
+	if (allParticles[x2][y2] != nullptr)
 	{
-		globals.allParticles[x2][y2]->point.y = y2;
-		globals.allParticles[x2][y2]->point.x = x2;
+		allParticles[x2][y2]->point.y = y2;
+		allParticles[x2][y2]->point.x = x2;
 	}
 
 	//update the internal location data for the second point now that its been moved
-	if (globals.allParticles[x1][y1] != nullptr)
+	if (allParticles[x1][y1] != nullptr)
 	{
-		globals.allParticles[x1][y1]->point.y = y1;
-		globals.allParticles[x1][y1]->point.x = x1;
+		allParticles[x1][y1]->point.y = y1;
+		allParticles[x1][y1]->point.x = x1;
 	}
 }
 
@@ -164,15 +164,15 @@ bool DropParticle(int x, int y, bool randomize)
 	}
 
 	//if there is no particle directly below then just drop down
-	if (globals.allParticles[tempX][y + 1] == nullptr)
+	if (allParticles[tempX][y + 1] == nullptr)
 	{
 		//update the array
 		MoveParticles(x, y, tempX, y + 1);
 		return true;
 	}
 	//other wise if the particle directly below has less weight then swap particles
-	else if (globals.allParticles[tempX][y + 1]->weight != -1)
-		if (globals.allParticles[x][y]->weight > globals.allParticles[tempX][y + 1]->weight)
+	else if (allParticles[tempX][y + 1]->weight != -1)
+		if (allParticles[x][y]->weight > allParticles[tempX][y + 1]->weight)
 		{
 			MoveParticles(x, y, tempX, y + 1);
 			return true;
@@ -205,15 +205,15 @@ bool AscendParticle(int x, int y, bool randomize)
 	}
 
 	//if there is no particle directly above then just ascend
-	if (globals.allParticles[tempX][y - 1] == nullptr)
+	if (allParticles[tempX][y - 1] == nullptr)
 	{
 		//update the array
 		MoveParticles(x, y, tempX, y - 1);
 		return true;
 	}
 	//other wise if the particle directly above has more weight then swap particles
-	else if (globals.allParticles[tempX][y - 1]->weight != -1)
-		if (globals.allParticles[x][y]->weight < globals.allParticles[tempX][y - 1]->weight)
+	else if (allParticles[tempX][y - 1]->weight != -1)
+		if (allParticles[x][y]->weight < allParticles[tempX][y - 1]->weight)
 		{
 			MoveParticles(x, y, tempX, y - 1);
 			return true;
@@ -226,38 +226,38 @@ bool AscendParticle(int x, int y, bool randomize)
 void EvenOutTemperatures(int x1, int y1, int x2, int y2)
 {
 	//make sure both points are not blank
-	if (globals.allParticles[x1][y1] != nullptr && globals.allParticles[x2][y2] != nullptr)
+	if (allParticles[x1][y1] != nullptr && allParticles[x2][y2] != nullptr)
 	{
 		//make sure they arent already the same temp
-		if (globals.allParticles[x1][y1]->temperature == globals.allParticles[x2][y2]->temperature)
+		if (allParticles[x1][y1]->temperature == allParticles[x2][y2]->temperature)
 			return;
 
 		//get the difference between both temperatures in an attempt to either increase or decrease the spread of temperature between objects
-		float calculatedTemperatureDifference = (std::abs(((globals.allParticles[x1][y1]->temperature - globals.allParticles[x2][y2]->temperature) / globals.allParticles[x1][y1]->temperature) * 100)) / globals.temperatureDifferenceDivisor;
+		float calculatedTemperatureDifference = (std::abs(((allParticles[x1][y1]->temperature - allParticles[x2][y2]->temperature) / allParticles[x1][y1]->temperature) * 100)) / temperatureDifferenceDivisor;
 
-		float calculatedTemperatureChange = calculatedTemperatureDifference * std::abs(globals.allParticles[x1][y1]->thermalConductivity + globals.allParticles[x2][y2]->thermalConductivity);
+		float calculatedTemperatureChange = calculatedTemperatureDifference * std::abs(allParticles[x1][y1]->thermalConductivity + allParticles[x2][y2]->thermalConductivity);
 
 
 		//check if the temperature change will mean they both even each other out or not
-		if (std::abs(globals.allParticles[x1][y1]->temperature - globals.allParticles[x2][y2]->temperature) > calculatedTemperatureChange)
+		if (std::abs(allParticles[x1][y1]->temperature - allParticles[x2][y2]->temperature) > calculatedTemperatureChange)
 		{
 			//first particle is higher temp then second
-			if (globals.allParticles[x1][y1]->temperature > globals.allParticles[x2][y2]->temperature)
+			if (allParticles[x1][y1]->temperature > allParticles[x2][y2]->temperature)
 			{
-				globals.allParticles[x1][y1]->temperature -= calculatedTemperatureChange;
-				globals.allParticles[x2][y2]->temperature += calculatedTemperatureChange;
+				allParticles[x1][y1]->temperature -= calculatedTemperatureChange;
+				allParticles[x2][y2]->temperature += calculatedTemperatureChange;
 			}
 			else//second particle is higher temp then first
 			{
-				globals.allParticles[x1][y1]->temperature += calculatedTemperatureChange;
-				globals.allParticles[x2][y2]->temperature -= calculatedTemperatureChange;
+				allParticles[x1][y1]->temperature += calculatedTemperatureChange;
+				allParticles[x2][y2]->temperature -= calculatedTemperatureChange;
 			}
 		}
 		else//both temperatures are close enough to just even them out at same temperature
 		{
-			float temp = (globals.allParticles[x1][y1]->temperature + globals.allParticles[x2][y2]->temperature) / 2;
-			globals.allParticles[x1][y1]->temperature = temp;
-			globals.allParticles[x2][y2]->temperature = temp;
+			float temp = (allParticles[x1][y1]->temperature + allParticles[x2][y2]->temperature) / 2;
+			allParticles[x1][y1]->temperature = temp;
+			allParticles[x2][y2]->temperature = temp;
 		}
 	}
 }
@@ -269,9 +269,9 @@ Particle::Particle(ParticleType newType, int newX, int newY, float newTemperatur
 	point.x = newX;
 	point.y = newY;
 	temperature = newTemperature;
-	thermalConductivity = globals.settingThermalConductivity[type];
-	health = globals.settingHealth[type];
-	weight = globals.settingWeight[type];
+	thermalConductivity = settingThermalConductivity[type];
+	health = settingHealth[type];
+	weight = settingWeight[type];
 }
 
 void Particle::Reset()
@@ -287,8 +287,8 @@ void Particle::Reset()
 //default draw code
 void Particle::Draw()
 {
-	SDL_SetRenderDrawColor(globals.mainRenderer, globals.settingColor[type][0], globals.settingColor[type][1], globals.settingColor[type][2], globals.settingColor[type][3]);
-	SDL_RenderDrawPoint(globals.mainRenderer, point.x, point.y);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[type][0], settingColor[type][1], settingColor[type][2], settingColor[type][3]);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool Particle::HandleEvents()
@@ -352,9 +352,9 @@ bool Particle::CheckIfAtBottom()
 	if (point.y == WINDOW_HEIGHT - 1)
 	{
 		//check if we need to loop the particles from bottom to top
-		if (globals.loopScreen)
+		if (loopScreen)
 		{
-			if (globals.allParticles[point.x][0] == nullptr)
+			if (allParticles[point.x][0] == nullptr)
 				MoveParticles(point.x, point.y, point.x, 0);
 
 			//even if we cant move return true as we are stil lat the bottom and cant move else where
@@ -374,9 +374,9 @@ bool Particle::CheckIfAtTop()
 	if (point.y == 0)
 	{
 		//check if we need to loop the particles from bottom to top
-		if (globals.loopScreen)
+		if (loopScreen)
 		{
-			if (globals.allParticles[point.x][WINDOW_HEIGHT - 1] == nullptr)
+			if (allParticles[point.x][WINDOW_HEIGHT - 1] == nullptr)
 				MoveParticles(point.x, point.y, point.x, WINDOW_HEIGHT - 1);
 
 			//even if we cant move return true as we are stil lat the bottom and cant move else where
@@ -416,19 +416,19 @@ void Particle::HandlePhysics()
 		right = WINDOW_WIDTH - 1;
 
 	//check if we are surrounded
-	if (globals.allParticles[left][down] != nullptr && globals.allParticles[point.x][down] != nullptr && globals.allParticles[right][down] != nullptr)
+	if (allParticles[left][down] != nullptr && allParticles[point.x][down] != nullptr && allParticles[right][down] != nullptr)
 	{
 		//if we are check if we can move via gravity with the surrounding blocks
 
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
 
-		if (globals.allParticles[left][down]->weight != -1)
-			if (globals.allParticles[point.x][point.y]->weight < globals.allParticles[left][down]->weight)
+		if (allParticles[left][down]->weight != -1)
+			if (allParticles[point.x][point.y]->weight < allParticles[left][down]->weight)
 				canGoLeft = true;
 
-		if (globals.allParticles[right][down]->weight != -1)
-			if (globals.allParticles[point.x][point.y]->weight < globals.allParticles[right][down]->weight)
+		if (allParticles[right][down]->weight != -1)
+			if (allParticles[point.x][point.y]->weight < allParticles[right][down]->weight)
 				canGoRight = true;
 
 		if (canGoLeft && canGoRight)
@@ -467,7 +467,7 @@ void Particle::HandlePhysics()
 	if (point.x == 0)//check if we are on the left most edge
 	{
 		//we are on the left most edge, try to drop to the bottom right
-		if (globals.allParticles[right][down] == nullptr)
+		if (allParticles[right][down] == nullptr)
 		{
 			//update the array
 			MoveParticles(point.x, point.y, right, down);
@@ -479,7 +479,7 @@ void Particle::HandlePhysics()
 	if (point.x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
 	{
 		//we are on the right most edge, try to drop to the bottom left
-		if (globals.allParticles[left][down] == nullptr)
+		if (allParticles[left][down] == nullptr)
 		{
 			//update the array
 			MoveParticles(point.x, point.y, left, down);
@@ -489,21 +489,21 @@ void Particle::HandlePhysics()
 	}
 
 	//if the bottom left is empty and the bottom right isnt then drop to the bottom left
-	if (globals.allParticles[left][down] == nullptr && globals.allParticles[right][down] != nullptr)
+	if (allParticles[left][down] == nullptr && allParticles[right][down] != nullptr)
 	{
 		//update the array
 		MoveParticles(point.x, point.y, left, down);
 		return;
 	}
 	//if the bottom right is empty and the bottom left isnt the drop to the bottom right
-	else if (globals.allParticles[right][down] == nullptr && globals.allParticles[left][down] != nullptr)
+	else if (allParticles[right][down] == nullptr && allParticles[left][down] != nullptr)
 	{
 		//update the array
 		MoveParticles(point.x, point.y, right, down);
 		return;
 	}
 	//if both sides are free randomly choose one direction and drop down that side	
-	else if (globals.allParticles[right][down] == nullptr && globals.allParticles[left][down] == nullptr)
+	else if (allParticles[right][down] == nullptr && allParticles[left][down] == nullptr)
 	{
 		int randomNum = rand() % 2 + 1;
 
@@ -594,18 +594,18 @@ void Liquid::HandlePhysics()
 		right = WINDOW_WIDTH - 1;
 
 	//check if we are surrounded
-	if (globals.allParticles[left][point.y] != nullptr && globals.allParticles[point.x][down] != nullptr && globals.allParticles[right][point.y] != nullptr)
+	if (allParticles[left][point.y] != nullptr && allParticles[point.x][down] != nullptr && allParticles[right][point.y] != nullptr)
 	{
 		//if we are check if we can move via gravity with the surrounding blocks
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
 
-		if (globals.allParticles[left][point.y]->weight != -1)
-			if (globals.allParticles[point.x][point.y]->weight < globals.allParticles[left][point.y]->weight)
+		if (allParticles[left][point.y]->weight != -1)
+			if (allParticles[point.x][point.y]->weight < allParticles[left][point.y]->weight)
 				canGoLeft = true;
 
-		if (globals.allParticles[right][point.y]->weight != -1)
-			if (globals.allParticles[point.x][point.y]->weight < globals.allParticles[right][point.y]->weight)
+		if (allParticles[right][point.y]->weight != -1)
+			if (allParticles[point.x][point.y]->weight < allParticles[right][point.y]->weight)
 				canGoRight = true;
 
 		//can go either way
@@ -647,7 +647,7 @@ void Liquid::HandlePhysics()
 	if (point.x == 0)//check if we are on the left most edge
 	{
 		//we are on the left most edge, try to drop to the bottom right
-		if (globals.allParticles[right][point.y] == nullptr)
+		if (allParticles[right][point.y] == nullptr)
 		{
 			//update the array
 			MoveParticles(point.x, point.y, right, point.y);
@@ -659,7 +659,7 @@ void Liquid::HandlePhysics()
 	if (point.x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
 	{
 		//we are on the right most edge, try to drop to the bottom left
-		if (globals.allParticles[left][point.y] == nullptr)
+		if (allParticles[left][point.y] == nullptr)
 		{
 			//update the array
 			MoveParticles(point.x, point.y, left, point.y);
@@ -669,13 +669,13 @@ void Liquid::HandlePhysics()
 	}
 
 	//if left is empty only
-	if (globals.allParticles[left][point.y] == nullptr && globals.allParticles[right][point.y] != nullptr)
+	if (allParticles[left][point.y] == nullptr && allParticles[right][point.y] != nullptr)
 		MoveParticles(point.x, point.y, left, point.y);
 	//if right is empty only
-	else if (globals.allParticles[right][point.y] == nullptr && globals.allParticles[left][point.y] != nullptr)
+	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] != nullptr)
 		MoveParticles(point.x, point.y, right, point.y);
 	//both ways are free, randomly choose one and move	
-	else if (globals.allParticles[right][point.y] == nullptr && globals.allParticles[left][point.y] == nullptr)
+	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] == nullptr)
 	{
 		int randomNum = rand() % 2 + 1;
 
@@ -728,18 +728,18 @@ void Airborn::HandlePhysics()
 		return;
 
 	//check if we are surrounded
-	if (globals.allParticles[left][point.y] != nullptr && globals.allParticles[right][point.y] != nullptr)
+	if (allParticles[left][point.y] != nullptr && allParticles[right][point.y] != nullptr)
 	{
 		//if we are check if we can move via gravity with the surrounding blocks
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
 
-		if (globals.allParticles[left][point.y]->weight != -1)
-			if (globals.allParticles[point.x][point.y]->weight < globals.allParticles[left][point.y]->weight)
+		if (allParticles[left][point.y]->weight != -1)
+			if (allParticles[point.x][point.y]->weight < allParticles[left][point.y]->weight)
 				canGoLeft = true;
 
-		if (globals.allParticles[right][point.y]->weight != -1)
-			if (globals.allParticles[point.x][point.y]->weight < globals.allParticles[right][point.y]->weight)
+		if (allParticles[right][point.y]->weight != -1)
+			if (allParticles[point.x][point.y]->weight < allParticles[right][point.y]->weight)
 				canGoRight = true;
 
 		//can go either way
@@ -781,7 +781,7 @@ void Airborn::HandlePhysics()
 	if (point.x == 0)//check if we are on the left most edge
 	{
 		//we are on the left most edge, try to drop to the bottom right
-		if (globals.allParticles[right][point.y] == nullptr)
+		if (allParticles[right][point.y] == nullptr)
 		{
 			//update the array
 			MoveParticles(point.x, point.y, right, point.y);
@@ -793,7 +793,7 @@ void Airborn::HandlePhysics()
 	if (point.x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
 	{
 		//we are on the right most edge, try to drop to the bottom left
-		if (globals.allParticles[left][point.y] == nullptr)
+		if (allParticles[left][point.y] == nullptr)
 		{
 			//update the array
 			MoveParticles(point.x, point.y, left, point.y);
@@ -803,13 +803,13 @@ void Airborn::HandlePhysics()
 	}
 
 	//if left is empty only
-	if (globals.allParticles[left][point.y] == nullptr && globals.allParticles[right][point.y] != nullptr)
+	if (allParticles[left][point.y] == nullptr && allParticles[right][point.y] != nullptr)
 		MoveParticles(point.x, point.y, left, point.y);
 	//if right is empty only
-	else if (globals.allParticles[right][point.y] == nullptr && globals.allParticles[left][point.y] != nullptr)
+	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] != nullptr)
 		MoveParticles(point.x, point.y, right, point.y);
 	//both ways are free, randomly choose one and move	
-	else if (globals.allParticles[right][point.y] == nullptr && globals.allParticles[left][point.y] == nullptr)
+	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] == nullptr)
 	{
 		int randomNum = rand() % 2 + 1;
 
@@ -853,7 +853,7 @@ bool Water::HandleEvents()
 		return true;
 
 	//check if the water should freeze
-	if (temperature < globals.waterFreezePoint)
+	if (temperature < waterFreezePoint)
 	{
 		int newX = point.x;
 		int newY = point.y;
@@ -865,7 +865,7 @@ bool Water::HandleEvents()
 		return true;
 	}
 	//check if should turn into steam
-	else if (temperature > globals.waterBoilIntoSteamPoint)
+	else if (temperature > waterBoilIntoSteamPoint)
 	{
 		int newX = point.x;
 		int newY = point.y;
@@ -892,7 +892,7 @@ bool Ice::HandleEvents()
 		return true;
 
 	//check if ice should melt	
-	if (temperature > globals.iceMeltPoint)
+	if (temperature > iceMeltPoint)
 	{
 		int newX = point.x;
 		int newY = point.y;
@@ -939,52 +939,52 @@ bool Acid::HandleEvents()
 
 	//check if blocks exist in each direction and attempt to target it for damage 
 	if (up >= 0)
-		if (globals.allParticles[point.x][up] != nullptr)
-			if (globals.allParticles[point.x][up]->type != TYPE_ACID)
+		if (allParticles[point.x][up] != nullptr)
+			if (allParticles[point.x][up]->type != TYPE_ACID)
 				canDamageUp = true;
 
 	if (down <= WINDOW_HEIGHT - 1)
-		if (globals.allParticles[point.x][down] != nullptr)
-			if (globals.allParticles[point.x][down]->type != TYPE_ACID)
+		if (allParticles[point.x][down] != nullptr)
+			if (allParticles[point.x][down]->type != TYPE_ACID)
 				canDamageDown = true;
 
 	if (left >= 0)
-		if (globals.allParticles[left][point.y] != nullptr)
-			if (globals.allParticles[left][point.y]->type != TYPE_ACID)
+		if (allParticles[left][point.y] != nullptr)
+			if (allParticles[left][point.y]->type != TYPE_ACID)
 				canDamageLeft = true;
 
 	if (right <= WINDOW_WIDTH - 1)
-		if (globals.allParticles[right][point.y] != nullptr)
-			if (globals.allParticles[right][point.y]->type != TYPE_ACID)
+		if (allParticles[right][point.y] != nullptr)
+			if (allParticles[right][point.y]->type != TYPE_ACID)
 				canDamageRight = true;
 
 
 	//check each direction and attempt to damage any targeted blocks
 	if (canDamageUp)
-		if ((rand() % globals.acidDamageChance + 1) == 1)
+		if ((rand() % acidDamageChance + 1) == 1)
 		{
-			globals.allParticles[point.x][up]->health--;
+			allParticles[point.x][up]->health--;
 			health--;
 		}
 
 	if (canDamageDown)
-		if ((rand() % globals.acidDamageChance + 1) == 1)
+		if ((rand() % acidDamageChance + 1) == 1)
 		{
-			globals.allParticles[point.x][down]->health--;
+			allParticles[point.x][down]->health--;
 			health--;
 		}
 
 	if (canDamageLeft)
-		if ((rand() % globals.acidDamageChance + 1) == 1)
+		if ((rand() % acidDamageChance + 1) == 1)
 		{
-			globals.allParticles[left][point.y]->health--;
+			allParticles[left][point.y]->health--;
 			health--;
 		}
 
 	if (canDamageRight)
-		if ((rand() % globals.acidDamageChance + 1) == 1)
+		if ((rand() % acidDamageChance + 1) == 1)
 		{
-			globals.allParticles[right][point.y]->health--;
+			allParticles[right][point.y]->health--;
 			health--;
 		}
 
@@ -1002,7 +1002,7 @@ bool Steam::HandleEvents()
 	if (Particle::HandleEvents())
 		return true;
 
-	if (temperature < globals.steamCondensationPoint)
+	if (temperature < steamCondensationPoint)
 	{
 		int newX = point.x;
 		int newY = point.y;
@@ -1044,10 +1044,10 @@ bool Plant::HandleEvents()
 	if (point.y > 0 && point.y < WINDOW_HEIGHT - 1)
 	{
 		//check if can spread upwards
-		if (globals.allParticles[point.x][up] != nullptr)
-			if (globals.allParticles[point.x][up]->type == TYPE_WATER)
+		if (allParticles[point.x][up] != nullptr)
+			if (allParticles[point.x][up]->type == TYPE_WATER)
 			{
-				switch (rand() % globals.plantSpreadChance)
+				switch (rand() % plantSpreadChance)
 				{
 				case 0:
 					canGoUp = true;
@@ -1056,10 +1056,10 @@ bool Plant::HandleEvents()
 			}
 
 		//check if cna spread downwards
-		if (globals.allParticles[point.x][down] != nullptr)
-			if (globals.allParticles[point.x][down]->type == TYPE_WATER)
+		if (allParticles[point.x][down] != nullptr)
+			if (allParticles[point.x][down]->type == TYPE_WATER)
 			{
-				switch (rand() % globals.plantSpreadChance)
+				switch (rand() % plantSpreadChance)
 				{
 				case 0:
 					canGoDown = true;
@@ -1072,10 +1072,10 @@ bool Plant::HandleEvents()
 	if (point.x > 0 && point.x < WINDOW_WIDTH - 1)
 	{
 		//check if cna spread left
-		if (globals.allParticles[left][point.y] != nullptr)
-			if (globals.allParticles[left][point.y]->type == TYPE_WATER)
+		if (allParticles[left][point.y] != nullptr)
+			if (allParticles[left][point.y]->type == TYPE_WATER)
 			{
-				switch (rand() % globals.plantSpreadChance)
+				switch (rand() % plantSpreadChance)
 				{
 				case 0:
 					canGoLeft = true;
@@ -1084,10 +1084,10 @@ bool Plant::HandleEvents()
 			}
 
 		//check if cna spread right
-		if (globals.allParticles[right][point.y] != nullptr)
-			if (globals.allParticles[right][point.y]->type == TYPE_WATER)
+		if (allParticles[right][point.y] != nullptr)
+			if (allParticles[right][point.y]->type == TYPE_WATER)
 			{
-				switch (rand() % globals.plantSpreadChance)
+				switch (rand() % plantSpreadChance)
 				{
 				case 0:
 					canGoRight = true;
@@ -1166,11 +1166,11 @@ bool Salt::HandleEvents()
 	right++;
 
 	//up
-	if (globals.allParticles[point.x][up] != nullptr)
-		if (globals.allParticles[point.x][up]->type == TYPE_WATER)
+	if (allParticles[point.x][up] != nullptr)
+		if (allParticles[point.x][up]->type == TYPE_WATER)
 		{
 			//get some temporary variables as both particles will be deleted soon and we do not want to possibly call upon a deleted object
-			float temp = (globals.allParticles[point.x][up]->temperature + globals.allParticles[point.x][point.y]->temperature) / 2;
+			float temp = (allParticles[point.x][up]->temperature + allParticles[point.x][point.y]->temperature) / 2;
 			int x1, y1, x2, y2;
 
 			x1 = point.x;
@@ -1186,11 +1186,11 @@ bool Salt::HandleEvents()
 		}
 
 	//down
-	if (globals.allParticles[point.x][down] != nullptr)
-		if (globals.allParticles[point.x][down]->type == TYPE_WATER)
+	if (allParticles[point.x][down] != nullptr)
+		if (allParticles[point.x][down]->type == TYPE_WATER)
 		{
 			//get some temporary variables as both particles will be deleted soon and we do not want to possibly call downon a deleted object
-			float temp = (globals.allParticles[point.x][down]->temperature + globals.allParticles[point.x][point.y]->temperature) / 2;
+			float temp = (allParticles[point.x][down]->temperature + allParticles[point.x][point.y]->temperature) / 2;
 			int x1, y1, x2, y2;
 
 			x1 = point.x;
@@ -1206,11 +1206,11 @@ bool Salt::HandleEvents()
 		}
 
 	//left
-	if (globals.allParticles[left][point.y] != nullptr)
-		if (globals.allParticles[left][point.y]->type == TYPE_WATER)
+	if (allParticles[left][point.y] != nullptr)
+		if (allParticles[left][point.y]->type == TYPE_WATER)
 		{
 			//get some temporary variables as both particles will be deleted soon and we do not want to possibly call upon a deleted object
-			float temp = (globals.allParticles[left][point.y]->temperature + globals.allParticles[point.x][point.y]->temperature) / 2;
+			float temp = (allParticles[left][point.y]->temperature + allParticles[point.x][point.y]->temperature) / 2;
 			int x1, y1, x2, y2;
 
 			x1 = point.x;
@@ -1226,11 +1226,11 @@ bool Salt::HandleEvents()
 		}
 
 	//right
-	if (globals.allParticles[right][point.y] != nullptr)
-		if (globals.allParticles[right][point.y]->type == TYPE_WATER)
+	if (allParticles[right][point.y] != nullptr)
+		if (allParticles[right][point.y]->type == TYPE_WATER)
 		{
 			//get some temporary variables as both particles will be deleted soon and we do not want to possibly call upon a deleted object
-			float temp = (globals.allParticles[right][point.y]->temperature + globals.allParticles[point.x][point.y]->temperature) / 2;
+			float temp = (allParticles[right][point.y]->temperature + allParticles[point.x][point.y]->temperature) / 2;
 			int x1, y1, x2, y2;
 
 			x1 = point.x;
@@ -1260,7 +1260,7 @@ bool SaltWater::HandleEvents()
 		return true;
 
 	//check if the salt water should freeze
-	if (temperature < (globals.waterFreezePoint * globals.saltWaterEventTempMultiplier))
+	if (temperature < (waterFreezePoint * saltWaterEventTempMultiplier))
 	{
 		int newX = point.x;
 		int newY = point.y;
@@ -1272,7 +1272,7 @@ bool SaltWater::HandleEvents()
 		return true;
 	}
 	//check if should turn into steam
-	else if (temperature > (globals.waterBoilIntoSteamPoint * globals.saltWaterEventTempMultiplier))
+	else if (temperature > (waterBoilIntoSteamPoint * saltWaterEventTempMultiplier))
 	{
 		int newX = point.x;
 		int newY = point.y;
@@ -1299,7 +1299,7 @@ bool SaltIce::HandleEvents()
 		return true;
 
 	//check if ice should melt	
-	if (temperature > (globals.iceMeltPoint * globals.saltWaterEventTempMultiplier))
+	if (temperature > (iceMeltPoint * saltWaterEventTempMultiplier))
 	{
 		int newX = point.x;
 		int newY = point.y;
@@ -1321,8 +1321,8 @@ Source::Source(ParticleType newSourceType, int newX, int newY, float newTemperat
 }
 void Source::Draw()
 {
-	SDL_SetRenderDrawColor(globals.mainRenderer, globals.settingColor[sourceType][0], globals.settingColor[sourceType][1], globals.settingColor[sourceType][2], globals.settingColor[sourceType][3]);
-	SDL_RenderDrawPoint(globals.mainRenderer, point.x, point.y);
+	SDL_SetRenderDrawColor(mainRenderer, settingColor[sourceType][0], settingColor[sourceType][1], settingColor[sourceType][2], settingColor[sourceType][3]);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool Source::HandleEvents()
@@ -1343,19 +1343,19 @@ bool Source::HandleEvents()
 	right++;
 
 	if (up >= 0)
-		if (globals.allParticles[point.x][up] == nullptr)
+		if (allParticles[point.x][up] == nullptr)
 			CreateParticle(sourceType, point.x, up, temperature);
 
 	if (down <= WINDOW_HEIGHT - 1)
-		if (globals.allParticles[point.x][down] == nullptr)
+		if (allParticles[point.x][down] == nullptr)
 			CreateParticle(sourceType, point.x, down, temperature);
 
 	if (left >= 0)
-		if (globals.allParticles[left][point.y] == nullptr)
+		if (allParticles[left][point.y] == nullptr)
 			CreateParticle(sourceType, left, point.y, temperature);
 
 	if (right <= WINDOW_WIDTH - 1)
-		if (globals.allParticles[right][point.y] == nullptr)
+		if (allParticles[right][point.y] == nullptr)
 			CreateParticle(sourceType, right, point.y, temperature);
 
 	return false;
@@ -1367,8 +1367,8 @@ Glitch::Glitch(int newX, int newY, float newTemperature) : SolidImmobile(TYPE_GL
 }
 void Glitch::Draw()
 {
-	SDL_SetRenderDrawColor(globals.mainRenderer, (rand() % 255), (rand() % 255), (rand() % 255), 0);
-	SDL_RenderDrawPoint(globals.mainRenderer, point.x, point.y);
+	SDL_SetRenderDrawColor(mainRenderer, (rand() % 255), (rand() % 255), (rand() % 255), 0);
+	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
 }
 
 bool Glitch::HandleEvents()
@@ -1390,26 +1390,26 @@ bool Glitch::HandleEvents()
 
 	//attempt to spread to other blocks
 	if (up >= 0)
-		if (globals.allParticles[point.x][up] == nullptr)
+		if (allParticles[point.x][up] == nullptr)
 		{
-			if ((rand() % globals.glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) - 1 == 0)
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
 		}
-		else if (globals.allParticles[point.x][up]->type != TYPE_GLITCH)
-			if ((rand() % globals.glitchSpreadChance) - 1 == 0)
+		else if (allParticles[point.x][up]->type != TYPE_GLITCH)
+			if ((rand() % glitchSpreadChance) - 1 == 0)
 			{
 				DestroyParticle(point.x, up);
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
 			}
 
 	if (down <= WINDOW_HEIGHT - 1)
-		if (globals.allParticles[point.x][down] == nullptr)
+		if (allParticles[point.x][down] == nullptr)
 		{
-			if ((rand() % globals.glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) - 1 == 0)
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
 		}
-		else if (globals.allParticles[point.x][down]->type != TYPE_GLITCH)
-			if ((rand() % globals.glitchSpreadChance) - 1 == 0)
+		else if (allParticles[point.x][down]->type != TYPE_GLITCH)
+			if ((rand() % glitchSpreadChance) - 1 == 0)
 			{
 				DestroyParticle(point.x, down);
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
@@ -1417,26 +1417,26 @@ bool Glitch::HandleEvents()
 
 
 	if (left >= 0)
-		if (globals.allParticles[left][point.y] == nullptr)
+		if (allParticles[left][point.y] == nullptr)
 		{
-			if ((rand() % globals.glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) - 1 == 0)
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
 		}
-		else if (globals.allParticles[left][point.y]->type != TYPE_GLITCH)
-			if ((rand() % globals.glitchSpreadChance) - 1 == 0)
+		else if (allParticles[left][point.y]->type != TYPE_GLITCH)
+			if ((rand() % glitchSpreadChance) - 1 == 0)
 			{
 				DestroyParticle(left, point.y);
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
 			}
 
 	if (right <= WINDOW_WIDTH - 1)
-		if (globals.allParticles[right][point.y] == nullptr)
+		if (allParticles[right][point.y] == nullptr)
 		{
-			if ((rand() % globals.glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) - 1 == 0)
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
 		}
-		else if (globals.allParticles[right][point.y]->type != TYPE_GLITCH)
-			if ((rand() % globals.glitchSpreadChance) - 1 == 0)
+		else if (allParticles[right][point.y]->type != TYPE_GLITCH)
+			if ((rand() % glitchSpreadChance) - 1 == 0)
 			{
 				DestroyParticle(right, point.y);
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);

@@ -34,6 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\EventHandle.cpp" />
+    <ClCompile Include="Code\Globals.cpp" />
     <ClCompile Include="Code\Main.cpp" />
     <ClCompile Include="Code\Particles.cpp" />
     <ClCompile Include="Code\Render.cpp" />

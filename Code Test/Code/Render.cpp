@@ -2,19 +2,18 @@
 
 //sdl
 #include <SDL.h>
-
 #include "Particles.h"
 
 void Render()
 {
 	//reset renderer
-	SDL_SetRenderDrawColor(globals.mainRenderer, 0, 0, 0, 255);
-	SDL_RenderClear(globals.mainRenderer);
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
+	SDL_RenderClear(mainRenderer);
 
 	//render all particles	
-	for (Particle* i : globals.particleList)
+	for (Particle* i : particleList)
 	{
-		if (globals.drawHeat)
+		if (drawHeat)
 		{
 			float tempHighest = 80;
 			float tempMiddle = 0;
@@ -39,8 +38,8 @@ void Render()
 					b = 255;
 			}
 
-			SDL_SetRenderDrawColor(globals.mainRenderer, r, g, b, 0);
-			SDL_RenderDrawPoint(globals.mainRenderer, i->point.x, i->point.y);
+			SDL_SetRenderDrawColor(mainRenderer, r, g, b, 0);
+			SDL_RenderDrawPoint(mainRenderer, i->point.x, i->point.y);
 		}
 		else
 			i->Draw();
@@ -48,77 +47,77 @@ void Render()
 	}
 
 	//render a box showing the brush location
-	if (globals.renderBrush)
+	if (renderBrush)
 	{
-		SDL_SetRenderDrawColor(globals.mainRenderer, 255, 255, 255, 0);
+		SDL_SetRenderDrawColor(mainRenderer, 255, 255, 255, 0);
 
-		if (globals.currentBrushSize == 1)
-			SDL_RenderDrawPoint(globals.mainRenderer, globals.mouse.x, globals.mouse.y);
+		if (currentBrushSize == 1)
+			SDL_RenderDrawPoint(mainRenderer, mouse.x, mouse.y);
 		else
 		{
 			//draw left side of box
-			for (int i = globals.currentBrushSize; i > -globals.currentBrushSize; i--)
-				SDL_RenderDrawPoint(globals.mainRenderer, globals.mouse.x - globals.currentBrushSize, globals.mouse.y + i);
+			for (int i = currentBrushSize; i > -currentBrushSize; i--)
+				SDL_RenderDrawPoint(mainRenderer, mouse.x - currentBrushSize, mouse.y + i);
 
 			//draw right side of box
-			for (int i = globals.currentBrushSize; i > -globals.currentBrushSize; i--)
-				SDL_RenderDrawPoint(globals.mainRenderer, globals.mouse.x + globals.currentBrushSize, globals.mouse.y + i);
+			for (int i = currentBrushSize; i > -currentBrushSize; i--)
+				SDL_RenderDrawPoint(mainRenderer, mouse.x + currentBrushSize, mouse.y + i);
 
 			//draw top of box
-			for (int i = globals.currentBrushSize; i > -globals.currentBrushSize; i--)
-				SDL_RenderDrawPoint(globals.mainRenderer, globals.mouse.x + i, globals.mouse.y - globals.currentBrushSize);
+			for (int i = currentBrushSize; i > -currentBrushSize; i--)
+				SDL_RenderDrawPoint(mainRenderer, mouse.x + i, mouse.y - currentBrushSize);
 
 			//draw bottom of box
-			for (int i = globals.currentBrushSize; i > -globals.currentBrushSize; i--)
-				SDL_RenderDrawPoint(globals.mainRenderer, globals.mouse.x + i, globals.mouse.y + globals.currentBrushSize);
+			for (int i = currentBrushSize; i > -currentBrushSize; i--)
+				SDL_RenderDrawPoint(mainRenderer, mouse.x + i, mouse.y + currentBrushSize);
 		}
 	}
 
 	//render what type of brush is selected at the top left
 
-	if (!globals.createAsSource)
-		globals.brushName.SetText(globals.mainRenderer, typeNames[globals.currentBrushType]);
+	if (!createAsSource)
+		brushName.SetText(mainRenderer, typeNames[currentBrushType]);
 	else
-		globals.brushName.SetText(globals.mainRenderer, "Source - " + typeNames[globals.currentBrushType]);
-	globals.brushName.Draw(globals.mainRenderer, 20, 20);
+		brushName.SetText(mainRenderer, "Source - " + typeNames[currentBrushType]);
+	brushName.Draw(mainRenderer, 20, 20);
 
 	//render what brush size is selected under that
-	globals.brushSize.SetText(globals.mainRenderer, std::to_string(globals.currentBrushSize));
-	globals.brushSize.Draw(globals.mainRenderer, 20, 54);
+	brushSize.SetText(mainRenderer, std::to_string(currentBrushSize));
+	brushSize.Draw(mainRenderer, 20, 54);
 
 	//render brush temperature
-	globals.brushTemperature.SetText(globals.mainRenderer, std::to_string(globals.currentBrushTemperature) + "c");
-	globals.brushTemperature.Draw(globals.mainRenderer, 20, 88);
+	brushTemperature.SetText(mainRenderer, std::to_string(currentBrushTemperature) + "c");
+	brushTemperature.Draw(mainRenderer, 20, 88);
 
 	//render selected particle type and temperature
-	if (globals.allParticles[globals.mouse.x][globals.mouse.y] != nullptr)
+	if (allParticles[mouse.x][mouse.y] != nullptr)
 	{
-		globals.selectedParticleTemperature.SetText(globals.mainRenderer, std::to_string(globals.allParticles[globals.mouse.x][globals.mouse.y]->temperature) + "c");
+		selectedParticleTemperature.SetText(mainRenderer, std::to_string(allParticles[mouse.x][mouse.y]->temperature) + "c");
 
 		//check if source block
-		if (globals.allParticles[globals.mouse.x][globals.mouse.y]->type != TYPE_SOURCE)
-			globals.selectedParticleName.SetText(globals.mainRenderer, typeNames[globals.allParticles[globals.mouse.x][globals.mouse.y]->type]);
+		if (allParticles[mouse.x][mouse.y]->type != TYPE_SOURCE)
+			selectedParticleName.SetText(mainRenderer, typeNames[allParticles[mouse.x][mouse.y]->type]);
 		else
 		{
-			Source* s = (Source*)globals.allParticles[globals.mouse.x][globals.mouse.y];
-			globals.selectedParticleName.SetText(globals.mainRenderer, typeNames[globals.allParticles[globals.mouse.x][globals.mouse.y]->type] + typeNames[s->sourceType]);
+			Source* s = (Source*)allParticles[mouse.x][mouse.y];
+			selectedParticleName.SetText(mainRenderer, typeNames[allParticles[mouse.x][mouse.y]->type] + typeNames[s->sourceType]);
 		}
 	}
 	else
 	{
-		globals.selectedParticleName.SetText(globals.mainRenderer, "None");
-		globals.selectedParticleTemperature.SetText(globals.mainRenderer, "0c");
+		selectedParticleName.SetText(mainRenderer, "None");
+		selectedParticleTemperature.SetText(mainRenderer, "0c");
 	}
 
-	globals.selectedParticleName.Draw(globals.mainRenderer, 20, 172);
-	globals.selectedParticleTemperature.Draw(globals.mainRenderer, 20, 206);
+	selectedParticleName.Draw(mainRenderer, 20, 172);
+	selectedParticleTemperature.Draw(mainRenderer, 20, 206);
 
 
 	//render the current framerate
-	globals.currentFrameRate.SetText(globals.mainRenderer, std::to_string(static_cast<int>(globals.avgFPS)));
-	globals.currentFrameRate.Draw(globals.mainRenderer, 20, WINDOW_HEIGHT - 34);
+	currentFrameRate.SetText(mainRenderer, std::to_string(static_cast<int>(avgFPS)));
+	currentFrameRate.Draw(mainRenderer, 20, WINDOW_HEIGHT - 34);
 
 	//render the frame and increase the counter frames
-	SDL_RenderPresent(globals.mainRenderer);
-	globals.countedFrames++;
+	SDL_RenderPresent(mainRenderer);
+	countedFrames++;
 }
