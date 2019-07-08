@@ -392,9 +392,40 @@ bool Particle::CheckIfAtTop()
 
 
 //default particle physics
-//by default we want to treat everything as sand
 void Particle::HandlePhysics()
 {
+}
+
+//solid immobile particles
+//particles that stay in spot and do not move at all
+SolidImmobile::SolidImmobile(ParticleType newType, int newX, int newY, float newTemperature) : Particle (newType, newX, newY, newTemperature)
+{
+}
+
+bool SolidImmobile::HandleEvents()
+{
+	Particle::HandleEvents();
+
+	return false;
+}
+
+//solid mobile particles
+//particles that drop downwards
+SolidMobile::SolidMobile(ParticleType newType, int newX, int newY, float newTemperature) : Particle(newType, newX, newY, newTemperature)
+{
+
+}
+
+bool SolidMobile::HandleEvents()
+{
+	Particle::HandleEvents();
+
+	return false;
+}
+
+void SolidMobile::HandlePhysics()
+{
+
 	//make sure we arent already at the bottom level, if we are we dont need to check the physics
 	if (CheckIfAtBottom())
 		return;
@@ -522,38 +553,6 @@ void Particle::HandlePhysics()
 			return;
 		}
 	}
-}
-
-//solid immobile particles
-//particles that stay in spot and do not move at all
-SolidImmobile::SolidImmobile(ParticleType newType, int newX, int newY, float newTemperature) : Particle (newType, newX, newY, newTemperature)
-{
-}
-
-bool SolidImmobile::HandleEvents()
-{
-	Particle::HandleEvents();
-
-	return false;
-}
-
-//solid mobile particles
-//particles that drop downwards
-SolidMobile::SolidMobile(ParticleType newType, int newX, int newY, float newTemperature) : Particle(newType, newX, newY, newTemperature)
-{
-
-}
-
-bool SolidMobile::HandleEvents()
-{
-	Particle::HandleEvents();
-
-	return false;
-}
-
-void SolidMobile::HandlePhysics()
-{
-
 }
 
 //liquid particles
