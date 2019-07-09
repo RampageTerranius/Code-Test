@@ -60,8 +60,10 @@ void TTF::SetText(SDL_Renderer* renderer, std::string newText)
 	if (font != nullptr)
 	{
 		//if we already have the same message then stop here
-		//if (text == newText)
-			//return;
+		if (text == newText)
+			return;
+		else
+			text = newText;
 
 		//delete the old texture if it exists
 		if (texture != nullptr)
