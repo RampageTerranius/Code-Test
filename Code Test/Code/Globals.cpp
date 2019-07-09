@@ -28,7 +28,7 @@ bool running = false;
 
 bool drawHeat = false;//when true will render particles color via heat instead of handing off draw fucntions to the particle its self
 bool loopScreen = true;//when true particles that attempt to drop downwards while at the bottom of the screen will instead loop to the top of the screen, does the same for particles attempting to move upwards as well
-bool pauseParticles = false;//when true particles physics and events will be paused, does nto pause the entire program
+bool pauseParticles = false;//when true particles physics and events will be paused, does not pause the entire program
 bool renderBrush = true;//when true will show an outline of where particles will be brushed to
 bool createAsSource = false;//if the blocks created should be source particles or standard particles
 

@@ -5,7 +5,6 @@
 
 #include "ParticleTypes.h"
 
-
 void SwitchBrushType(bool gotoNext);
 void UpdateEventStructs(SDL_Event event);
 void CreateParticlesAtBrush(ParticleType type, int x, int y, float temperature);
