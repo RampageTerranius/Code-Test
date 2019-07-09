@@ -11,6 +11,9 @@ const int MAX_BRUSH_SIZE = 32;//the total largest size the brush may be
 SDL_Window* mainWindow = nullptr;
 SDL_Renderer* mainRenderer = nullptr;
 
+//main texture used for drawing pixels to screen
+SDL_Texture* pixelTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
+
 float avgFPS = 0;
 
 int currentBrushTemperature = 20;//changing this will change the default brush temperature
@@ -60,6 +63,10 @@ int settingWeight[TYPE_TOTALTYPES]
 	-1,
 	//glitch
 	-1,
+	//stone
+	20,
+	//lava
+	7,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -93,6 +100,10 @@ int settingHealth[TYPE_TOTALTYPES]
 	120,
 	//glitch
 	50,
+	//stone
+	260,
+	//lava
+	100,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -125,6 +136,10 @@ float settingThermalConductivity[TYPE_TOTALTYPES]
 	0.0175f,
 	//glitch
 	0,
+	//stone
+	0.0018f,
+	//lava
+	0.005f,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -158,7 +173,11 @@ int settingColor[TYPE_TOTALTYPES][4]
 	//salt ice
 	{100, 255, 150, 0},
 	//glitch(this color is not used here, glitch particles color is randomized)
-	{0, 0, 0, 0}
+	{0, 0, 0, 0},
+	//stone
+	{127, 127, 90, 0},
+	//lava
+	{255, 153, 51, 0},
 };
 
 //other settings
@@ -168,6 +187,7 @@ float iceMeltPoint = 2;
 float steamCondensationPoint = 98;
 float waterBoilIntoSteamPoint = 100;
 float saltWaterEventTempMultiplier = 1.2f;//a value of 1.1 would give a 10% increase over water boil/freeze points
+float lavaSolidifyTemp = 200;
 
 //randomised event chances
 int acidDamageChance = 10;//higher number means lower chance (calculated as (1 / acidDamageChance) meaning if chance was 10 there is a 1 in 10 chance per tick to damage a block)

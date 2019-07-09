@@ -114,5 +114,8 @@ void Shutdown()
 	selectedParticleName.Clear();
 	currentFrameRate.Clear();
 
+	//destroy the texture used for drawing particles
+	SDL_DestroyTexture(pixelTexture);
+
 	SDL_Quit();
 }

@@ -2,8 +2,8 @@
 
 //sdl
 #include <SDL.h>
-#include "Particles.h"
 
+#include "Particles.h"
 void Render()
 {
 	//reset renderer
@@ -120,4 +120,6 @@ void Render()
 	//render the frame and increase the counter frames
 	SDL_RenderPresent(mainRenderer);
 	countedFrames++;
+
+	
 }

@@ -29,6 +29,9 @@ extern const int MAX_BRUSH_SIZE;//the total largest size the brush may be
 extern SDL_Window* mainWindow;
 extern SDL_Renderer* mainRenderer;
 
+//main texture used for drawing pixels to screen
+extern SDL_Texture* pixelTexture;
+
 extern float avgFPS;
 
 extern int currentBrushTemperature;//changing this will change the default brush temperature
@@ -50,7 +53,6 @@ extern bool pauseParticles;//when true particles physics and events will be paus
 extern bool renderBrush;//when true will show an outline of where particles will be brushed to
 extern bool createAsSource;//if the blocks created should be source particles or standard particles
 
-
 //weight (-1 donates it does not calculate weight)
 extern int settingWeight[TYPE_TOTALTYPES];
 
@@ -69,6 +71,7 @@ extern float iceMeltPoint;
 extern float steamCondensationPoint;
 extern float waterBoilIntoSteamPoint;
 extern float saltWaterEventTempMultiplier;//a value of 1.1 would give a 10% increase over water boil/freeze points
+extern float lavaSolidifyTemp;
 
 //randomised event chances
 extern int acidDamageChance;;//higher number means lower chance (calculated as (1 / acidDamageChance) meaning if chance was 10 there is a 1 in 10 chance per tick to damage a block)

@@ -78,6 +78,16 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 			particleList.emplace_back(allParticles[x][y]);
 			return;
 
+		case TYPE_STONE:
+			allParticles[x][y] = new Stone(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
+			return;
+
+		case TYPE_LAVA:
+			allParticles[x][y] = new Lava(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
+			return;
+
 		default:
 			std::cout << "Attempt to create a unknown particle type at " + std::to_string(x) + "|" + std::to_string(y) + "\n";
 			break;
@@ -1414,7 +1424,6 @@ bool Glitch::HandleEvents()
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
 			}
 
-
 	if (left >= 0)
 		if (allParticles[left][point.y] == nullptr)
 		{
@@ -1440,6 +1449,58 @@ bool Glitch::HandleEvents()
 				DestroyParticle(right, point.y);
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
 			}
+
+	return false;
+}
+
+//stone particles
+//can melt into lava at high heat
+Stone::Stone(int newX, int newY, float newTemperature) : SolidMobile(TYPE_STONE, newX, newY, newTemperature)
+{
+}
+
+bool Stone::HandleEvents()
+{
+	if (Particle::HandleEvents())
+		return true;
+
+	if (temperature > lavaSolidifyTemp)
+	{
+		int newX = point.x;
+		int newY = point.y;
+		float newTemp = temperature;
+
+		DestroyParticle(point.x, point.y);
+		CreateParticle(TYPE_LAVA, newX, newY, newTemp);
+
+		return true;
+	}
+
+	return false;
+}
+
+//lava particles
+//can turn into stone at low temperatures
+Lava::Lava(int newX, int newY, float newTemperature) : Liquid(TYPE_LAVA, newX, newY, newTemperature)
+{
+}
+
+bool Lava::HandleEvents()
+{
+	if (Particle::HandleEvents())
+		return true;
+
+	if (temperature < lavaSolidifyTemp)
+	{
+		int newX = point.x;
+		int newY = point.y;
+		float newTemp = temperature;
+
+		DestroyParticle(point.x, point.y);
+		CreateParticle(TYPE_STONE, newX, newY, newTemp);
+
+		return true;
+	}
 
 	return false;
 }

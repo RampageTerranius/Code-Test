@@ -189,3 +189,21 @@ public:
 
 	ParticleType sourceType;
 };
+
+//stone particles
+//can melt into lava at high heat
+class Stone : public SolidMobile
+{
+public:
+	Stone(int newX, int newY, float newTemperature);
+	bool HandleEvents();
+};
+
+//lava particles
+//can turn into stone at low temperatures
+class Lava : public Liquid
+{
+public:
+	Lava(int newX, int newY, float newTemperature);
+	bool HandleEvents();
+};

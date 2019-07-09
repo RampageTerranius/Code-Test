@@ -17,6 +17,8 @@ enum ParticleType
 	TYPE_SALTWATER,
 	TYPE_SALTICE,
 	TYPE_GLITCH,
+	TYPE_STONE,
+	TYPE_LAVA,
 
 	//the following must ALWAYS be at the end
 	TYPE_SOURCE,
@@ -36,6 +38,8 @@ static std::string typeNames[] = {  "Wall",
 									"Salt Water",
 									"Salt Ice",
 									"GLITCH",
+									"Stone",
+									"Lava",
 
 									//the following must ALWAYS be at the end
 									"Source - ",
