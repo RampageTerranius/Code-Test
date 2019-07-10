@@ -29,7 +29,8 @@ int main(int argc, char* argv[])
 
 		//check timer and make sure to keep the engien running at the correct fps
 		TimerHandle(&capTimer, &fpsTimer);
-	}	
+	}
+	
 	
 	Shutdown();
 

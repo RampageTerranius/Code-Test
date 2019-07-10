@@ -707,9 +707,12 @@ void Liquid::HandlePhysics()
 
 //airborn particles
 //particles that float around in the air either going directly up or slowly hovering around
-Airborn::Airborn(ParticleType newType, int newX, int newY, float newTemperature) : Particle(newType, newX, newY, newTemperature)
+Airborn::Airborn(ParticleType newType, int newAscendRate, int newDescendRate, int newSidewardsRate, int newNoMovementRate, int newX, int newY, float newTemperature) : Particle(newType, newX, newY, newTemperature)
 {
-
+	ascendRate = newAscendRate;
+	descendRate = newDescendRate;
+	sidewardsRate = newSidewardsRate;
+	noMovementRate = newNoMovementRate;
 }
 
 bool Airborn::HandleEvents()
@@ -721,35 +724,59 @@ bool Airborn::HandleEvents()
 
 void Airborn::HandlePhysics()
 {
-	int up, left, right;
-	up = point.y;
+	int up, down, left, right;
+	up = down = point.y;
 	left = right = point.x;
 	up--;
+	down--;
 	left--;
 	right++;
 
-	//check if we are at the top of the screen and if we can loop around
-	if (CheckIfAtTop())
-		return;
+	//check what way we want to move first
+	int randomNum = rand() % (steamAscendRate + steamDescendRate + steamSidewardsRate + steamNoMovementRate);
 
-	//attempt to move the particle directly upwards
-	if (AscendParticle(point.x, point.y, true))
-		return;
-
-	//check if we are surrounded
-	if (allParticles[left][point.y] != nullptr && allParticles[right][point.y] != nullptr)
+	//check if should ascend
+	if (randomNum > steamDescendRate + steamSidewardsRate + steamNoMovementRate)
 	{
-		//if we are check if we can move via gravity with the surrounding blocks
+		//check if we are at the top of the screen and if we can loop around
+		if (CheckIfAtTop())
+			return;
+
+		AscendParticle(point.x, point.y, false);
+	}
+	//check if should descend
+	else if (randomNum > steamSidewardsRate + steamNoMovementRate)
+	{
+		//check if we are at the top of the screen and if we can loop around
+		if (CheckIfAtBottom())
+			return;
+
+		DropParticle(point.x, point.y, false);
+	}
+	//chck if should go left or right
+	else if (randomNum > steamNoMovementRate)
+	{
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
 
-		if (allParticles[left][point.y]->weight != -1)
-			if (allParticles[point.x][point.y]->weight < allParticles[left][point.y]->weight)
-				canGoLeft = true;
+		//check if we are surrounded
+		if (allParticles[left][point.y] == nullptr)
+			canGoLeft = true;
+		else
+		{
+			if (allParticles[left][point.y]->weight != -1)
+				if (allParticles[point.x][point.y]->weight < allParticles[left][point.y]->weight)
+					canGoLeft = true;
+		}
 
-		if (allParticles[right][point.y]->weight != -1)
-			if (allParticles[point.x][point.y]->weight < allParticles[right][point.y]->weight)
-				canGoRight = true;
+		if (allParticles[right][point.y] == nullptr)
+			canGoRight = true;
+		else
+		{
+			if (allParticles[right][point.y]->weight != -1)
+				if (allParticles[point.x][point.y]->weight < allParticles[right][point.y]->weight)
+					canGoRight = true;
+		}	
 
 		//can go either way
 		if (canGoLeft && canGoRight)
@@ -759,86 +786,26 @@ void Airborn::HandlePhysics()
 				//go left
 			case 1:
 				MoveParticles(left, point.y, point.x, point.y);
-				return;
+				break;
 
 				//go right
 			case 2:
 				MoveParticles(right, point.y, point.x, point.y);
-				return;
+				break;
 			}
 		}
-
 		//can only go left
-		if (canGoLeft)
-		{
+		else if (canGoLeft)		
 			MoveParticles(left, point.y, point.x, point.y);
-			return;
-		}
-
 		//can only go right
-		if (canGoRight)
-		{
+		else		
 			MoveParticles(right, point.y, point.x, point.y);
-			return;
-		}
+		
 
 		//neither way is less weight and we know that were surrounded, do not run any further code
-		return;
-	}
-
-	//there is an object under this one, try and move to the left or right
-	if (point.x == 0)//check if we are on the left most edge
-	{
-		//we are on the left most edge, try to drop to the bottom right
-		if (allParticles[right][point.y] == nullptr)
-		{
-			//update the array
-			MoveParticles(point.x, point.y, right, point.y);
-			return;
-		}
-		return;//even if we cant drop, we know that we can not go anywhere so stop here
-	}
-
-	if (point.x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
-	{
-		//we are on the right most edge, try to drop to the bottom left
-		if (allParticles[left][point.y] == nullptr)
-		{
-			//update the array
-			MoveParticles(point.x, point.y, left, point.y);
-			return;
-		}
-		return;//even if we cant drop, we know that we can not go anywhere so stop here
-	}
-
-	//if left is empty only
-	if (allParticles[left][point.y] == nullptr && allParticles[right][point.y] != nullptr)
-		MoveParticles(point.x, point.y, left, point.y);
-	//if right is empty only
-	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] != nullptr)
-		MoveParticles(point.x, point.y, right, point.y);
-	//both ways are free, randomly choose one and move	
-	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] == nullptr)
-	{
-		int randomNum = rand() % 2 + 1;
-
-		switch (randomNum)
-		{
-			//go left
-		case 1:
-			//update the array
-			MoveParticles(point.x, point.y, left, point.y);
-			return;
-
-			//go right
-		case 2:
-			//update the array
-			MoveParticles(point.x, point.y, right, point.y);
-			return;
-		}
-	}
+		return;	
+	}	
 }
-
 
 //wall particles
 Wall::Wall(int newX, int newY, float newTemperature) : SolidImmobile(TYPE_WALL, newX, newY, newTemperature)
@@ -1001,7 +968,7 @@ bool Acid::HandleEvents()
 }
 
 //steam particles
-Steam::Steam(int newX, int newY, float newTemperature) : Airborn(TYPE_STEAM, newX, newY, newTemperature)
+Steam::Steam(int newX, int newY, float newTemperature) : Airborn(TYPE_STEAM, steamAscendRate, steamDescendRate, steamSidewardsRate, steamNoMovementRate, newX, newY, newTemperature)
 {
 }
 

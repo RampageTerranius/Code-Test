@@ -78,6 +78,12 @@ extern int acidDamageChance;;//higher number means lower chance (calculated as (
 extern int plantSpreadChance;//higher number means lower chance (calculated as (1 / plantSpreadChance) meaning if chance was 10 there is a 1 in 10 chance per tick to spread plant through a water block)
 extern int glitchSpreadChance;
 
+//airborn particle movement rates
+extern int steamAscendRate;
+extern int steamDescendRate;
+extern int steamSidewardsRate;
+extern int steamNoMovementRate;
+
 
 //affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles
 // is calculated like so

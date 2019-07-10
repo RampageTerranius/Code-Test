@@ -55,9 +55,14 @@ public:
 class Airborn : public Particle
 {
 public:
-	Airborn(ParticleType newType, int newX, int newY, float newTemperature);
+	Airborn(ParticleType newType, int ascendRate, int descendRate, int sidewardsRate, int noMovementRate, int newX, int newY, float newTemperature);
 	virtual bool HandleEvents();
 	void HandlePhysics();
+
+	int ascendRate;
+	int descendRate;
+	int sidewardsRate;
+	int noMovementRate;
 };
 
 void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource);

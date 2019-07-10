@@ -194,6 +194,13 @@ int acidDamageChance = 10;//higher number means lower chance (calculated as (1 /
 int plantSpreadChance = 30;//higher number means lower chance (calculated as (1 / plantSpreadChance) meaning if chance was 10 there is a 1 in 10 chance per tick to spread plant through a water block)
 int glitchSpreadChance = 120;
 
+//airborn particle movement rates
+//steam
+int steamAscendRate = 4;
+int steamDescendRate = 0;
+int steamSidewardsRate = 2;
+int steamNoMovementRate = 1;
+
 
 //affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles
 // is calculated like so
