@@ -196,7 +196,7 @@ int glitchSpreadChance = 120;
 
 //airborn particle movement rates
 //steam
-int steamAscendRate = 4;
+int steamAscendRate = 8;
 int steamDescendRate = 0;
 int steamSidewardsRate = 2;
 int steamNoMovementRate = 1;

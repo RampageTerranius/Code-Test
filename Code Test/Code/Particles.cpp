@@ -736,7 +736,7 @@ void Airborn::HandlePhysics()
 	int randomNum = rand() % (steamAscendRate + steamDescendRate + steamSidewardsRate + steamNoMovementRate);
 
 	//check if should ascend
-	if (randomNum > steamDescendRate + steamSidewardsRate + steamNoMovementRate)
+	if (randomNum < steamAscendRate)
 	{
 		//check if we are at the top of the screen and if we can loop around
 		if (CheckIfAtTop())
@@ -745,7 +745,7 @@ void Airborn::HandlePhysics()
 		AscendParticle(point.x, point.y, false);
 	}
 	//check if should descend
-	else if (randomNum > steamSidewardsRate + steamNoMovementRate)
+	else if (randomNum < (steamAscendRate + steamDescendRate))
 	{
 		//check if we are at the top of the screen and if we can loop around
 		if (CheckIfAtBottom())
@@ -754,7 +754,7 @@ void Airborn::HandlePhysics()
 		DropParticle(point.x, point.y, false);
 	}
 	//chck if should go left or right
-	else if (randomNum > steamNoMovementRate)
+	else if (randomNum < (steamAscendRate + steamDescendRate + steamSidewardsRate))
 	{
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
