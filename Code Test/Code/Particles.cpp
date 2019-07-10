@@ -88,6 +88,11 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 			particleList.emplace_back(allParticles[x][y]);
 			return;
 
+		case TYPE_FIRE:
+			allParticles[x][y] = new Fire(x, y, temp);
+			particleList.emplace_back(allParticles[x][y]);
+			return;
+
 		default:
 			std::cout << "Attempt to create a unknown particle type at " + std::to_string(x) + "|" + std::to_string(y) + "\n";
 			break;
@@ -1468,6 +1473,21 @@ bool Lava::HandleEvents()
 
 		return true;
 	}
+
+	return false;
+}
+
+Fire::Fire(int newX, int newY, float newTemperature) : Airborn(TYPE_FIRE, fireAscendRate, fireDescendRate, fireSidewardsRate, fireNoMovementRate, newX, newY, newTemperature)
+{
+
+}
+
+bool Fire::HandleEvents()
+{
+	health--;
+
+	if (Particle::HandleEvents())
+		return true;
 
 	return false;
 }

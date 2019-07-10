@@ -212,3 +212,13 @@ public:
 	Lava(int newX, int newY, float newTemperature);
 	bool HandleEvents();
 };
+
+//fire particles
+//airborn type that will lose health quickly
+//sets flammable particles on fire
+class Fire : public Airborn
+{
+public:
+	Fire(int newX, int newY, float newTemperature);
+	bool HandleEvents();
+};

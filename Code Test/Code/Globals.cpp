@@ -67,6 +67,8 @@ int settingWeight[TYPE_TOTALTYPES]
 	20,
 	//lava
 	7,
+	//fire
+	-1,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -104,6 +106,8 @@ int settingHealth[TYPE_TOTALTYPES]
 	260,
 	//lava
 	100,
+	//fire(loses health per tick)
+	300,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -140,6 +144,8 @@ float settingThermalConductivity[TYPE_TOTALTYPES]
 	0.0018f,
 	//lava
 	0.005f,
+	//fire
+	0.1f,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -178,6 +184,8 @@ int settingColor[TYPE_TOTALTYPES][4]
 	{127, 127, 90, 0},
 	//lava
 	{255, 153, 51, 0},
+	//fire
+	{255, 20, 20, 0}
 };
 
 //other settings
@@ -200,6 +208,11 @@ int steamAscendRate = 8;
 int steamDescendRate = 0;
 int steamSidewardsRate = 2;
 int steamNoMovementRate = 1;
+//fire
+int fireAscendRate = 8;
+int fireDescendRate = 0;
+int fireSidewardsRate = 1;
+int fireNoMovementRate = 0;
 
 
 //affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles
