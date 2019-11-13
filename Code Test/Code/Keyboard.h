@@ -1,4 +1,5 @@
 #pragma once
+
 struct Keyboard
 {
 	bool w, s, a, d, e, h, x;
@@ -7,3 +8,5 @@ struct Keyboard
 	bool lShift, rShift;
 	bool space;
 };
+
+extern Keyboard keyboard;

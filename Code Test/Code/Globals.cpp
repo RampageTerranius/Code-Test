@@ -20,10 +20,6 @@ int currentBrushTemperature = 20;//changing this will change the default brush t
 ParticleType currentBrushType = TYPE_SAND;
 int currentBrushSize = 4;
 
-//array and vector list handling all data to do with our entities
-Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
-std::vector<Particle*> particleList;
-
 int countedFrames = 0;
 bool running = false;
 
@@ -227,6 +223,3 @@ TTF brushTemperature = TTF();
 TTF selectedParticleTemperature = TTF();
 TTF selectedParticleName = TTF();
 TTF currentFrameRate = TTF();
-
-Mouse mouse = Mouse();
-Keyboard keyboard = Keyboard();

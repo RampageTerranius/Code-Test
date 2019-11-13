@@ -1,7 +1,5 @@
-
 #include "EntityHandle.h"
 #include "Particles.h"
-#include "Globals.h"
 
 //runs code to do with all particles currently loaded
 void EntityHandle()

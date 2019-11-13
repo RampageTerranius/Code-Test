@@ -1,5 +1,8 @@
 #include "Particles.h"
 
+Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
+std::vector<Particle*> particleList;
+
 void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 {
 	//check that we have no entity in this section to begin with

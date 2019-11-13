@@ -8,15 +8,10 @@
 
 #include "ParticleTypes.h"
 #include "TTF.h"
-#include "mouse.h"
-#include "keyboard.h"
 
 //used to determine default screen size
 #define WINDOW_WIDTH 1024
 #define WINDOW_HEIGHT 768
-
-class Particle;
-
 
 //global variables
 extern const std::string PROGRAM_NAME;
@@ -37,10 +32,6 @@ extern float avgFPS;
 extern int currentBrushTemperature;//changing this will change the default brush temperature
 extern ParticleType currentBrushType;
 extern int currentBrushSize;
-
-//array and vector list handling all data to do with our entities
-extern Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
-extern std::vector<Particle*> particleList;
 
 extern int countedFrames;
 extern bool running;
@@ -103,6 +94,3 @@ extern TTF brushTemperature;
 extern TTF selectedParticleTemperature;
 extern TTF selectedParticleName;
 extern TTF currentFrameRate;
-
-extern Mouse mouse;
-extern Keyboard keyboard;

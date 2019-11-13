@@ -29,6 +29,9 @@ class Particle
 		ParticleType type;
 };
 
+extern Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
+extern std::vector<Particle*> particleList;
+
 class SolidImmobile : public Particle
 {
 public:

@@ -1,9 +1,14 @@
 #include "Render.h"
 
+#include "TTF.h"
+#include "Globals.h"
+
 //sdl
 #include <SDL.h>
 
 #include "Particles.h"
+#include "Mouse.h"
+
 void Render()
 {
 	//reset renderer
@@ -119,7 +124,5 @@ void Render()
 
 	//render the frame and increase the counter frames
 	SDL_RenderPresent(mainRenderer);
-	countedFrames++;
-
-	
+	countedFrames++;	
 }

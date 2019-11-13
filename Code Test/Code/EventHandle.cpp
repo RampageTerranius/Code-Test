@@ -3,7 +3,9 @@
 //sdl
 #include <SDL.h>
 
-#include "ParticleTypes.h"
+#include "Mouse.h"
+#include "Keyboard.h"
+#include "Globals.h"
 #include "Particles.h"
 
 //used to switch the brush type back or forth automaticlaly
