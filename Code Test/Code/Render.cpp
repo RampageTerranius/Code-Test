@@ -16,8 +16,9 @@ void Render()
 	SDL_RenderClear(mainRenderer);
 
 	//render all particles	
-	for (Particle* i : particleList)
+	for (Node* node = particleList.front; node != nullptr; node == node->next)
 	{
+		Particle* i = allParticles[node->x][node->y];
 		if (drawHeat)
 		{
 			float tempHighest = 80;

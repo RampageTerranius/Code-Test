@@ -82,9 +82,6 @@ bool Setup()
 		return false;
 	}
 
-	//reserve the particlelist vector to the size of the screen
-	particleList.reserve(WINDOW_HEIGHT * WINDOW_WIDTH);
-
 	return true;
 }
 

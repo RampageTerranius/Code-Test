@@ -10,6 +10,29 @@
 #include "Globals.h"
 #include "ParticleTypes.h"
 
+class Node
+{
+public:
+	Node(int newX, int newY);
+
+	int x, y;
+
+	Node* next;
+	Node* last;
+};
+
+class LinkedList
+{
+private:
+
+public:
+	Node* front;
+	Node* back;
+
+	Node* Add(int x, int y);
+	void Remove(Node* node);
+};
+
 class Particle
 {
 	public:
@@ -27,10 +50,12 @@ class Particle
 		float temperature;
 		float thermalConductivity;
 		ParticleType type;
+
+		Node* node;
 };
 
 extern Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
-extern std::vector<Particle*> particleList;
+extern LinkedList particleList;
 
 class SolidImmobile : public Particle
 {

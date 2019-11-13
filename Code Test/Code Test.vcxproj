@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\AllParticles.h" />
     <ClInclude Include="Code\EntityHandle.h" />
     <ClInclude Include="Code\EventHandle.h" />
     <ClInclude Include="Code\Globals.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="Code\TTF.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Code\AllParticles.cpp" />
     <ClCompile Include="Code\EntityHandle.cpp" />
     <ClCompile Include="Code\EventHandle.cpp" />
     <ClCompile Include="Code\Globals.cpp" />

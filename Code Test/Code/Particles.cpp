@@ -1,7 +1,103 @@
 #include "Particles.h"
 
+Node::Node(int newX, int newY)
+{
+	x = newX;
+	y = newY;
+
+	next = nullptr;
+	last = nullptr;
+}
+
+Node* LinkedList::Add(int x, int y)
+{
+	// The front is empty.
+	if (front == nullptr)
+	{
+		front = new Node(x, y);
+		return front;
+	}
+	// The front is not empty BUT the back is.
+	else if (back == nullptr)
+	{
+		back = new Node(x, y);
+
+		front->next = back;
+		back->last = front;
+
+		return back;
+	}
+	//There is a front and a back.
+	else
+	{
+		Node* tempNode = new Node(x, y);
+
+		tempNode->last = back;
+		back->next = tempNode;
+
+		back = tempNode;
+	}
+}
+
+void LinkedList::Remove(Node* node)
+{
+	// Check if the node we want to remove is the LAST one.
+	if (node == back)
+	{
+		// Check if we only have two nodes.
+		if (front->next == back)
+		{
+			front->next = nullptr;
+			back = nullptr;
+			delete node;
+		}
+		// Other wise we MUST have three or more nodes.
+		else
+		{
+			back = back->last;
+			back->next = nullptr;
+			delete node;
+		}
+	}
+	// Check if the node we want to remove is the first
+	else if (node == front)
+	{
+		// Check if we are the only node.
+		if (back == nullptr)
+		{
+			front = nullptr;
+			delete node;
+		}
+		// Check if there is only two nodes.
+		else if (front->next == back)
+		{
+			front = front->next;
+			front->last = nullptr;
+			back = nullptr;
+			delete node;
+		}
+		// Other wise we MUST have three or more nodes.
+		else
+		{
+			front = front->next;
+			front->last = nullptr;
+			delete node;
+		}
+	}
+	// Other wise we are working with a node inbetween front and back.
+	else
+	{
+		Node* lastNode = node->last;
+		Node* nextNode = node->next;
+		lastNode->next = nextNode;
+		nextNode->last = lastNode;
+
+		delete node;
+	}
+}
+
 Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
-std::vector<Particle*> particleList;
+LinkedList particleList = LinkedList();
 
 void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 {
@@ -23,77 +119,77 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 		{
 		case TYPE_WALL:
 			allParticles[x][y] = new Wall(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_SAND:
 			allParticles[x][y] = new Sand(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_WATER:
 			allParticles[x][y] = new Water(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_ICE:
 			allParticles[x][y] = new Ice(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_THERMALFLUID:
 			allParticles[x][y] = new ThermalFluid(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_ACID:
 			allParticles[x][y] = new Acid(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_STEAM:
 			allParticles[x][y] = new Steam(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_PLANT:
 			allParticles[x][y] = new Plant(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_SALT:
 			allParticles[x][y] = new Salt(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_SALTWATER:
 			allParticles[x][y] = new SaltWater(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_SALTICE:
 			allParticles[x][y] = new SaltIce(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_GLITCH:
 			allParticles[x][y] = new Glitch(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_STONE:
 			allParticles[x][y] = new Stone(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_LAVA:
 			allParticles[x][y] = new Lava(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_FIRE:
 			allParticles[x][y] = new Fire(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		default:
@@ -104,7 +200,7 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 	else
 	{
 		allParticles[x][y] = new Source(type, x, y, temp);
-		particleList.emplace_back(allParticles[x][y]);
+		allParticles[x][y]->node = particleList.Add(x, y);
 		return;
 	}
 }
@@ -113,6 +209,7 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 void CreateParticle(ParticleType type, int x, int y, float temp)
 {
 	CreateParticle(type, x, y, temp, false);
+	particleList.Add(x, y);
 }
 
 //destroys the particle at the given location and wipes the memory of it
@@ -122,25 +219,8 @@ void DestroyParticle(int x, int y)
 	if (allParticles[x][y] == nullptr)
 		return;
 
-	//iterate through all particles in the list
-	for (size_t i = 0; i < particleList.size() - 1; i++)
-	{
-		int tempX, tempY;
-		tempX = particleList[i]->point.x;
-		tempY = particleList[i]->point.y;
-		//if the x/y are the same wipe the particle
-		if (tempX == x && tempY == y)
-		{
-			//clear the vector first
-			particleList.erase(particleList.begin() + i);
-
-			//make sure we COMPLETELY wipe the particle, the particle was made by hand via new Particle() and therefore we MUST handle the deletion manually		
-			delete allParticles[tempX][tempY];
-			allParticles[tempX][tempY] = nullptr;
-
-			return;
-		}
-	}
+	particleList.Remove(allParticles[x][y]->node);	
+	delete allParticles[x][y];	
 }
 
 //used to move pointers of particles around
@@ -152,15 +232,22 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 	//update the internal location data for the first point now that its been moved
 	if (allParticles[x2][y2] != nullptr)
 	{
-		allParticles[x2][y2]->point.y = y2;
 		allParticles[x2][y2]->point.x = x2;
+		allParticles[x2][y2]->point.y = y2;
+
+		allParticles[x2][y2]->node->x = x2;
+		allParticles[x2][y2]->node->y = y2;
+
 	}
 
 	//update the internal location data for the second point now that its been moved
 	if (allParticles[x1][y1] != nullptr)
 	{
-		allParticles[x1][y1]->point.y = y1;
 		allParticles[x1][y1]->point.x = x1;
+		allParticles[x1][y1]->point.y = y1;
+
+		allParticles[x1][y1]->node->x = x1;
+		allParticles[x1][y1]->node->y = y1;
 	}
 }
 
