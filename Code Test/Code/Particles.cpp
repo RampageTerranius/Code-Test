@@ -36,6 +36,8 @@ Node* LinkedList::Add(int x, int y)
 		back->next = tempNode;
 
 		back = tempNode;
+
+		return tempNode;
 	}
 }
 
