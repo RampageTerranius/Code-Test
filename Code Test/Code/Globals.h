@@ -55,6 +55,8 @@ extern float settingThermalConductivity[TYPE_TOTALTYPES];
 //format is R, G, B, A
 extern int settingColor[TYPE_TOTALTYPES][4];
 
+extern int settingFlammability[TYPE_TOTALTYPES];
+
 //other settings
 //freeze/melt/boil points
 extern float waterFreezePoint;

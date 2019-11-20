@@ -184,6 +184,44 @@ int settingColor[TYPE_TOTALTYPES][4]
 	{255, 20, 20, 0}
 };
 
+int settingFlammability[TYPE_TOTALTYPES]
+{
+	//Wall
+	0,
+	//Sand
+	0,
+	//Water
+	0,
+	//Ice
+	0,
+	//Thermal
+	20,
+	//Acid
+	0,
+	//Steam
+	0,
+	//plant
+	3,
+	//salt
+	0,
+	//salt water
+	0,
+	//salt ice,
+	0,
+	//glitch
+	0,
+	//stone
+	0,
+	//lava
+	0,
+	//fire
+	0,
+
+	//the following must ALWAYS be at the end
+	//source
+	-1
+};
+
 //other settings
 //freeze/melt/boil points
 float waterFreezePoint = 0;

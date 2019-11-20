@@ -1465,11 +1465,11 @@ bool Glitch::HandleEvents()
 	if (up >= 0)
 		if (allParticles[point.x][up] == nullptr)
 		{
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
 		}
 		else if (allParticles[point.x][up]->type != TYPE_GLITCH)
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 			{
 				DestroyParticle(point.x, up);
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
@@ -1478,11 +1478,11 @@ bool Glitch::HandleEvents()
 	if (down <= WINDOW_HEIGHT - 1)
 		if (allParticles[point.x][down] == nullptr)
 		{
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
 		}
 		else if (allParticles[point.x][down]->type != TYPE_GLITCH)
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 			{
 				DestroyParticle(point.x, down);
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
@@ -1491,11 +1491,11 @@ bool Glitch::HandleEvents()
 	if (left >= 0)
 		if (allParticles[left][point.y] == nullptr)
 		{
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
 		}
 		else if (allParticles[left][point.y]->type != TYPE_GLITCH)
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 			{
 				DestroyParticle(left, point.y);
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
@@ -1504,11 +1504,11 @@ bool Glitch::HandleEvents()
 	if (right <= WINDOW_WIDTH - 1)
 		if (allParticles[right][point.y] == nullptr)
 		{
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
 		}
 		else if (allParticles[right][point.y]->type != TYPE_GLITCH)
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 			{
 				DestroyParticle(right, point.y);
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
@@ -1580,6 +1580,156 @@ bool Fire::HandleEvents()
 
 	if (Particle::HandleEvents())
 		return true;
+
+	// Check all surrounding particles and attempt to change them to fire.
+
+	int up, down, left, right;
+	up = down = point.y;
+	left = right = point.x;
+	up--;
+	down++;
+	left--;
+	right++;
+
+	if (up >= 0)
+		if (allParticles[point.x][up] != nullptr)		
+			if (settingFlammability[allParticles[point.x][up]->type] >= 0)
+				if (settingFlammability[allParticles[point.x][up]->type] == 1)
+				{
+					int newHealth = allParticles[point.x][up]->health;
+					int newX = point.x;
+					int newY = up;
+					float newTemp = temperature;
+
+					DestroyParticle(point.x, up);
+
+					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+					allParticles[point.x][up]->health = newHealth;
+				}
+				else
+				{
+					int rando = rand() % settingFlammability[allParticles[point.x][up]->type];
+
+					if (rando == 0)
+					{
+						int newHealth = allParticles[point.x][up]->health;
+						int newX = point.x;
+						int newY = up;
+						float newTemp = temperature;
+
+						DestroyParticle(point.x, up);
+
+						CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+						allParticles[point.x][up]->health = newHealth;
+					}
+				}		
+
+	if (down <= WINDOW_HEIGHT - 1)
+		if (allParticles[point.x][down] != nullptr)
+			if (settingFlammability[allParticles[point.x][down]->type] >= 0)
+				if (settingFlammability[allParticles[point.x][down]->type] == 1)
+				{
+					int newHealth = allParticles[point.x][down]->health;
+					int newX = point.x;
+					int newY = down;
+					float newTemp = temperature;
+
+					DestroyParticle(point.x, down);
+
+					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+					allParticles[point.x][down]->health = newHealth;
+				}
+				else
+				{
+					int rando = rand() % settingFlammability[allParticles[point.x][down]->type];
+
+					if (rando == 0)
+					{
+						int newHealth = allParticles[point.x][down]->health;
+						int newX = point.x;
+						int newY = down;
+						float newTemp = temperature;
+
+						DestroyParticle(point.x, down);
+
+						CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+						allParticles[point.x][down]->health = newHealth;
+					}
+				}
+
+	if (left >= 0)
+		if (allParticles[left][point.y] != nullptr)
+			if (settingFlammability[allParticles[left][point.y]->type] >= 0)
+				if (settingFlammability[allParticles[left][point.y]->type] == 1)
+				{
+					int newHealth = allParticles[left][point.y]->health;
+					int newX = left;
+					int newY = point.y;
+					float newTemp = temperature;
+
+					DestroyParticle(left, point.y);
+
+					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+					allParticles[left][point.y]->health = newHealth;
+				}
+				else
+				{
+					int rando = rand() % settingFlammability[allParticles[left][point.y]->type];
+
+					if (rando == 0)
+					{
+						int newHealth = allParticles[left][point.y]->health;
+						int newX = left;
+						int newY = point.y;
+						float newTemp = temperature;
+
+						DestroyParticle(left, point.y);
+
+						CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+						allParticles[left][point.y]->health = newHealth;
+					}
+				}		
+
+	if (right <= WINDOW_WIDTH - 1)
+		if (allParticles[right][point.y] != nullptr)
+			if (settingFlammability[allParticles[point.x][up]->type] >= 0)
+				if (settingFlammability[allParticles[right][point.y]->type] == 1)
+				{
+					int newHealth = allParticles[right][point.y]->health;
+					int newX = right;
+					int newY = point.y;
+					float newTemp = temperature;
+
+					DestroyParticle(right, point.y);
+
+					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+					allParticles[right][point.y]->health = newHealth;
+				}
+				else
+				{
+					int rando = rand() % settingFlammability[allParticles[right][point.y]->type];
+
+					if (rando == 0)
+					{
+						int newHealth = allParticles[right][point.y]->health;
+						int newX = right;
+						int newY = point.y;
+						float newTemp = temperature;
+
+						DestroyParticle(right, point.y);
+
+						CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+						allParticles[right][point.y]->health = newHealth;
+					}
+				}
 
 	return false;
 }
