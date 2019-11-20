@@ -1698,7 +1698,7 @@ bool Fire::HandleEvents()
 
 	if (right <= WINDOW_WIDTH - 1)
 		if (allParticles[right][point.y] != nullptr)
-			if (settingFlammability[allParticles[point.x][up]->type] >= 0)
+			if (settingFlammability[allParticles[right][point.y]->type] >= 0)
 				if (settingFlammability[allParticles[right][point.y]->type] == 1)
 				{
 					int newHealth = allParticles[right][point.y]->health;
