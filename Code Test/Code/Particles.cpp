@@ -223,6 +223,7 @@ void DestroyParticle(int x, int y)
 
 	particleList.Remove(allParticles[x][y]->node);	
 	delete allParticles[x][y];	
+	allParticles[x][y] = nullptr;
 }
 
 //used to move pointers of particles around
