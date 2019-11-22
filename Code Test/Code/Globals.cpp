@@ -3,6 +3,8 @@
 //global variables
 const std::string PROGRAM_NAME = "Falling Sand";
 
+int frameRateLimit = 60;
+
 //used to determine default screen size
 
 const int MAX_BRUSH_SIZE = 32;//the total largest size the brush may be

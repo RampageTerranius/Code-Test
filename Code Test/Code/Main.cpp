@@ -18,14 +18,14 @@ int main(int argc, char* argv[])
 	{
 		capTimer.Start();
 
-		//render the current scene
-		Render();
-
 		//handle any input from the user
 		EventHandle(event);
 
 		//handle all entitys gravity/movement etc
 		EntityHandle();
+
+		//render the current scene
+		Render();
 
 		//check timer and make sure to keep the engien running at the correct fps
 		TimerHandle(&capTimer, &fpsTimer);

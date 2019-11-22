@@ -16,6 +16,8 @@
 //global variables
 extern const std::string PROGRAM_NAME;
 
+extern int frameRateLimit;
+
 //used to determine default screen size
 
 extern const int MAX_BRUSH_SIZE;//the total largest size the brush may be
