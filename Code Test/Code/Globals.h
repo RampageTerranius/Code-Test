@@ -82,6 +82,11 @@ extern int fireAscendRate;
 extern int fireDescendRate;
 extern int fireSidewardsRate;
 extern int fireNoMovementRate;
+//gas
+extern int gasAscendRate;
+extern int gasDescendRate;
+extern int gasSidewardsRate;
+extern int gasNoMovementRate;
 
 
 //affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles

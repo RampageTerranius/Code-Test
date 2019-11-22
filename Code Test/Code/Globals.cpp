@@ -65,6 +65,8 @@ int settingWeight[TYPE_TOTALTYPES]
 	7,
 	//fire
 	-1,
+	//gas
+	5,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -104,6 +106,8 @@ int settingHealth[TYPE_TOTALTYPES]
 	100,
 	//fire(loses health per tick)
 	300,
+	//gas
+	50,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -142,6 +146,8 @@ float settingThermalConductivity[TYPE_TOTALTYPES]
 	0.005f,
 	//fire
 	0.1f,
+	//gas
+	0.01f,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -181,7 +187,9 @@ int settingColor[TYPE_TOTALTYPES][4]
 	//lava
 	{255, 153, 51, 0},
 	//fire
-	{255, 20, 20, 0}
+	{255, 20, 20, 0},
+	//gas
+	{150, 20, 150, 0}
 };
 
 int settingFlammability[TYPE_TOTALTYPES]
@@ -195,13 +203,13 @@ int settingFlammability[TYPE_TOTALTYPES]
 	//Ice
 	0,
 	//Thermal
-	20,
+	50,
 	//Acid
 	0,
 	//Steam
 	0,
 	//plant
-	3,
+	5,
 	//salt
 	0,
 	//salt water
@@ -216,6 +224,8 @@ int settingFlammability[TYPE_TOTALTYPES]
 	0,
 	//fire
 	0,
+	//gas
+	1,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -238,7 +248,7 @@ int glitchSpreadChance = 120;
 
 //airborn particle movement rates
 //steam
-int steamAscendRate = 8;
+int steamAscendRate = 6;
 int steamDescendRate = 0;
 int steamSidewardsRate = 2;
 int steamNoMovementRate = 1;
@@ -247,6 +257,11 @@ int fireAscendRate = 8;
 int fireDescendRate = 0;
 int fireSidewardsRate = 1;
 int fireNoMovementRate = 0;
+//gas
+int gasAscendRate = 4;
+int gasDescendRate = 1;
+int gasSidewardsRate = 2;
+int gasNoMovementRate = 1;
 
 
 //affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles

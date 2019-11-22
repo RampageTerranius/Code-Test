@@ -831,10 +831,10 @@ void Airborn::HandlePhysics()
 	right++;
 
 	//check what way we want to move first
-	int randomNum = rand() % (steamAscendRate + steamDescendRate + steamSidewardsRate + steamNoMovementRate);
+	int randomNum = rand() % (ascendRate + descendRate + sidewardsRate + noMovementRate);
 
 	//check if should ascend
-	if (randomNum < steamAscendRate)
+	if (randomNum < ascendRate)
 	{
 		//check if we are at the top of the screen and if we can loop around
 		if (CheckIfAtTop())
@@ -843,7 +843,7 @@ void Airborn::HandlePhysics()
 		AscendParticle(point.x, point.y, false);
 	}
 	//check if should descend
-	else if (randomNum < (steamAscendRate + steamDescendRate))
+	else if (randomNum < (ascendRate + descendRate))
 	{
 		//check if we are at the top of the screen and if we can loop around
 		if (CheckIfAtBottom())
@@ -852,7 +852,7 @@ void Airborn::HandlePhysics()
 		DropParticle(point.x, point.y, false);
 	}
 	//chck if should go left or right
-	else if (randomNum < (steamAscendRate + steamDescendRate + steamSidewardsRate))
+	else if (randomNum < (ascendRate + descendRate + sidewardsRate))
 	{
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
@@ -1733,4 +1733,8 @@ bool Fire::HandleEvents()
 				}
 
 	return false;
+}
+
+Gas::Gas(int newX, int newY, float newTemperature) : Airborn(TYPE_GAS, gasAscendRate, gasDescendRate, gasSidewardsRate, gasNoMovementRate, newX, newY, newTemperature)
+{
 }

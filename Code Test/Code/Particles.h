@@ -250,3 +250,12 @@ public:
 	Fire(int newX, int newY, float newTemperature);
 	bool HandleEvents();
 };
+
+//gas particles
+//airborn type
+//standard airborn that will spread fire fast
+class Gas : public Airborn
+{
+public:
+		Gas(int newX, int newY, float newTemperature);
+};

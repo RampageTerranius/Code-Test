@@ -20,6 +20,7 @@ enum ParticleType
 	TYPE_STONE,
 	TYPE_LAVA,
 	TYPE_FIRE,
+	TYPE_GAS,
 
 	//the following must ALWAYS be at the end
 	TYPE_SOURCE,
@@ -42,7 +43,8 @@ static std::string typeNames[] = {  "Wall",
 									"Stone",
 									"Lava",
 									"Fire",
+									"Gas",
 
 									//the following must ALWAYS be at the end
-									"Source - ",
-									"TotalTypes" };//you should never be using this final string, if you are your working with a non existant particale type
+									"Source - ", // Used to determine if it is a source type, you should NEVER directly be creating a source type.
+									"ILLEGAL TYPE" };// Used to determine how many 
