@@ -853,19 +853,15 @@ void Airborn::HandlePhysics()
 	if (randomNum < ascendRate)
 	{
 		//check if we are at the top of the screen and if we can loop around
-		if (CheckIfAtTop())
-			return;
-
-		AscendParticle(point.x, point.y, false);
+		if (!CheckIfAtTop())
+			AscendParticle(point.x, point.y, false);
 	}
 	//check if should descend
 	else if (randomNum < (ascendRate + descendRate))
 	{
 		//check if we are at the top of the screen and if we can loop around
-		if (CheckIfAtBottom())
-			return;
-
-		DropParticle(point.x, point.y, false);
+		if (!CheckIfAtBottom())
+			DropParticle(point.x, point.y, false);
 	}
 	//chck if should go left or right
 	else if (randomNum < (ascendRate + descendRate + sidewardsRate))
@@ -874,23 +870,25 @@ void Airborn::HandlePhysics()
 		canGoLeft = canGoRight = false;
 
 		//check if we are surrounded
-		if (allParticles[left][point.y] == nullptr)
-			canGoLeft = true;
-		else
-		{
-			if (allParticles[left][point.y]->weight != -1)
-				if (allParticles[point.x][point.y]->weight < allParticles[left][point.y]->weight)
-					canGoLeft = true;
-		}
+		if (left >= 0)
+			if (allParticles[left][point.y] == nullptr)
+				canGoLeft = true;
+			else
+			{
+				if (allParticles[left][point.y]->weight != -1)
+					if (allParticles[point.x][point.y]->weight < allParticles[left][point.y]->weight)
+						canGoLeft = true;
+			}
 
-		if (allParticles[right][point.y] == nullptr)
-			canGoRight = true;
-		else
-		{
-			if (allParticles[right][point.y]->weight != -1)
-				if (allParticles[point.x][point.y]->weight < allParticles[right][point.y]->weight)
-					canGoRight = true;
-		}	
+		if (right <= (WINDOW_WIDTH - 1))
+			if (allParticles[right][point.y] == nullptr)
+				canGoRight = true;
+			else
+			{
+				if (allParticles[right][point.y]->weight != -1)
+					if (allParticles[point.x][point.y]->weight < allParticles[right][point.y]->weight)
+						canGoRight = true;
+			}	
 
 		//can go either way
 		if (canGoLeft && canGoRight)
