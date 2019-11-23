@@ -103,17 +103,17 @@ LinkedList particleList = LinkedList();
 
 void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 {
+	//make sure were not trying to create an entity off screen
+	if (x < 0 || x > WINDOW_WIDTH - 1 || y < 0 || y > WINDOW_HEIGHT - 1)
+		return;
+
 	//check that we have no entity in this section to begin with
 	if (allParticles[x][y] != nullptr)
 	{
 		// NOTE: these debug options cause MAJOR lag when adding particles, do nto use htem unless absolutely needed.
 		//std::cout << "Attempt to create a particle of type " + typeNames[type] + " at " + std::to_string(x) + "|" + std::to_string(y) + " when a particle already exists here of type " + typeNames[allParticles[x][y]->type] + "\n";
 		return;
-	}
-
-	//make sure were not trying to create an entity off screen
-	if (x < 0 || x > WINDOW_WIDTH - 1 || y < 0 || y > WINDOW_HEIGHT - 1)
-		return;
+	}	
 
 	//check what type of entity we need to create and assign it the required data as well as update the entityexists list
 	if (!asSource)
@@ -197,6 +197,16 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 
 		case TYPE_GAS:
 			allParticles[x][y] = new Gas(x, y, temp);
+			allParticles[x][y]->node = particleList.Add(x, y);
+			return;
+
+		case TYPE_LIGHTGAS:
+			allParticles[x][y] = new LightGas(x, y, temp);
+			allParticles[x][y]->node = particleList.Add(x, y);
+			return;
+
+		case TYPE_HEAVYGAS:
+			allParticles[x][y] = new HeavyGas(x, y, temp);
 			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
@@ -1742,5 +1752,13 @@ bool Fire::HandleEvents()
 }
 
 Gas::Gas(int newX, int newY, float newTemperature) : Airborn(TYPE_GAS, gasAscendRate, gasDescendRate, gasSidewardsRate, gasNoMovementRate, newX, newY, newTemperature)
+{
+}
+
+LightGas::LightGas(int newX, int newY, float newTemperature) : Airborn(TYPE_LIGHTGAS, lightGasAscendRate, lightGasDescendRate, lightGasSidewardsRate, lightGasNoMovementRate, newX, newY, newTemperature)
+{
+}
+
+HeavyGas::HeavyGas(int newX, int newY, float newTemperature) : Airborn(TYPE_HEAVYGAS, heavyGasAscendRate, heavyGasDescendRate, heavyGasSidewardsRate, heavyGasNoMovementRate, newX, newY, newTemperature)
 {
 }

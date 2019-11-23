@@ -4,9 +4,6 @@ TOP PRIORITY:
 modification of system to use multithreading to work on multiple particles in tandem
 change of particlelsit to use a chunk system instead to help threads to work easier
 
-deletion of blocks causes MAJOR lag that becomes much worse with mroe particles as it has to check through every single particle in the particle list multiple times each time a delete call is used
-full rebuild of particlelist system needed
-
 MAJOR:
 change from using SDL_RenderDrawPoint to SDL_RenderDrawPoints, will need to store an array of SDL_Point* to do so, should speed up drawing of particles however
 game slows down as more particles are emulated on screen
@@ -17,9 +14,5 @@ sand like particles will be blocked from falling by water like particles that ha
 
 
 PARTICLE IDEAS::
-lava - water liek particle that damages other particles and potentially sets others on fire, will turn into stone when it coosl down
-stone - sand like particle, will turn into lava at high temperatures
-
-gas like particles - this has already semi started with the steam particle, want to add multiple other gasses at later stages that have different bouyancy and different reactions to different particles
 explosive particles - stuff liek c4, gunpower etc. will blow up causing fire and potentially damaging other blocks around it
 living particles - semi started with plant particles. other stuff liek bugs, seeds, wood, leaf particles etc

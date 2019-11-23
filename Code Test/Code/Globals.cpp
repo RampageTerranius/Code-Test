@@ -69,6 +69,10 @@ int settingWeight[TYPE_TOTALTYPES]
 	-1,
 	//gas
 	5,
+	//light gas
+	3,
+	//heavy gas
+	7,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -110,6 +114,10 @@ int settingHealth[TYPE_TOTALTYPES]
 	300,
 	//gas
 	50,
+	//light gas
+	50,
+	//heavy gas
+	50,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -149,6 +157,10 @@ float settingThermalConductivity[TYPE_TOTALTYPES]
 	//fire
 	0.1f,
 	//gas
+	0.01f,
+	//light gas
+	0.01f,
+	//heavy gas
 	0.01f,
 
 	//the following must ALWAYS be at the end
@@ -191,7 +203,11 @@ int settingColor[TYPE_TOTALTYPES][4]
 	//fire
 	{255, 20, 20, 0},
 	//gas
-	{150, 20, 150, 0}
+	{150, 20, 150, 0},
+	//light gas
+	{160, 40, 160, 0},
+	//heavy gas
+	{170, 60, 170, 0}
 };
 
 int settingFlammability[TYPE_TOTALTYPES]
@@ -211,7 +227,7 @@ int settingFlammability[TYPE_TOTALTYPES]
 	//Steam
 	0,
 	//plant
-	5,
+	8,
 	//salt
 	0,
 	//salt water
@@ -227,7 +243,11 @@ int settingFlammability[TYPE_TOTALTYPES]
 	//fire
 	0,
 	//gas
-	1,
+	2,
+	//light gas
+	2,
+	//heavy gas
+	2,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -264,6 +284,16 @@ int gasAscendRate = 4;
 int gasDescendRate = 1;
 int gasSidewardsRate = 2;
 int gasNoMovementRate = 1;
+//heavy gas
+int heavyGasAscendRate = 1;
+int heavyGasDescendRate = 6;
+int heavyGasSidewardsRate = 2;
+int heavyGasNoMovementRate = 1;
+//light gas
+int lightGasAscendRate = 10;
+int lightGasDescendRate = 1;
+int lightGasSidewardsRate = 4;
+int lightGasNoMovementRate = 1;
 
 
 //affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles

@@ -257,5 +257,17 @@ public:
 class Gas : public Airborn
 {
 public:
-		Gas(int newX, int newY, float newTemperature);
+	Gas(int newX, int newY, float newTemperature);
+};
+
+class LightGas : public Airborn
+{
+public:
+	LightGas(int newX, int newY, float newTemperature);
+};
+
+class HeavyGas : public Airborn
+{
+public:
+	HeavyGas(int newX, int newY, float newTemperature);
 };
