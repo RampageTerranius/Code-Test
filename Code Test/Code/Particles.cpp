@@ -98,7 +98,7 @@ void LinkedList::Remove(Node* node)
 	}
 }
 
-Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
+std::vector<std::vector<Particle*>> allParticles;
 LinkedList particleList = LinkedList();
 
 void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
@@ -211,7 +211,6 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 void CreateParticle(ParticleType type, int x, int y, float temp)
 {
 	CreateParticle(type, x, y, temp, false);
-	particleList.Add(x, y);
 }
 
 //destroys the particle at the given location and wipes the memory of it

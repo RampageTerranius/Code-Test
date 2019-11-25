@@ -82,6 +82,17 @@ bool Setup()
 		return false;
 	}
 
+	// Prepare the 2d vector or particles used to keep track of all particles.
+	allParticles.resize(WINDOW_WIDTH);
+	for (int i = 0; i < WINDOW_WIDTH; ++i)
+		allParticles[i].resize(WINDOW_HEIGHT);
+
+	// SPEED TESTING LINES
+	// DISABLE THESE IF NOT SPEED TESTING
+	for (int i = 0; i < WINDOW_WIDTH; i++)
+		for (int n = 0; n < (WINDOW_HEIGHT / 2); n++)
+			CreateParticle(TYPE_SAND, i, n, 30);
+
 	return true;
 }
 

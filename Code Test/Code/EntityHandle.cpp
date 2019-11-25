@@ -10,7 +10,7 @@ void EntityHandle()
 			allParticles[node->x][node->y]->HandleEvents();
 
 		//handling entities
-		for (Node* node = particleList.front; node != nullptr; node = node->next)
-			allParticles[node->x][node->y]->HandlePhysics();
+		for (Node* node = particleList.front; node != nullptr; node = node->next)		
+				allParticles[node->x][node->y]->HandlePhysics();		
 	}
 }
