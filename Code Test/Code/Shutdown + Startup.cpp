@@ -46,6 +46,8 @@ bool Setup()
 	Uint32 windowFlags = SDL_WINDOW_OPENGL;
 	mainWindow = SDL_CreateWindow(PROGRAM_NAME.c_str(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windowFlags);
 
+	mainSurface = SDL_GetWindowSurface(mainWindow);
+
 	Uint32 renderFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
 	mainRenderer = SDL_CreateRenderer(mainWindow, -1, renderFlags);
 
@@ -124,6 +126,7 @@ void Shutdown()
 	//destroy the surface used for drawing particles
 	SDL_FreeSurface(mainSurface);
 	mainSurface = nullptr;
+
 
 	SDL_Quit();
 }
