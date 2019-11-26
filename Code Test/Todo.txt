@@ -9,10 +9,13 @@ change from using SDL_RenderDrawPoint to SDL_RenderDrawPoints, will need to stor
 game slows down as more particles are emulated on screen
 
 MINOR:
-sand like particles will be blocked from falling by water like particles that happen to be falling near them
-
+sand like particles will be blocked from falling by airborn like particles that happen to be ascending near them
 
 
 PARTICLE IDEAS::
 explosive particles - stuff liek c4, gunpower etc. will blow up causing fire and potentially damaging other blocks around it
 living particles - semi started with plant particles. other stuff liek bugs, seeds, wood, leaf particles etc
+
+NOTES::
+speed test done on the full allParticles array being made out of both a 2d Vector and an straight 2d array
+straight 2d array seems to have the advantage in perfmormace by about 10%, my expectations being lack of overhead causes this

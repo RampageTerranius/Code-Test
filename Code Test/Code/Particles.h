@@ -54,7 +54,7 @@ class Particle
 		Node* node;
 };
 
-extern std::vector<std::vector<Particle*>> allParticles;
+extern Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
 extern LinkedList particleList;
 
 class SolidImmobile : public Particle

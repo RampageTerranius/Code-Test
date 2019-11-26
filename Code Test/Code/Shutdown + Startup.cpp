@@ -83,9 +83,9 @@ bool Setup()
 	}
 
 	// Prepare the 2d vector or particles used to keep track of all particles.
-	allParticles.resize(WINDOW_WIDTH);
-	for (int i = 0; i < WINDOW_WIDTH; ++i)
-		allParticles[i].resize(WINDOW_HEIGHT);
+	//allParticles.resize(WINDOW_WIDTH);
+	//for (int i = 0; i < WINDOW_WIDTH; ++i)
+		//allParticles[i].resize(WINDOW_HEIGHT);
 
 	// SPEED TESTING LINES
 	// DISABLE THESE IF NOT SPEED TESTING
@@ -121,8 +121,9 @@ void Shutdown()
 	selectedParticleName.Clear();
 	currentFrameRate.Clear();
 
-	//destroy the texture used for drawing particles
-	SDL_DestroyTexture(pixelTexture);
+	//destroy the surface used for drawing particles
+	SDL_FreeSurface(mainSurface);
+	mainSurface = nullptr;
 
 	SDL_Quit();
 }

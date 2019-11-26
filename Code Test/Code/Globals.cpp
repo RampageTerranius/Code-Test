@@ -12,6 +12,7 @@ const int MAX_BRUSH_SIZE = 32;//the total largest size the brush may be
 //sdl window and renderer
 SDL_Window* mainWindow = nullptr;
 SDL_Renderer* mainRenderer = nullptr;
+SDL_Surface* mainSurface = new SDL_Surface();
 
 //main texture used for drawing pixels to screen
 SDL_Texture* pixelTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);

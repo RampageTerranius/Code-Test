@@ -22,12 +22,10 @@ extern int frameRateLimit;
 
 extern const int MAX_BRUSH_SIZE;//the total largest size the brush may be
 
-//sdl window and renderer
+//sdl window, renderer and pixel surface
 extern SDL_Window* mainWindow;
 extern SDL_Renderer* mainRenderer;
-
-//main texture used for drawing pixels to screen
-extern SDL_Texture* pixelTexture;
+extern SDL_Surface* mainSurface;
 
 extern float avgFPS;
 
@@ -69,7 +67,7 @@ extern float saltWaterEventTempMultiplier;//a value of 1.1 would give a 10% incr
 extern float lavaSolidifyTemp;
 
 //randomised event chances
-extern int acidDamageChance;;//higher number means lower chance (calculated as (1 / acidDamageChance) meaning if chance was 10 there is a 1 in 10 chance per tick to damage a block)
+extern int acidDamageChance;//higher number means lower chance (calculated as (1 / acidDamageChance) meaning if chance was 10 there is a 1 in 10 chance per tick to damage a block)
 extern int plantSpreadChance;//higher number means lower chance (calculated as (1 / plantSpreadChance) meaning if chance was 10 there is a 1 in 10 chance per tick to spread plant through a water block)
 extern int glitchSpreadChance;
 

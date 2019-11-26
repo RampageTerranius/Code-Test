@@ -1,5 +1,10 @@
 #include "Particles.h"
 
+Uint32 RGBAToHex(int r, int g, int b, int a)
+{
+	return ((r & 0xff) << 24) + ((g & 0xff) << 16) + ((b & 0xff) << 8) + (a & 0xff);
+}
+
 Node::Node(int newX, int newY)
 {
 	x = newX;
@@ -98,7 +103,7 @@ void LinkedList::Remove(Node* node)
 	}
 }
 
-std::vector<std::vector<Particle*>> allParticles;
+Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
 LinkedList particleList = LinkedList();
 
 void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
@@ -411,8 +416,11 @@ void Particle::Reset()
 //default draw code
 void Particle::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, settingColor[type][0], settingColor[type][1], settingColor[type][2], settingColor[type][3]);
-	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
+	// Get pixel data.
+	Uint32* pixels = (Uint32*)mainSurface->pixels;
+	Uint32* targetPixel = (Uint32*)pixels[(point.y * mainSurface->w) + point.x];
+
+	*targetPixel = RGBAToHex(settingColor[type][0], settingColor[type][1], settingColor[type][2], settingColor[type][3]);
 }
 
 bool Particle::HandleEvents()
@@ -1409,8 +1417,11 @@ Source::Source(ParticleType newSourceType, int newX, int newY, float newTemperat
 }
 void Source::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, settingColor[sourceType][0], settingColor[sourceType][1], settingColor[sourceType][2], settingColor[sourceType][3]);
-	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
+	// Get pixel data.
+	Uint32* pixels = (Uint32*)mainSurface->pixels;
+	Uint32* targetPixel = (Uint32*)pixels[(point.y * mainSurface->w) + point.x];
+
+	*targetPixel = RGBAToHex(settingColor[sourceType][0], settingColor[sourceType][1], settingColor[sourceType][2], settingColor[sourceType][3]);
 }
 
 bool Source::HandleEvents()

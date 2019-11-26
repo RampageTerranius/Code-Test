@@ -11,11 +11,13 @@
 
 void Render()
 {
-	//reset renderer
-	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
-	SDL_RenderClear(mainRenderer);
+	// Lock the main surface for direct editing.
+	SDL_LockSurface(mainSurface);
 
-	//render all particles	
+	// Set the surface to black.
+	//SDL_FillRect(mainSurface, nullptr, 0x000000);
+
+	// render all particles.
 	for (Node* node = particleList.front; node != nullptr; node = node->next)
 	{
 		Particle* i = allParticles[node->x][node->y];
@@ -123,7 +125,11 @@ void Render()
 	currentFrameRate.SetText(mainRenderer, std::to_string(static_cast<int>(avgFPS)));
 	currentFrameRate.Draw(mainRenderer, 20, WINDOW_HEIGHT - 34);
 
+	std::cout << avgFPS << "\n";
+
 	//render the frame and increase the counter frames
-	SDL_RenderPresent(mainRenderer);
+	SDL_UnlockSurface(mainSurface);
+	SDL_Texture* pixelTexture = SDL_CreateTextureFromSurface(mainRenderer, mainSurface);
+	SDL_RenderCopy(mainRenderer, pixelTexture, nullptr, nullptr);
 	countedFrames++;	
 }
