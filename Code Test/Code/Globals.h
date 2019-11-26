@@ -89,6 +89,16 @@ extern int gasAscendRate;
 extern int gasDescendRate;
 extern int gasSidewardsRate;
 extern int gasNoMovementRate;
+//light gas
+extern int lightGasAscendRate;
+extern int lightGasDescendRate;
+extern int lightGasSidewardsRate;
+extern int lightGasNoMovementRate;
+//heavy gas
+extern int heavyGasAscendRate;
+extern int heavyGasDescendRate;
+extern int heavyGasSidewardsRate;
+extern int heavyGasNoMovementRate;
 
 
 //affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles

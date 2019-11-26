@@ -1,18 +1,18 @@
 CURRENTLY KNOWN BUGS/ISSUES::
 
 TOP PRIORITY:
-modification of system to use multithreading to work on multiple particles in tandem, this will mean the simulation losing some accuracy, but should be worth it for the fps increase
-look towards potentially switching to a quadtree layout for particles.
+modification of system to use multithreading to work on multiple particles in tandem
+change of particlelsit to use a chunk system instead to help threads to work easier
 
 MAJOR:
-change from using SDL_RenderDrawPoint to SDL_RenderDrawPoints, will need to store an array of SDL_Point* to do so, should speed up drawing of particles
-game slows down as more particles are emulated on screen, check into ways to reduce fps loss
-add flag for if particle is unable to move, other moving particles will need to activate near by particles flags on movement.
-
+change from using SDL_RenderDrawPoint to SDL_RenderDrawPoints, will need to store an array of SDL_Point* to do so, should speed up drawing of particles however
+game slows down as more particles are emulated on screen
 
 MINOR:
-sand like particles will be blocked from falling by airborn like particles that happen to be falling near them
+sand like particles will be blocked from falling by water like particles that happen to be falling near them
 
-PARTICLE IDEAS:
-explosive particles - stuff like c4, gunpower etc. will blow up causing fire and potentially damaging other blocks around it
-living particles - semi started with plant particles. other stuff like bugs, seeds, wood, leaf particles etc
+
+
+PARTICLE IDEAS::
+explosive particles - stuff liek c4, gunpower etc. will blow up causing fire and potentially damaging other blocks around it
+living particles - semi started with plant particles. other stuff liek bugs, seeds, wood, leaf particles etc

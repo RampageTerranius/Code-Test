@@ -103,16 +103,17 @@ LinkedList particleList = LinkedList();
 
 void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 {
-	//check that we have no entity in this section to begin with
-	if (allParticles[x][y] != nullptr)
-	{
-		std::cout << "Attempt to create a particle of type " + typeNames[type] + " at " + std::to_string(x) + "|" + std::to_string(y) + " when a particle already exists here of type " + typeNames[allParticles[x][y]->type] + "\n";
-		return;
-	}
-
 	//make sure were not trying to create an entity off screen
 	if (x < 0 || x > WINDOW_WIDTH - 1 || y < 0 || y > WINDOW_HEIGHT - 1)
 		return;
+
+	//check that we have no entity in this section to begin with
+	if (allParticles[x][y] != nullptr)
+	{
+		// NOTE: these debug options cause MAJOR lag when adding particles, do nto use htem unless absolutely needed.
+		//std::cout << "Attempt to create a particle of type " + typeNames[type] + " at " + std::to_string(x) + "|" + std::to_string(y) + " when a particle already exists here of type " + typeNames[allParticles[x][y]->type] + "\n";
+		return;
+	}	
 
 	//check what type of entity we need to create and assign it the required data as well as update the entityexists list
 	if (!asSource)
@@ -194,8 +195,24 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
+		case TYPE_GAS:
+			allParticles[x][y] = new Gas(x, y, temp);
+			allParticles[x][y]->node = particleList.Add(x, y);
+			return;
+
+		case TYPE_LIGHTGAS:
+			allParticles[x][y] = new LightGas(x, y, temp);
+			allParticles[x][y]->node = particleList.Add(x, y);
+			return;
+
+		case TYPE_HEAVYGAS:
+			allParticles[x][y] = new HeavyGas(x, y, temp);
+			allParticles[x][y]->node = particleList.Add(x, y);
+			return;
+
 		default:
-			std::cout << "Attempt to create a unknown particle type at " + std::to_string(x) + "|" + std::to_string(y) + "\n";
+			// NOTE: these debug options cause MAJOR lag when adding particles, do nto use htem unless absolutely needed.
+			//std::cout << "Attempt to create a unknown particle type at " + std::to_string(x) + "|" + std::to_string(y) + "\n";
 			break;
 		}
 	}
@@ -836,19 +853,15 @@ void Airborn::HandlePhysics()
 	if (randomNum < ascendRate)
 	{
 		//check if we are at the top of the screen and if we can loop around
-		if (CheckIfAtTop())
-			return;
-
-		AscendParticle(point.x, point.y, false);
+		if (!CheckIfAtTop())
+			AscendParticle(point.x, point.y, false);
 	}
 	//check if should descend
 	else if (randomNum < (ascendRate + descendRate))
 	{
 		//check if we are at the top of the screen and if we can loop around
-		if (CheckIfAtBottom())
-			return;
-
-		DropParticle(point.x, point.y, false);
+		if (!CheckIfAtBottom())
+			DropParticle(point.x, point.y, false);
 	}
 	//chck if should go left or right
 	else if (randomNum < (ascendRate + descendRate + sidewardsRate))
@@ -857,23 +870,25 @@ void Airborn::HandlePhysics()
 		canGoLeft = canGoRight = false;
 
 		//check if we are surrounded
-		if (allParticles[left][point.y] == nullptr)
-			canGoLeft = true;
-		else
-		{
-			if (allParticles[left][point.y]->weight != -1)
-				if (allParticles[point.x][point.y]->weight < allParticles[left][point.y]->weight)
-					canGoLeft = true;
-		}
+		if (left >= 0)
+			if (allParticles[left][point.y] == nullptr)
+				canGoLeft = true;
+			else
+			{
+				if (allParticles[left][point.y]->weight != -1)
+					if (allParticles[point.x][point.y]->weight < allParticles[left][point.y]->weight)
+						canGoLeft = true;
+			}
 
-		if (allParticles[right][point.y] == nullptr)
-			canGoRight = true;
-		else
-		{
-			if (allParticles[right][point.y]->weight != -1)
-				if (allParticles[point.x][point.y]->weight < allParticles[right][point.y]->weight)
-					canGoRight = true;
-		}	
+		if (right <= (WINDOW_WIDTH - 1))
+			if (allParticles[right][point.y] == nullptr)
+				canGoRight = true;
+			else
+			{
+				if (allParticles[right][point.y]->weight != -1)
+					if (allParticles[point.x][point.y]->weight < allParticles[right][point.y]->weight)
+						canGoRight = true;
+			}	
 
 		//can go either way
 		if (canGoLeft && canGoRight)
@@ -1593,7 +1608,7 @@ bool Fire::HandleEvents()
 
 	if (up >= 0)
 		if (allParticles[point.x][up] != nullptr)		
-			if (settingFlammability[allParticles[point.x][up]->type] >= 0)
+			if (settingFlammability[allParticles[point.x][up]->type] > 0)
 				if (settingFlammability[allParticles[point.x][up]->type] == 1)
 				{
 					int newHealth = allParticles[point.x][up]->health;
@@ -1628,7 +1643,7 @@ bool Fire::HandleEvents()
 
 	if (down <= WINDOW_HEIGHT - 1)
 		if (allParticles[point.x][down] != nullptr)
-			if (settingFlammability[allParticles[point.x][down]->type] >= 0)
+			if (settingFlammability[allParticles[point.x][down]->type] > 0)
 				if (settingFlammability[allParticles[point.x][down]->type] == 1)
 				{
 					int newHealth = allParticles[point.x][down]->health;
@@ -1663,7 +1678,7 @@ bool Fire::HandleEvents()
 
 	if (left >= 0)
 		if (allParticles[left][point.y] != nullptr)
-			if (settingFlammability[allParticles[left][point.y]->type] >= 0)
+			if (settingFlammability[allParticles[left][point.y]->type] > 0)
 				if (settingFlammability[allParticles[left][point.y]->type] == 1)
 				{
 					int newHealth = allParticles[left][point.y]->health;
@@ -1698,7 +1713,7 @@ bool Fire::HandleEvents()
 
 	if (right <= WINDOW_WIDTH - 1)
 		if (allParticles[right][point.y] != nullptr)
-			if (settingFlammability[allParticles[right][point.y]->type] >= 0)
+			if (settingFlammability[allParticles[right][point.y]->type] > 0)
 				if (settingFlammability[allParticles[right][point.y]->type] == 1)
 				{
 					int newHealth = allParticles[right][point.y]->health;
@@ -1735,5 +1750,13 @@ bool Fire::HandleEvents()
 }
 
 Gas::Gas(int newX, int newY, float newTemperature) : Airborn(TYPE_GAS, gasAscendRate, gasDescendRate, gasSidewardsRate, gasNoMovementRate, newX, newY, newTemperature)
+{
+}
+
+LightGas::LightGas(int newX, int newY, float newTemperature) : Airborn(TYPE_LIGHTGAS, lightGasAscendRate, lightGasDescendRate, lightGasSidewardsRate, lightGasNoMovementRate, newX, newY, newTemperature)
+{
+}
+
+HeavyGas::HeavyGas(int newX, int newY, float newTemperature) : Airborn(TYPE_HEAVYGAS, heavyGasAscendRate, heavyGasDescendRate, heavyGasSidewardsRate, heavyGasNoMovementRate, newX, newY, newTemperature)
 {
 }
