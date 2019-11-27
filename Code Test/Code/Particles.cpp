@@ -1,10 +1,5 @@
 #include "Particles.h"
 
-Uint32 RGBAToHex(int r, int g, int b)
-{
-	return ((r & 0xff) << 24) + ((g & 0xff) << 16) + ((b & 0xff) << 8);
-}
-
 void EditPixel(int x, int y, Uint32 pixel)
 {
 	int bpp = mainSurface->format->BytesPerPixel;
@@ -451,7 +446,7 @@ void Particle::Reset()
 void Particle::Draw()
 {
 	// Get pixel data.
-	EditPixel(point.x, point.y, RGBAToHex(settingColor[type][0], settingColor[type][1], settingColor[type][2]));
+	EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, settingColor[type][0], settingColor[type][1], settingColor[type][2], settingColor[type][3]));
 }
 
 bool Particle::HandleEvents()
@@ -1448,7 +1443,7 @@ Source::Source(ParticleType newSourceType, int newX, int newY, float newTemperat
 }
 void Source::Draw()
 {
-	EditPixel(point.x, point.y, RGBAToHex(settingColor[sourceType][0], settingColor[sourceType][1], settingColor[sourceType][2]));
+	EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, settingColor[sourceType][0], settingColor[sourceType][1], settingColor[sourceType][2], settingColor[sourceType][3]));
 }
 
 bool Source::HandleEvents()

@@ -128,6 +128,8 @@ void Render()
 
 	//render the frame and increase the counter frames
 	SDL_UnlockSurface(mainSurface);
+
+	std::cout << avgFPS << "\n";
 	
 
 	SDL_RenderPresent(mainRenderer);
