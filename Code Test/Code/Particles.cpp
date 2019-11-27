@@ -1,8 +1,42 @@
 #include "Particles.h"
 
-Uint32 RGBAToHex(int r, int g, int b, int a)
+Uint32 RGBAToHex(int r, int g, int b)
 {
-	return ((r & 0xff) << 24) + ((g & 0xff) << 16) + ((b & 0xff) << 8) + (a & 0xff);
+	return ((r & 0xff) << 24) + ((g & 0xff) << 16) + ((b & 0xff) << 8);
+}
+
+void EditPixel(int x, int y, Uint32 pixel)
+{
+	int bpp = mainSurface->format->BytesPerPixel;
+	/* Here p is the address to the pixel we want to set */
+	Uint8* p = (Uint8*)mainSurface->pixels + y * mainSurface->pitch + x * bpp;
+
+	switch (bpp) {
+	case 1:
+		*p = pixel;
+		break;
+
+	case 2:
+		*(Uint16*)p = pixel;
+		break;
+
+	case 3:
+		if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+			p[0] = (pixel >> 16) & 0xff;
+			p[1] = (pixel >> 8) & 0xff;
+			p[2] = pixel & 0xff;
+		}
+		else {
+			p[0] = pixel & 0xff;
+			p[1] = (pixel >> 8) & 0xff;
+			p[2] = (pixel >> 16) & 0xff;
+		}
+		break;
+
+	case 4:
+		*(Uint32*)p = pixel;
+		break;
+	}
 }
 
 Node::Node(int newX, int newY)
@@ -417,10 +451,7 @@ void Particle::Reset()
 void Particle::Draw()
 {
 	// Get pixel data.
-	Uint32* pixels = (Uint32*)mainSurface->pixels;
-	Uint32* targetPixel = (Uint32*)pixels[(point.y * mainSurface->w) + point.x];
-
-	*targetPixel = RGBAToHex(settingColor[type][0], settingColor[type][1], settingColor[type][2], settingColor[type][3]);
+	EditPixel(point.x, point.y, RGBAToHex(settingColor[type][0], settingColor[type][1], settingColor[type][2]));
 }
 
 bool Particle::HandleEvents()
@@ -1417,11 +1448,7 @@ Source::Source(ParticleType newSourceType, int newX, int newY, float newTemperat
 }
 void Source::Draw()
 {
-	// Get pixel data.
-	Uint32* pixels = (Uint32*)mainSurface->pixels;
-	Uint32* targetPixel = (Uint32*)pixels[(point.y * mainSurface->w) + point.x];
-
-	*targetPixel = RGBAToHex(settingColor[sourceType][0], settingColor[sourceType][1], settingColor[sourceType][2], settingColor[sourceType][3]);
+	EditPixel(point.x, point.y, RGBAToHex(settingColor[sourceType][0], settingColor[sourceType][1], settingColor[sourceType][2]));
 }
 
 bool Source::HandleEvents()

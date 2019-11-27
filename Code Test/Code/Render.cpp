@@ -15,7 +15,7 @@ void Render()
 	SDL_LockSurface(mainSurface);
 
 	// Set the surface to black.
-	//SDL_FillRect(mainSurface, nullptr, 0x000000);
+	SDL_FillRect(mainSurface, nullptr, 0x000000);
 
 	// render all particles.
 	for (Node* node = particleList.front; node != nullptr; node = node->next)
@@ -51,9 +51,11 @@ void Render()
 		}
 		else
 			i->Draw();
-
 	}
 
+	SDL_Texture* pixelTexture = SDL_CreateTextureFromSurface(mainRenderer, mainSurface);
+	SDL_RenderCopy(mainRenderer, pixelTexture, nullptr, nullptr);
+	
 	//render a box showing the brush location
 	if (renderBrush)
 	{
@@ -81,8 +83,7 @@ void Render()
 		}
 	}
 
-	//render what type of brush is selected at the top left
-
+	//render what type of brush is selected at the top left	
 	if (!createAsSource)
 		brushName.SetText(mainRenderer, typeNames[currentBrushType]);
 	else
@@ -125,11 +126,10 @@ void Render()
 	currentFrameRate.SetText(mainRenderer, std::to_string(static_cast<int>(avgFPS)));
 	currentFrameRate.Draw(mainRenderer, 20, WINDOW_HEIGHT - 34);
 
-	std::cout << avgFPS << "\n";
-
 	//render the frame and increase the counter frames
 	SDL_UnlockSurface(mainSurface);
-	SDL_Texture* pixelTexture = SDL_CreateTextureFromSurface(mainRenderer, mainSurface);
-	SDL_RenderCopy(mainRenderer, pixelTexture, nullptr, nullptr);
+	
+
+	SDL_RenderPresent(mainRenderer);
 	countedFrames++;	
 }
