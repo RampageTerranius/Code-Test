@@ -175,7 +175,35 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 	{
 		allParticles[x1][y1]->point.x = x1;
 		allParticles[x1][y1]->point.y = y1;
-	}
+	}	
+}
+
+// Unlocks all particles that neighbour the given coordinate.
+void UnlockNeighbourParticles(int x, int y)
+{
+	int up, down, left, right;
+	left = right = x;
+	up = down = y;
+	up--;
+	down++;
+	left--;
+	right++;
+
+	if (up >= 0)
+		if (allParticles[x][up] != nullptr)
+			allParticles[x][up]->locked = false;
+
+	if (down <= WINDOW_HEIGHT - 1)
+		if (allParticles[x][down] != nullptr)
+			allParticles[x][down]->locked = false;
+
+	if (left >= 0)
+		if (allParticles[left][y] != nullptr)
+			allParticles[left][y]->locked = false;
+
+	if (right <= WINDOW_WIDTH - 1)
+		if (allParticles[right][y] != nullptr)
+			allParticles[right][y]->locked = false;
 }
 
 //attempt to drop the particle downwards
@@ -199,6 +227,7 @@ bool DropParticle(int x, int y, bool randomize)
 	if (allParticles[tempX][y + 1] == nullptr)
 	{
 		//update the array
+		UnlockNeighbourParticles(x, y);
 		MoveParticles(x, y, tempX, y + 1);
 		return true;
 	}
@@ -206,7 +235,8 @@ bool DropParticle(int x, int y, bool randomize)
 	else if (allParticles[tempX][y + 1]->weight != -1)
 		if (allParticles[x][y]->weight > allParticles[tempX][y + 1]->weight)
 		{
-			MoveParticles(x, y, tempX, y + 1);
+			UnlockNeighbourParticles(x, y);
+			MoveParticles(x, y, tempX, y + 1);			
 			return true;
 		}
 
@@ -240,6 +270,7 @@ bool AscendParticle(int x, int y, bool randomize)
 	if (allParticles[tempX][y - 1] == nullptr)
 	{
 		//update the array
+		UnlockNeighbourParticles(x, y);
 		MoveParticles(x, y, tempX, y - 1);
 		return true;
 	}
@@ -247,6 +278,7 @@ bool AscendParticle(int x, int y, bool randomize)
 	else if (allParticles[tempX][y - 1]->weight != -1)
 		if (allParticles[x][y]->weight < allParticles[tempX][y - 1]->weight)
 		{
+			UnlockNeighbourParticles(x, y);
 			MoveParticles(x, y, tempX, y - 1);
 			return true;
 		}
@@ -416,7 +448,10 @@ bool Particle::CheckIfAtBottom()
 		if (loopScreen)
 		{
 			if (allParticles[point.x][0] == nullptr)
+			{
+				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(point.x, point.y, point.x, 0);
+			}
 
 			//even if we cant move return true as we are stil lat the bottom and cant move else where
 			return true;
@@ -438,9 +473,12 @@ bool Particle::CheckIfAtTop()
 		if (loopScreen)
 		{
 			if (allParticles[point.x][WINDOW_HEIGHT - 1] == nullptr)
+			{
+				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(point.x, point.y, point.x, WINDOW_HEIGHT - 1);
+			}
 
-			//even if we cant move return true as we are stil lat the bottom and cant move else where
+			//even if we cant move return true as we are still at the bottom and cant move else where
 			return true;
 		}
 		else
@@ -529,11 +567,13 @@ void SolidMobile::HandlePhysics()
 			{
 				//go left
 			case 1:
+				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(left, down, point.x, point.y);
 				return;
 
 				//go right
 			case 2:
+				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(right, down, point.x, point.y);
 				return;
 			}
@@ -541,17 +581,20 @@ void SolidMobile::HandlePhysics()
 
 		if (canGoLeft)
 		{
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(left, down, point.x, point.y);
 			return;
 		}
 
 		if (canGoRight)
 		{
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(right, down, point.x, point.y);
 			return;
 		}
 
-		//neither way is less weight and we know that were surrounded, do not run any further code
+		//neither way is less weight and we know that were surrounded, lock the particle and do not run any further code
+		locked = true;
 		return;
 	}
 
@@ -562,10 +605,14 @@ void SolidMobile::HandlePhysics()
 		if (allParticles[right][down] == nullptr)
 		{
 			//update the array
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, right, down);
 			return;
 		}
-		return;//even if we cant drop, we know that we can not go anywhere so stop here
+
+		//even if we cant drop, we know that we can not go anywhere so stop here and lock the particle
+		locked = true;
+		return;
 	}
 
 	if (point.x == WINDOW_WIDTH - 1)//making sure were not at the right most edge
@@ -574,16 +621,21 @@ void SolidMobile::HandlePhysics()
 		if (allParticles[left][down] == nullptr)
 		{
 			//update the array
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, left, down);
 			return;
 		}
-		return;//even if we cant drop, we know that we can not go anywhere so stop here
+
+		//even if we cant drop, we know that we can not go anywhere so stop here and lock the particle
+		locked = true;
+		return;
 	}
 
 	//if the bottom left is empty and the bottom right isnt then drop to the bottom left
 	if (allParticles[left][down] == nullptr && allParticles[right][down] != nullptr)
 	{
 		//update the array
+		UnlockNeighbourParticles(point.x, point.y);
 		MoveParticles(point.x, point.y, left, down);
 		return;
 	}
@@ -591,6 +643,7 @@ void SolidMobile::HandlePhysics()
 	else if (allParticles[right][down] == nullptr && allParticles[left][down] != nullptr)
 	{
 		//update the array
+		UnlockNeighbourParticles(point.x, point.y);
 		MoveParticles(point.x, point.y, right, down);
 		return;
 	}
@@ -604,12 +657,14 @@ void SolidMobile::HandlePhysics()
 			//go left
 		case 1:
 			//update the array
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, left, down);
 			return;
 
 			//go right
 		case 2:
 			//update the array
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, right, down);
 			return;
 		}
@@ -675,11 +730,13 @@ void Liquid::HandlePhysics()
 			{
 				//go left
 			case 1:
+				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(left, point.y, point.x, point.y);
 				return;
 
 				//go right
 			case 2:
+				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(right, point.y, point.x, point.y);
 				return;
 			}
@@ -688,6 +745,7 @@ void Liquid::HandlePhysics()
 		//can only go left
 		if (canGoLeft)
 		{
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(left, point.y, point.x, point.y);
 			return;
 		}
@@ -695,6 +753,7 @@ void Liquid::HandlePhysics()
 		//can only go right
 		if (canGoRight)
 		{
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(right, point.y, point.x, point.y);
 			return;
 		}
@@ -710,6 +769,7 @@ void Liquid::HandlePhysics()
 		if (allParticles[right][point.y] == nullptr)
 		{
 			//update the array
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, right, point.y);
 			return;
 		}
@@ -722,6 +782,7 @@ void Liquid::HandlePhysics()
 		if (allParticles[left][point.y] == nullptr)
 		{
 			//update the array
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, left, point.y);
 			return;
 		}
@@ -730,10 +791,16 @@ void Liquid::HandlePhysics()
 
 	//if left is empty only
 	if (allParticles[left][point.y] == nullptr && allParticles[right][point.y] != nullptr)
+	{
+		UnlockNeighbourParticles(point.x, point.y);
 		MoveParticles(point.x, point.y, left, point.y);
+	}
 	//if right is empty only
 	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] != nullptr)
+	{
+		UnlockNeighbourParticles(point.x, point.y);
 		MoveParticles(point.x, point.y, right, point.y);
+	}
 	//both ways are free, randomly choose one and move	
 	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] == nullptr)
 	{
@@ -744,12 +811,14 @@ void Liquid::HandlePhysics()
 			//go left
 		case 1:
 			//update the array
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, left, point.y);
 			return;
 
 			//go right
 		case 2:
 			//update the array
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, right, point.y);
 			return;
 		}
@@ -834,24 +903,32 @@ void Airborn::HandlePhysics()
 			{
 				//go left
 			case 1:
+				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(left, point.y, point.x, point.y);
 				break;
 
 				//go right
 			case 2:
+				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(right, point.y, point.x, point.y);
 				break;
 			}
 		}
 		//can only go left
-		else if (canGoLeft)		
+		else if (canGoLeft)
+		{
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(left, point.y, point.x, point.y);
+		}
 		//can only go right
-		else		
+		else
+		{
+			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(right, point.y, point.x, point.y);
-		
+		}		
 
 		//neither way is less weight and we know that were surrounded, do not run any further code
+		locked = true;
 		return;	
 	}	
 }
