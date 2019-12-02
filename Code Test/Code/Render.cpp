@@ -20,39 +20,8 @@ void Render()
 	// render all particles.
 	for (int i = WINDOW_WIDTH - 1; i >= 0; i--)
 		for (int n = WINDOW_HEIGHT - 1; n >= 0; n--)
-	{
-		Particle* particle = allParticles[i][n];
-		if (drawHeat)
-		{
-			float tempHighest = 80;
-			float tempMiddle = 0;
-			float tempLowest = -50;
-
-			int r, g, b;
-
-			r = g = b = 20;
-
-			float temp = particle->temperature;
-
-			if (particle->temperature >= tempMiddle)
-			{
-				r = 255 * (int)(1.0 - (std::abs(particle->temperature - tempHighest) / (particle->temperature + tempHighest)));
-				if (r > 255)
-					r = 255;
-			}
-			else
-			{
-				b = 255 * (int)(std::abs(particle->temperature - tempLowest) / (particle->temperature + tempLowest));
-				if (b > 255)
-					b = 255;
-			}
-
-			SDL_SetRenderDrawColor(mainRenderer, r, g, b, 0);
-			SDL_RenderDrawPoint(mainRenderer, particle->point.x, particle->point.y);
-		}
-		else
-			particle->Draw();
-	}
+			if (allParticles[i][n] != nullptr)
+				allParticles[i][n]->Draw();		
 
 	SDL_Texture* pixelTexture = SDL_CreateTextureFromSurface(mainRenderer, mainSurface);
 	SDL_RenderCopy(mainRenderer, pixelTexture, nullptr, nullptr);

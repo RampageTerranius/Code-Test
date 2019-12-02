@@ -168,10 +168,6 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 	{
 		allParticles[x2][y2]->point.x = x2;
 		allParticles[x2][y2]->point.y = y2;
-
-		allParticles[x2][y2]->node->x = x2;
-		allParticles[x2][y2]->node->y = y2;
-
 	}
 
 	//update the internal location data for the second point now that its been moved
@@ -179,9 +175,6 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 	{
 		allParticles[x1][y1]->point.x = x1;
 		allParticles[x1][y1]->point.y = y1;
-
-		allParticles[x1][y1]->node->x = x1;
-		allParticles[x1][y1]->node->y = y1;
 	}
 }
 
@@ -321,13 +314,42 @@ void Particle::Reset()
 	thermalConductivity = 0;
 	health = 100;
 	weight = -1;
+	locked = false;
 }
 
 //default draw code
 void Particle::Draw()
 {
-	// Get pixel data.
-	EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, settingColor[type][0], settingColor[type][1], settingColor[type][2], settingColor[type][3]));
+	if (!drawHeat)
+		EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, settingColor[type][0], settingColor[type][1], settingColor[type][2], settingColor[type][3]));
+	else
+		{
+			float tempHighest = 80;
+			float tempMiddle = 0;
+			float tempLowest = -50;
+
+			int r, g, b;
+
+			r = g = b = 20;
+
+			float temp = temperature;
+
+			if (temperature >= tempMiddle)
+			{
+				r = 255 * (int)(1.0 - (std::abs(temperature - tempHighest) / (temperature + tempHighest)));
+				if (r > 255)
+					r = 255;
+			}
+			else
+			{
+				b = 255 * (int)(std::abs(temperature - tempLowest) / (temperature + tempLowest));
+				if (b > 255)
+					b = 255;
+			}
+
+			SDL_SetRenderDrawColor(mainRenderer, r, g, b, 0);
+			SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
+		}
 }
 
 bool Particle::HandleEvents()
