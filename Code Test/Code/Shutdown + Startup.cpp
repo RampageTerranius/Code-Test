@@ -2,7 +2,6 @@
 
 #include <string>
 
-
 //sdl
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -47,6 +46,8 @@ bool Setup()
 	Uint32 windowFlags = SDL_WINDOW_OPENGL;
 	mainWindow = SDL_CreateWindow(PROGRAM_NAME.c_str(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windowFlags);
 
+	mainSurface = SDL_GetWindowSurface(mainWindow);
+
 	Uint32 renderFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
 	mainRenderer = SDL_CreateRenderer(mainWindow, -1, renderFlags);
 
@@ -83,8 +84,16 @@ bool Setup()
 		return false;
 	}
 
-	//reserve the particlelist vector to the size of the screen
-	particleList.reserve(WINDOW_HEIGHT * WINDOW_WIDTH);
+	// Prepare the 2d vector or particles used to keep track of all particles.
+	//allParticles.resize(WINDOW_WIDTH);
+	//for (int i = 0; i < WINDOW_WIDTH; ++i)
+		//allParticles[i].resize(WINDOW_HEIGHT);
+
+	// SPEED TESTING LINES
+	// DISABLE THESE IF NOT SPEED TESTING
+	for (int i = 0; i < WINDOW_WIDTH; i++)
+		for (int n = 0; n < (WINDOW_HEIGHT / 2); n++)
+			CreateParticle(TYPE_SAND, i, n, 30);
 
 	return true;
 }
@@ -114,8 +123,10 @@ void Shutdown()
 	selectedParticleName.Clear();
 	currentFrameRate.Clear();
 
-	//destroy the texture used for drawing particles
-	SDL_DestroyTexture(pixelTexture);
+	//destroy the surface used for drawing particles
+	SDL_FreeSurface(mainSurface);
+	mainSurface = nullptr;
+
 
 	SDL_Quit();
 }

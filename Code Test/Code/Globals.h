@@ -8,39 +8,30 @@
 
 #include "ParticleTypes.h"
 #include "TTF.h"
-#include "mouse.h"
-#include "keyboard.h"
 
 //used to determine default screen size
 #define WINDOW_WIDTH 1024
 #define WINDOW_HEIGHT 768
 
-class Particle;
-
-
 //global variables
 extern const std::string PROGRAM_NAME;
+
+extern int frameRateLimit;
 
 //used to determine default screen size
 
 extern const int MAX_BRUSH_SIZE;//the total largest size the brush may be
 
-//sdl window and renderer
+//sdl window, renderer and pixel surface
 extern SDL_Window* mainWindow;
 extern SDL_Renderer* mainRenderer;
-
-//main texture used for drawing pixels to screen
-extern SDL_Texture* pixelTexture;
+extern SDL_Surface* mainSurface;
 
 extern float avgFPS;
 
 extern int currentBrushTemperature;//changing this will change the default brush temperature
 extern ParticleType currentBrushType;
 extern int currentBrushSize;
-
-//array and vector list handling all data to do with our entities
-extern Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
-extern std::vector<Particle*> particleList;
 
 extern int countedFrames;
 extern bool running;
@@ -64,6 +55,8 @@ extern float settingThermalConductivity[TYPE_TOTALTYPES];
 //format is R, G, B, A
 extern int settingColor[TYPE_TOTALTYPES][4];
 
+extern int settingFlammability[TYPE_TOTALTYPES];
+
 //other settings
 //freeze/melt/boil points
 extern float waterFreezePoint;
@@ -74,7 +67,7 @@ extern float saltWaterEventTempMultiplier;//a value of 1.1 would give a 10% incr
 extern float lavaSolidifyTemp;
 
 //randomised event chances
-extern int acidDamageChance;;//higher number means lower chance (calculated as (1 / acidDamageChance) meaning if chance was 10 there is a 1 in 10 chance per tick to damage a block)
+extern int acidDamageChance;//higher number means lower chance (calculated as (1 / acidDamageChance) meaning if chance was 10 there is a 1 in 10 chance per tick to damage a block)
 extern int plantSpreadChance;//higher number means lower chance (calculated as (1 / plantSpreadChance) meaning if chance was 10 there is a 1 in 10 chance per tick to spread plant through a water block)
 extern int glitchSpreadChance;
 
@@ -89,6 +82,21 @@ extern int fireAscendRate;
 extern int fireDescendRate;
 extern int fireSidewardsRate;
 extern int fireNoMovementRate;
+//gas
+extern int gasAscendRate;
+extern int gasDescendRate;
+extern int gasSidewardsRate;
+extern int gasNoMovementRate;
+//light gas
+extern int lightGasAscendRate;
+extern int lightGasDescendRate;
+extern int lightGasSidewardsRate;
+extern int lightGasNoMovementRate;
+//heavy gas
+extern int heavyGasAscendRate;
+extern int heavyGasDescendRate;
+extern int heavyGasSidewardsRate;
+extern int heavyGasNoMovementRate;
 
 
 //affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles
@@ -103,6 +111,3 @@ extern TTF brushTemperature;
 extern TTF selectedParticleTemperature;
 extern TTF selectedParticleName;
 extern TTF currentFrameRate;
-
-extern Mouse mouse;
-extern Keyboard keyboard;

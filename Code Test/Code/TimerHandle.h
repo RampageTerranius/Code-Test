@@ -13,8 +13,7 @@ class Timer
 		void Stop();
 		void Pause();
 		void Unpause();
-		int GetTicks();
-		
+		int GetTicks();		
 
 	private:
 		Uint32 startTick = 0;

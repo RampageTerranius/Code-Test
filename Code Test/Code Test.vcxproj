@@ -36,7 +36,9 @@
     <ClCompile Include="Code\EntityHandle.cpp" />
     <ClCompile Include="Code\EventHandle.cpp" />
     <ClCompile Include="Code\Globals.cpp" />
+    <ClCompile Include="Code\keyboard.cpp" />
     <ClCompile Include="Code\Main.cpp" />
+    <ClCompile Include="Code\mouse.cpp" />
     <ClCompile Include="Code\Particles.cpp" />
     <ClCompile Include="Code\Render.cpp" />
     <ClCompile Include="Code\Shutdown + Startup.cpp" />

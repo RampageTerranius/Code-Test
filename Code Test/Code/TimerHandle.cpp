@@ -66,4 +66,14 @@ void TimerHandle(Timer* cap, Timer* fps)
 	avgFPS = countedFrames / (fps->GetTicks() / 1000.f);
 	if (avgFPS > 2000000)
 		avgFPS = 0;
+
+	if (frameRateLimit > 0)
+	{
+		int frameTicks = cap->GetTicks();
+		if (frameTicks < (1000 / frameRateLimit))
+		{
+			//Wait remaining time
+			SDL_Delay((1000 / frameRateLimit) - frameTicks);
+		}
+	}
 }

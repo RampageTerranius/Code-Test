@@ -1,18 +1,26 @@
 #include "Render.h"
 
+#include "TTF.h"
+#include "Globals.h"
+
 //sdl
 #include <SDL.h>
 
 #include "Particles.h"
+#include "Mouse.h"
+
 void Render()
 {
-	//reset renderer
-	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
-	SDL_RenderClear(mainRenderer);
+	// Lock the main surface for direct editing.
+	SDL_LockSurface(mainSurface);
 
-	//render all particles	
-	for (Particle* i : particleList)
+	// Set the surface to black.
+	SDL_FillRect(mainSurface, nullptr, 0x000000);
+
+	// render all particles.
+	for (Node* node = particleList.front; node != nullptr; node = node->next)
 	{
+		Particle* i = allParticles[node->x][node->y];
 		if (drawHeat)
 		{
 			float tempHighest = 80;
@@ -43,9 +51,11 @@ void Render()
 		}
 		else
 			i->Draw();
-
 	}
 
+	SDL_Texture* pixelTexture = SDL_CreateTextureFromSurface(mainRenderer, mainSurface);
+	SDL_RenderCopy(mainRenderer, pixelTexture, nullptr, nullptr);
+	
 	//render a box showing the brush location
 	if (renderBrush)
 	{
@@ -73,8 +83,7 @@ void Render()
 		}
 	}
 
-	//render what type of brush is selected at the top left
-
+	//render what type of brush is selected at the top left	
 	if (!createAsSource)
 		brushName.SetText(mainRenderer, typeNames[currentBrushType]);
 	else
@@ -118,8 +127,11 @@ void Render()
 	currentFrameRate.Draw(mainRenderer, 20, WINDOW_HEIGHT - 34);
 
 	//render the frame and increase the counter frames
-	SDL_RenderPresent(mainRenderer);
-	countedFrames++;
+	SDL_UnlockSurface(mainSurface);
 
+	std::cout << avgFPS << "\n";
 	
+
+	SDL_RenderPresent(mainRenderer);
+	countedFrames++;	
 }

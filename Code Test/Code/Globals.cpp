@@ -3,6 +3,8 @@
 //global variables
 const std::string PROGRAM_NAME = "Falling Sand";
 
+int frameRateLimit = 60;
+
 //used to determine default screen size
 
 const int MAX_BRUSH_SIZE = 32;//the total largest size the brush may be
@@ -10,6 +12,7 @@ const int MAX_BRUSH_SIZE = 32;//the total largest size the brush may be
 //sdl window and renderer
 SDL_Window* mainWindow = nullptr;
 SDL_Renderer* mainRenderer = nullptr;
+SDL_Surface* mainSurface = nullptr;
 
 //main texture used for drawing pixels to screen
 SDL_Texture* pixelTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -19,10 +22,6 @@ float avgFPS = 0;
 int currentBrushTemperature = 20;//changing this will change the default brush temperature
 ParticleType currentBrushType = TYPE_SAND;
 int currentBrushSize = 4;
-
-//array and vector list handling all data to do with our entities
-Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
-std::vector<Particle*> particleList;
 
 int countedFrames = 0;
 bool running = false;
@@ -69,6 +68,12 @@ int settingWeight[TYPE_TOTALTYPES]
 	7,
 	//fire
 	-1,
+	//gas
+	5,
+	//light gas
+	3,
+	//heavy gas
+	7,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -108,6 +113,12 @@ int settingHealth[TYPE_TOTALTYPES]
 	100,
 	//fire(loses health per tick)
 	300,
+	//gas
+	50,
+	//light gas
+	50,
+	//heavy gas
+	50,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -146,6 +157,12 @@ float settingThermalConductivity[TYPE_TOTALTYPES]
 	0.005f,
 	//fire
 	0.1f,
+	//gas
+	0.01f,
+	//light gas
+	0.01f,
+	//heavy gas
+	0.01f,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -185,7 +202,57 @@ int settingColor[TYPE_TOTALTYPES][4]
 	//lava
 	{255, 153, 51, 0},
 	//fire
-	{255, 20, 20, 0}
+	{255, 20, 20, 0},
+	//gas
+	{150, 20, 150, 0},
+	//light gas
+	{160, 40, 160, 0},
+	//heavy gas
+	{170, 60, 170, 0}
+};
+
+int settingFlammability[TYPE_TOTALTYPES]
+{
+	//Wall
+	0,
+	//Sand
+	0,
+	//Water
+	0,
+	//Ice
+	0,
+	//Thermal
+	50,
+	//Acid
+	0,
+	//Steam
+	0,
+	//plant
+	8,
+	//salt
+	0,
+	//salt water
+	0,
+	//salt ice,
+	0,
+	//glitch
+	0,
+	//stone
+	0,
+	//lava
+	0,
+	//fire
+	0,
+	//gas
+	2,
+	//light gas
+	2,
+	//heavy gas
+	2,
+
+	//the following must ALWAYS be at the end
+	//source
+	-1
 };
 
 //other settings
@@ -204,7 +271,7 @@ int glitchSpreadChance = 120;
 
 //airborn particle movement rates
 //steam
-int steamAscendRate = 8;
+int steamAscendRate = 6;
 int steamDescendRate = 0;
 int steamSidewardsRate = 2;
 int steamNoMovementRate = 1;
@@ -213,6 +280,21 @@ int fireAscendRate = 8;
 int fireDescendRate = 0;
 int fireSidewardsRate = 1;
 int fireNoMovementRate = 0;
+//gas
+int gasAscendRate = 4;
+int gasDescendRate = 1;
+int gasSidewardsRate = 2;
+int gasNoMovementRate = 1;
+//heavy gas
+int heavyGasAscendRate = 1;
+int heavyGasDescendRate = 6;
+int heavyGasSidewardsRate = 2;
+int heavyGasNoMovementRate = 1;
+//light gas
+int lightGasAscendRate = 10;
+int lightGasDescendRate = 1;
+int lightGasSidewardsRate = 4;
+int lightGasNoMovementRate = 1;
 
 
 //affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles
@@ -227,6 +309,3 @@ TTF brushTemperature = TTF();
 TTF selectedParticleTemperature = TTF();
 TTF selectedParticleName = TTF();
 TTF currentFrameRate = TTF();
-
-Mouse mouse = Mouse();
-Keyboard keyboard = Keyboard();

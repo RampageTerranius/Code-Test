@@ -1,17 +1,153 @@
 #include "Particles.h"
 
+void EditPixel(int x, int y, Uint32 pixel)
+{
+	int bpp = mainSurface->format->BytesPerPixel;
+	/* Here p is the address to the pixel we want to set */
+	Uint8* p = (Uint8*)mainSurface->pixels + y * mainSurface->pitch + x * bpp;
+
+	switch (bpp) {
+	case 1:
+		*p = pixel;
+		break;
+
+	case 2:
+		*(Uint16*)p = pixel;
+		break;
+
+	case 3:
+		if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+			p[0] = (pixel >> 16) & 0xff;
+			p[1] = (pixel >> 8) & 0xff;
+			p[2] = pixel & 0xff;
+		}
+		else {
+			p[0] = pixel & 0xff;
+			p[1] = (pixel >> 8) & 0xff;
+			p[2] = (pixel >> 16) & 0xff;
+		}
+		break;
+
+	case 4:
+		*(Uint32*)p = pixel;
+		break;
+	}
+}
+
+Node::Node(int newX, int newY)
+{
+	x = newX;
+	y = newY;
+
+	next = nullptr;
+	last = nullptr;
+}
+
+Node* LinkedList::Add(int x, int y)
+{
+	// The front is empty.
+	if (front == nullptr)
+	{
+		front = new Node(x, y);
+		return front;
+	}
+	// The front is not empty BUT the back is.
+	else if (back == nullptr)
+	{
+		back = new Node(x, y);
+
+		front->next = back;
+		back->last = front;
+
+		return back;
+	}
+	//There is a front and a back.
+	else
+	{
+		Node* tempNode = new Node(x, y);
+
+		tempNode->last = back;
+		back->next = tempNode;
+
+		back = tempNode;
+
+		return tempNode;
+	}
+}
+
+void LinkedList::Remove(Node* node)
+{
+	// Check if the node we want to remove is the LAST one.
+	if (node == back)
+	{
+		// Check if we only have two nodes.
+		if (front->next == back)
+		{
+			front->next = nullptr;
+			back = nullptr;
+			delete node;
+		}
+		// Other wise we MUST have three or more nodes.
+		else
+		{
+			back = back->last;
+			back->next = nullptr;
+			delete node;
+		}
+	}
+	// Check if the node we want to remove is the first
+	else if (node == front)
+	{
+		// Check if we are the only node.
+		if (back == nullptr)
+		{
+			front = nullptr;
+			delete node;
+		}
+		// Check if there is only two nodes.
+		else if (front->next == back)
+		{
+			front = front->next;
+			front->last = nullptr;
+			back = nullptr;
+			delete node;
+		}
+		// Other wise we MUST have three or more nodes.
+		else
+		{
+			front = front->next;
+			front->last = nullptr;
+			delete node;
+		}
+	}
+	// Other wise we are working with a node inbetween front and back.
+	else
+	{
+		Node* lastNode = node->last;
+		Node* nextNode = node->next;
+		lastNode->next = nextNode;
+		nextNode->last = lastNode;
+
+		delete node;
+	}
+}
+
+Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
+LinkedList particleList = LinkedList();
+
 void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 {
-	//check that we have no entity in this section to begin with
-	if (allParticles[x][y] != nullptr)
-	{
-		std::cout << "Attempt to create a particle of type " + typeNames[type] + " at " + std::to_string(x) + "|" + std::to_string(y) + " when a particle already exists here of type " + typeNames[allParticles[x][y]->type] + "\n";
-		return;
-	}
-
 	//make sure were not trying to create an entity off screen
 	if (x < 0 || x > WINDOW_WIDTH - 1 || y < 0 || y > WINDOW_HEIGHT - 1)
 		return;
+
+	//check that we have no entity in this section to begin with
+	if (allParticles[x][y] != nullptr)
+	{
+		// NOTE: these debug options cause MAJOR lag when adding particles, do nto use htem unless absolutely needed.
+		//std::cout << "Attempt to create a particle of type " + typeNames[type] + " at " + std::to_string(x) + "|" + std::to_string(y) + " when a particle already exists here of type " + typeNames[allParticles[x][y]->type] + "\n";
+		return;
+	}	
 
 	//check what type of entity we need to create and assign it the required data as well as update the entityexists list
 	if (!asSource)
@@ -20,88 +156,104 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 		{
 		case TYPE_WALL:
 			allParticles[x][y] = new Wall(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_SAND:
 			allParticles[x][y] = new Sand(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_WATER:
 			allParticles[x][y] = new Water(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_ICE:
 			allParticles[x][y] = new Ice(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_THERMALFLUID:
 			allParticles[x][y] = new ThermalFluid(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_ACID:
 			allParticles[x][y] = new Acid(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_STEAM:
 			allParticles[x][y] = new Steam(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_PLANT:
 			allParticles[x][y] = new Plant(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_SALT:
 			allParticles[x][y] = new Salt(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_SALTWATER:
 			allParticles[x][y] = new SaltWater(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_SALTICE:
 			allParticles[x][y] = new SaltIce(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_GLITCH:
 			allParticles[x][y] = new Glitch(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_STONE:
 			allParticles[x][y] = new Stone(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_LAVA:
 			allParticles[x][y] = new Lava(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_FIRE:
 			allParticles[x][y] = new Fire(x, y, temp);
-			particleList.emplace_back(allParticles[x][y]);
+			allParticles[x][y]->node = particleList.Add(x, y);
+			return;
+
+		case TYPE_GAS:
+			allParticles[x][y] = new Gas(x, y, temp);
+			allParticles[x][y]->node = particleList.Add(x, y);
+			return;
+
+		case TYPE_LIGHTGAS:
+			allParticles[x][y] = new LightGas(x, y, temp);
+			allParticles[x][y]->node = particleList.Add(x, y);
+			return;
+
+		case TYPE_HEAVYGAS:
+			allParticles[x][y] = new HeavyGas(x, y, temp);
+			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		default:
-			std::cout << "Attempt to create a unknown particle type at " + std::to_string(x) + "|" + std::to_string(y) + "\n";
+			// NOTE: these debug options cause MAJOR lag when adding particles, do nto use htem unless absolutely needed.
+			//std::cout << "Attempt to create a unknown particle type at " + std::to_string(x) + "|" + std::to_string(y) + "\n";
 			break;
 		}
 	}
 	else
 	{
 		allParticles[x][y] = new Source(type, x, y, temp);
-		particleList.emplace_back(allParticles[x][y]);
+		allParticles[x][y]->node = particleList.Add(x, y);
 		return;
 	}
 }
@@ -119,25 +271,9 @@ void DestroyParticle(int x, int y)
 	if (allParticles[x][y] == nullptr)
 		return;
 
-	//iterate through all particles in the list
-	for (size_t i = 0; i < particleList.size() - 1; i++)
-	{
-		int tempX, tempY;
-		tempX = particleList[i]->point.x;
-		tempY = particleList[i]->point.y;
-		//if the x/y are the same wipe the particle
-		if (tempX == x && tempY == y)
-		{
-			//clear the vector first
-			particleList.erase(particleList.begin() + i);
-
-			//make sure we COMPLETELY wipe the particle, the particle was made by hand via new Particle() and therefore we MUST handle the deletion manually		
-			delete allParticles[tempX][tempY];
-			allParticles[tempX][tempY] = nullptr;
-
-			return;
-		}
-	}
+	particleList.Remove(allParticles[x][y]->node);	
+	delete allParticles[x][y];	
+	allParticles[x][y] = nullptr;
 }
 
 //used to move pointers of particles around
@@ -149,15 +285,22 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 	//update the internal location data for the first point now that its been moved
 	if (allParticles[x2][y2] != nullptr)
 	{
-		allParticles[x2][y2]->point.y = y2;
 		allParticles[x2][y2]->point.x = x2;
+		allParticles[x2][y2]->point.y = y2;
+
+		allParticles[x2][y2]->node->x = x2;
+		allParticles[x2][y2]->node->y = y2;
+
 	}
 
 	//update the internal location data for the second point now that its been moved
 	if (allParticles[x1][y1] != nullptr)
 	{
-		allParticles[x1][y1]->point.y = y1;
 		allParticles[x1][y1]->point.x = x1;
+		allParticles[x1][y1]->point.y = y1;
+
+		allParticles[x1][y1]->node->x = x1;
+		allParticles[x1][y1]->node->y = y1;
 	}
 }
 
@@ -302,8 +445,8 @@ void Particle::Reset()
 //default draw code
 void Particle::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, settingColor[type][0], settingColor[type][1], settingColor[type][2], settingColor[type][3]);
-	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
+	// Get pixel data.
+	EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, settingColor[type][0], settingColor[type][1], settingColor[type][2], settingColor[type][3]));
 }
 
 bool Particle::HandleEvents()
@@ -738,50 +881,48 @@ void Airborn::HandlePhysics()
 	right++;
 
 	//check what way we want to move first
-	int randomNum = rand() % (steamAscendRate + steamDescendRate + steamSidewardsRate + steamNoMovementRate);
+	int randomNum = rand() % (ascendRate + descendRate + sidewardsRate + noMovementRate);
 
 	//check if should ascend
-	if (randomNum < steamAscendRate)
+	if (randomNum < ascendRate)
 	{
 		//check if we are at the top of the screen and if we can loop around
-		if (CheckIfAtTop())
-			return;
-
-		AscendParticle(point.x, point.y, false);
+		if (!CheckIfAtTop())
+			AscendParticle(point.x, point.y, false);
 	}
 	//check if should descend
-	else if (randomNum < (steamAscendRate + steamDescendRate))
+	else if (randomNum < (ascendRate + descendRate))
 	{
 		//check if we are at the top of the screen and if we can loop around
-		if (CheckIfAtBottom())
-			return;
-
-		DropParticle(point.x, point.y, false);
+		if (!CheckIfAtBottom())
+			DropParticle(point.x, point.y, false);
 	}
 	//chck if should go left or right
-	else if (randomNum < (steamAscendRate + steamDescendRate + steamSidewardsRate))
+	else if (randomNum < (ascendRate + descendRate + sidewardsRate))
 	{
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
 
 		//check if we are surrounded
-		if (allParticles[left][point.y] == nullptr)
-			canGoLeft = true;
-		else
-		{
-			if (allParticles[left][point.y]->weight != -1)
-				if (allParticles[point.x][point.y]->weight < allParticles[left][point.y]->weight)
-					canGoLeft = true;
-		}
+		if (left >= 0)
+			if (allParticles[left][point.y] == nullptr)
+				canGoLeft = true;
+			else
+			{
+				if (allParticles[left][point.y]->weight != -1)
+					if (allParticles[point.x][point.y]->weight < allParticles[left][point.y]->weight)
+						canGoLeft = true;
+			}
 
-		if (allParticles[right][point.y] == nullptr)
-			canGoRight = true;
-		else
-		{
-			if (allParticles[right][point.y]->weight != -1)
-				if (allParticles[point.x][point.y]->weight < allParticles[right][point.y]->weight)
-					canGoRight = true;
-		}	
+		if (right <= (WINDOW_WIDTH - 1))
+			if (allParticles[right][point.y] == nullptr)
+				canGoRight = true;
+			else
+			{
+				if (allParticles[right][point.y]->weight != -1)
+					if (allParticles[point.x][point.y]->weight < allParticles[right][point.y]->weight)
+						canGoRight = true;
+			}	
 
 		//can go either way
 		if (canGoLeft && canGoRight)
@@ -1302,8 +1443,7 @@ Source::Source(ParticleType newSourceType, int newX, int newY, float newTemperat
 }
 void Source::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, settingColor[sourceType][0], settingColor[sourceType][1], settingColor[sourceType][2], settingColor[sourceType][3]);
-	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
+	EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, settingColor[sourceType][0], settingColor[sourceType][1], settingColor[sourceType][2], settingColor[sourceType][3]));
 }
 
 bool Source::HandleEvents()
@@ -1373,11 +1513,11 @@ bool Glitch::HandleEvents()
 	if (up >= 0)
 		if (allParticles[point.x][up] == nullptr)
 		{
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
 		}
 		else if (allParticles[point.x][up]->type != TYPE_GLITCH)
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 			{
 				DestroyParticle(point.x, up);
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
@@ -1386,11 +1526,11 @@ bool Glitch::HandleEvents()
 	if (down <= WINDOW_HEIGHT - 1)
 		if (allParticles[point.x][down] == nullptr)
 		{
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
 		}
 		else if (allParticles[point.x][down]->type != TYPE_GLITCH)
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 			{
 				DestroyParticle(point.x, down);
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
@@ -1399,11 +1539,11 @@ bool Glitch::HandleEvents()
 	if (left >= 0)
 		if (allParticles[left][point.y] == nullptr)
 		{
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
 		}
 		else if (allParticles[left][point.y]->type != TYPE_GLITCH)
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 			{
 				DestroyParticle(left, point.y);
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
@@ -1412,11 +1552,11 @@ bool Glitch::HandleEvents()
 	if (right <= WINDOW_WIDTH - 1)
 		if (allParticles[right][point.y] == nullptr)
 		{
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
 		}
 		else if (allParticles[right][point.y]->type != TYPE_GLITCH)
-			if ((rand() % glitchSpreadChance) - 1 == 0)
+			if ((rand() % glitchSpreadChance) == 0)
 			{
 				DestroyParticle(right, point.y);
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
@@ -1489,5 +1629,167 @@ bool Fire::HandleEvents()
 	if (Particle::HandleEvents())
 		return true;
 
+	// Check all surrounding particles and attempt to change them to fire.
+
+	int up, down, left, right;
+	up = down = point.y;
+	left = right = point.x;
+	up--;
+	down++;
+	left--;
+	right++;
+
+	if (up >= 0)
+		if (allParticles[point.x][up] != nullptr)		
+			if (settingFlammability[allParticles[point.x][up]->type] > 0)
+				if (settingFlammability[allParticles[point.x][up]->type] == 1)
+				{
+					int newHealth = allParticles[point.x][up]->health;
+					int newX = point.x;
+					int newY = up;
+					float newTemp = temperature;
+
+					DestroyParticle(point.x, up);
+
+					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+					allParticles[point.x][up]->health = newHealth;
+				}
+				else
+				{
+					int rando = rand() % settingFlammability[allParticles[point.x][up]->type];
+
+					if (rando == 0)
+					{
+						int newHealth = allParticles[point.x][up]->health;
+						int newX = point.x;
+						int newY = up;
+						float newTemp = temperature;
+
+						DestroyParticle(point.x, up);
+
+						CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+						allParticles[point.x][up]->health = newHealth;
+					}
+				}		
+
+	if (down <= WINDOW_HEIGHT - 1)
+		if (allParticles[point.x][down] != nullptr)
+			if (settingFlammability[allParticles[point.x][down]->type] > 0)
+				if (settingFlammability[allParticles[point.x][down]->type] == 1)
+				{
+					int newHealth = allParticles[point.x][down]->health;
+					int newX = point.x;
+					int newY = down;
+					float newTemp = temperature;
+
+					DestroyParticle(point.x, down);
+
+					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+					allParticles[point.x][down]->health = newHealth;
+				}
+				else
+				{
+					int rando = rand() % settingFlammability[allParticles[point.x][down]->type];
+
+					if (rando == 0)
+					{
+						int newHealth = allParticles[point.x][down]->health;
+						int newX = point.x;
+						int newY = down;
+						float newTemp = temperature;
+
+						DestroyParticle(point.x, down);
+
+						CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+						allParticles[point.x][down]->health = newHealth;
+					}
+				}
+
+	if (left >= 0)
+		if (allParticles[left][point.y] != nullptr)
+			if (settingFlammability[allParticles[left][point.y]->type] > 0)
+				if (settingFlammability[allParticles[left][point.y]->type] == 1)
+				{
+					int newHealth = allParticles[left][point.y]->health;
+					int newX = left;
+					int newY = point.y;
+					float newTemp = temperature;
+
+					DestroyParticle(left, point.y);
+
+					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+					allParticles[left][point.y]->health = newHealth;
+				}
+				else
+				{
+					int rando = rand() % settingFlammability[allParticles[left][point.y]->type];
+
+					if (rando == 0)
+					{
+						int newHealth = allParticles[left][point.y]->health;
+						int newX = left;
+						int newY = point.y;
+						float newTemp = temperature;
+
+						DestroyParticle(left, point.y);
+
+						CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+						allParticles[left][point.y]->health = newHealth;
+					}
+				}		
+
+	if (right <= WINDOW_WIDTH - 1)
+		if (allParticles[right][point.y] != nullptr)
+			if (settingFlammability[allParticles[right][point.y]->type] > 0)
+				if (settingFlammability[allParticles[right][point.y]->type] == 1)
+				{
+					int newHealth = allParticles[right][point.y]->health;
+					int newX = right;
+					int newY = point.y;
+					float newTemp = temperature;
+
+					DestroyParticle(right, point.y);
+
+					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+					allParticles[right][point.y]->health = newHealth;
+				}
+				else
+				{
+					int rando = rand() % settingFlammability[allParticles[right][point.y]->type];
+
+					if (rando == 0)
+					{
+						int newHealth = allParticles[right][point.y]->health;
+						int newX = right;
+						int newY = point.y;
+						float newTemp = temperature;
+
+						DestroyParticle(right, point.y);
+
+						CreateParticle(TYPE_FIRE, newX, newY, newTemp);
+
+						allParticles[right][point.y]->health = newHealth;
+					}
+				}
+
 	return false;
+}
+
+Gas::Gas(int newX, int newY, float newTemperature) : Airborn(TYPE_GAS, gasAscendRate, gasDescendRate, gasSidewardsRate, gasNoMovementRate, newX, newY, newTemperature)
+{
+}
+
+LightGas::LightGas(int newX, int newY, float newTemperature) : Airborn(TYPE_LIGHTGAS, lightGasAscendRate, lightGasDescendRate, lightGasSidewardsRate, lightGasNoMovementRate, newX, newY, newTemperature)
+{
+}
+
+HeavyGas::HeavyGas(int newX, int newY, float newTemperature) : Airborn(TYPE_HEAVYGAS, heavyGasAscendRate, heavyGasDescendRate, heavyGasSidewardsRate, heavyGasNoMovementRate, newX, newY, newTemperature)
+{
 }
