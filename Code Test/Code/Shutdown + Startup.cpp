@@ -127,6 +127,5 @@ void Shutdown()
 	SDL_FreeSurface(mainSurface);
 	mainSurface = nullptr;
 
-
 	SDL_Quit();
 }

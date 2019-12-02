@@ -55,7 +55,6 @@ class Particle
 };
 
 extern Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
-extern LinkedList particleList;
 
 class SolidImmobile : public Particle
 {

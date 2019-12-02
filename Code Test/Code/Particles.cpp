@@ -34,106 +34,7 @@ void EditPixel(int x, int y, Uint32 pixel)
 	}
 }
 
-Node::Node(int newX, int newY)
-{
-	x = newX;
-	y = newY;
-
-	next = nullptr;
-	last = nullptr;
-}
-
-Node* LinkedList::Add(int x, int y)
-{
-	// The front is empty.
-	if (front == nullptr)
-	{
-		front = new Node(x, y);
-		return front;
-	}
-	// The front is not empty BUT the back is.
-	else if (back == nullptr)
-	{
-		back = new Node(x, y);
-
-		front->next = back;
-		back->last = front;
-
-		return back;
-	}
-	//There is a front and a back.
-	else
-	{
-		Node* tempNode = new Node(x, y);
-
-		tempNode->last = back;
-		back->next = tempNode;
-
-		back = tempNode;
-
-		return tempNode;
-	}
-}
-
-void LinkedList::Remove(Node* node)
-{
-	// Check if the node we want to remove is the LAST one.
-	if (node == back)
-	{
-		// Check if we only have two nodes.
-		if (front->next == back)
-		{
-			front->next = nullptr;
-			back = nullptr;
-			delete node;
-		}
-		// Other wise we MUST have three or more nodes.
-		else
-		{
-			back = back->last;
-			back->next = nullptr;
-			delete node;
-		}
-	}
-	// Check if the node we want to remove is the first
-	else if (node == front)
-	{
-		// Check if we are the only node.
-		if (back == nullptr)
-		{
-			front = nullptr;
-			delete node;
-		}
-		// Check if there is only two nodes.
-		else if (front->next == back)
-		{
-			front = front->next;
-			front->last = nullptr;
-			back = nullptr;
-			delete node;
-		}
-		// Other wise we MUST have three or more nodes.
-		else
-		{
-			front = front->next;
-			front->last = nullptr;
-			delete node;
-		}
-	}
-	// Other wise we are working with a node inbetween front and back.
-	else
-	{
-		Node* lastNode = node->last;
-		Node* nextNode = node->next;
-		lastNode->next = nextNode;
-		nextNode->last = lastNode;
-
-		delete node;
-	}
-}
-
 Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
-LinkedList particleList = LinkedList();
 
 void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 {
@@ -156,92 +57,74 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 		{
 		case TYPE_WALL:
 			allParticles[x][y] = new Wall(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_SAND:
 			allParticles[x][y] = new Sand(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_WATER:
 			allParticles[x][y] = new Water(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_ICE:
 			allParticles[x][y] = new Ice(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_THERMALFLUID:
 			allParticles[x][y] = new ThermalFluid(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_ACID:
 			allParticles[x][y] = new Acid(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_STEAM:
 			allParticles[x][y] = new Steam(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_PLANT:
 			allParticles[x][y] = new Plant(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_SALT:
 			allParticles[x][y] = new Salt(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_SALTWATER:
 			allParticles[x][y] = new SaltWater(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_SALTICE:
 			allParticles[x][y] = new SaltIce(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_GLITCH:
 			allParticles[x][y] = new Glitch(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_STONE:
 			allParticles[x][y] = new Stone(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_LAVA:
 			allParticles[x][y] = new Lava(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_FIRE:
 			allParticles[x][y] = new Fire(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_GAS:
 			allParticles[x][y] = new Gas(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_LIGHTGAS:
 			allParticles[x][y] = new LightGas(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		case TYPE_HEAVYGAS:
 			allParticles[x][y] = new HeavyGas(x, y, temp);
-			allParticles[x][y]->node = particleList.Add(x, y);
 			return;
 
 		default:
@@ -253,7 +136,6 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 	else
 	{
 		allParticles[x][y] = new Source(type, x, y, temp);
-		allParticles[x][y]->node = particleList.Add(x, y);
 		return;
 	}
 }
@@ -271,7 +153,6 @@ void DestroyParticle(int x, int y)
 	if (allParticles[x][y] == nullptr)
 		return;
 
-	particleList.Remove(allParticles[x][y]->node);	
 	delete allParticles[x][y];	
 	allParticles[x][y] = nullptr;
 }

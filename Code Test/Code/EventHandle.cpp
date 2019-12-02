@@ -248,10 +248,6 @@ void CreateParticlesAtBrush(ParticleType type, int x, int y, float temperature)
 
 void DestroyParticlesAtBrush(int x, int y)
 {
-	//make sure we actually have a list first
-	if (particleList.front == nullptr)
-		return;
-
 	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
 	if (currentBrushSize == 1)
 		DestroyParticle(mouse.x, mouse.y);
