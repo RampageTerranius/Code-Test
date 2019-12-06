@@ -50,6 +50,7 @@ class Particle
 		float temperature;
 		float thermalConductivity;
 		ParticleType type;
+		bool locked;
 
 		Node* node;
 };

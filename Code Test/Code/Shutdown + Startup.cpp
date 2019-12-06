@@ -90,10 +90,10 @@ bool Setup()
 		//allParticles[i].resize(WINDOW_HEIGHT);
 
 	// SPEED TESTING LINES
-	// DISABLE THESE IF NOT SPEED TESTING
-	for (int i = 0; i < WINDOW_WIDTH; i++)
-		for (int n = 0; n < (WINDOW_HEIGHT / 2); n++)
-			CreateParticle(TYPE_SAND, i, n, 30);
+	if (speedTest)
+		for (int i = 0; i < WINDOW_WIDTH; i++)
+			for (int n = 0; n < (WINDOW_HEIGHT / 2); n++)
+				CreateParticle(TYPE_SAND, i, n, 30);
 
 	return true;
 }

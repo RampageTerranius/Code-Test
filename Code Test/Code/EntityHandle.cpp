@@ -6,11 +6,13 @@ void EntityHandle()
 {
 	if (!pauseParticles)
 	{
+		// Handling particle events.
 		for (Node* node = particleList.front; node != nullptr; node = node->next)
 			allParticles[node->x][node->y]->HandleEvents();
 
-		//handling entities
-		for (Node* node = particleList.front; node != nullptr; node = node->next)		
+		// Handling physics.
+		for (Node* node = particleList.front; node != nullptr; node = node->next)	
+			if (!allParticles[node->x][node->y]->locked)
 				allParticles[node->x][node->y]->HandlePhysics();		
 	}
 }

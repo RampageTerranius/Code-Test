@@ -2,13 +2,13 @@
 
 int main(int argc, char* argv[])
 {
-	//run setup and check that it was sucessful
+	// Run setup and check that it was sucessful.
 	running = Setup();
 
-	//handles all input given by the user
+	// Handles all input given by the user.
 	SDL_Event event;
 
-	//timers for handling fps
+	// Timers for handling fps.
 	Timer capTimer;
 	Timer fpsTimer;	
 
@@ -16,21 +16,23 @@ int main(int argc, char* argv[])
 
 	while(running)
 	{
+		// Restart the fps cap timer.
 		capTimer.Start();
 
-		//handle any input from the user
+		// Handle any input from the user.
 		EventHandle(event);
 
-		//handle all entitys gravity/movement etc
+		// Handle all entitys gravity/movement etc.
 		EntityHandle();
 
-		//render the current scene
+		// Render the current scene.
 		Render();
 
-		//check timer and make sure to keep the engien running at the correct fps
+		// Check timer and make sure to keep the engien running at the correct fps.
 		TimerHandle(&capTimer, &fpsTimer);
 	}	
 	
+	// Shutdown the engine and cleanup data.
 	Shutdown();
 
 	return 1;

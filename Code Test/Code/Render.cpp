@@ -129,9 +129,9 @@ void Render()
 	//render the frame and increase the counter frames
 	SDL_UnlockSurface(mainSurface);
 
-	std::cout << avgFPS << "\n";
-	
-
 	SDL_RenderPresent(mainRenderer);
 	countedFrames++;	
+
+	if (countedFrames % 4 == 0)// Only show fps every 4th frame.
+		std::cout << avgFPS << "\n";
 }

@@ -4,6 +4,7 @@
 const std::string PROGRAM_NAME = "Falling Sand";
 
 int frameRateLimit = 60;
+bool speedTest = true;// if true will spawn half the screen full of sand to test frame rate.
 
 //used to determine default screen size
 
@@ -29,7 +30,7 @@ bool running = false;
 //ingame settings, these are the default settings for the given options
 
 bool drawHeat = false;//when true will render particles color via heat instead of handing off draw fucntions to the particle its self
-bool loopScreen = true;//when true particles that attempt to drop downwards while at the bottom of the screen will instead loop to the top of the screen, does the same for particles attempting to move upwards as well
+bool loopScreen = false;//when true particles that attempt to drop downwards while at the bottom of the screen will instead loop to the top of the screen, does the same for particles attempting to move upwards as well
 bool pauseParticles = false;//when true particles physics and events will be paused, does not pause the entire program
 bool renderBrush = true;//when true will show an outline of where particles will be brushed to
 bool createAsSource = false;//if the blocks created should be source particles or standard particles
@@ -128,41 +129,41 @@ int settingHealth[TYPE_TOTALTYPES]
 float settingThermalConductivity[TYPE_TOTALTYPES]
 {
 	//Wall
-	0.0006f,
+	0.00006f,
 	//Sand
-	0.0025f,
+	0.00025f,
 	//Water
-	0.0125f,
+	0.00125f,
 	//Ice
-	0.015f,
+	0.0015f,
 	//Thermal
-	2.5f,
+	0.25f,
 	//Acid
-	0.2f,
+	0.02f,
 	//Steam
-	0.03f,
+	0.003f,
 	//plant
-	0.026f,
+	0.0026f,
 	//salt
-	0.0185f,
+	0.00185f,
 	//salt water
-	0.015f,
+	0.0015f,
 	//salt ice
-	0.0175f,
+	0.00175f,
 	//glitch
 	0,
 	//stone
-	0.0018f,
+	0.00018f,
 	//lava
-	0.005f,
+	0.0005f,
 	//fire
-	0.1f,
+	0.01f,
 	//gas
-	0.01f,
+	0.001f,
 	//light gas
-	0.01f,
+	0.001f,
 	//heavy gas
-	0.01f,
+	0.001f,
 
 	//the following must ALWAYS be at the end
 	//source

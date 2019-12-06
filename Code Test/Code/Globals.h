@@ -17,6 +17,7 @@
 extern const std::string PROGRAM_NAME;
 
 extern int frameRateLimit;
+extern bool speedTest;
 
 //used to determine default screen size
 
