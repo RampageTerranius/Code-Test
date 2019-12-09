@@ -23,6 +23,8 @@ int currentBrushTemperature = 20;//changing this will change the default brush t
 ParticleType currentBrushType = TYPE_SAND;
 int currentBrushSize = 4;
 
+int randomizedDirection = 0;
+
 int countedFrames = 0;
 bool running = false;
 

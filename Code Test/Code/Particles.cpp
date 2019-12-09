@@ -558,7 +558,7 @@ void SolidMobile::HandlePhysics()
 
 		if (canGoLeft && canGoRight)
 		{
-			switch (rand() % 2 + 1)
+			switch (randomizedDirection)
 			{
 				//go left
 			case 1:
@@ -645,9 +645,8 @@ void SolidMobile::HandlePhysics()
 	//if both sides are free randomly choose one direction and drop down that side	
 	else if (allParticles[right][down] == nullptr && allParticles[left][down] == nullptr)
 	{
-		int randomNum = rand() % 2 + 1;
 
-		switch (randomNum)
+		switch (randomizedDirection)
 		{
 			//go left
 		case 1:
@@ -721,7 +720,7 @@ void Liquid::HandlePhysics()
 		//can go either way
 		if (canGoLeft && canGoRight)
 		{
-			switch (rand() % 2 + 1)
+			switch (randomizedDirection)
 			{
 				//go left
 			case 1:
@@ -799,9 +798,7 @@ void Liquid::HandlePhysics()
 	//both ways are free, randomly choose one and move	
 	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] == nullptr)
 	{
-		int randomNum = rand() % 2 + 1;
-
-		switch (randomNum)
+		switch (randomizedDirection)
 		{
 			//go left
 		case 1:
@@ -894,7 +891,7 @@ void Airborn::HandlePhysics()
 		//can go either way
 		if (canGoLeft && canGoRight)
 		{
-			switch (rand() % 2 + 1)
+			switch (randomizedDirection)
 			{
 				//go left
 			case 1:

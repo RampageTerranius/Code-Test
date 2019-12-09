@@ -33,6 +33,10 @@ extern int currentBrushTemperature;//changing this will change the default brush
 extern ParticleType currentBrushType;
 extern int currentBrushSize;
 
+// What way particles will move on this frame.
+// 0 = Left, 1 = Right.
+extern int randomizedDirection;
+
 extern int countedFrames;
 extern bool running;
 

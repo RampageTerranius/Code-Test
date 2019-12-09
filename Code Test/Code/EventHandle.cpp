@@ -256,15 +256,20 @@ void DestroyParticlesAtBrush(int x, int y)
 			DestroyParticle(mouse.x + i, mouse.y + n);
 }
 
-//handles all keyboard/mouse events
+// Handles all keyboard/mouse events.
 void EventHandle(SDL_Event& event)
 {
-	UpdateEventStructs(event);//update all our structures handling what buttons are held down currently first
+	// Update all our structures handling what buttons are held down currently first.
+	UpdateEventStructs(event);
 
-	//on left click paint particles using brush
+	// On left click paint particles using brush.
 	if (mouse.left)
 		CreateParticlesAtBrush(currentBrushType, mouse.x, mouse.y, (float)currentBrushTemperature);
 
+	// On right click delete particles using brush.
 	if (mouse.right)
 		DestroyParticlesAtBrush(mouse.x, mouse.y);
+
+	// Randomize the direction particles will move.
+	randomizedDirection = rand() % 2;
 }
