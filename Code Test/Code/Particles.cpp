@@ -1,5 +1,6 @@
 #include "Particles.h"
 
+// http://sdl.beuc.net/sdl.wiki/Pixel_Access
 void EditPixel(int x, int y, Uint32 pixel)
 {
 	int bpp = mainSurface->format->BytesPerPixel;
@@ -32,6 +33,11 @@ void EditPixel(int x, int y, Uint32 pixel)
 		*(Uint32*)p = pixel;
 		break;
 	}
+}
+
+float GetKelvin(float celcius)
+{
+	return celcius + 273.15;
 }
 
 Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
@@ -357,30 +363,41 @@ void Particle::Draw()
 	else
 		{
 			float tempHighest = 80;
-			float tempMiddle = 0;
-			float tempLowest = -50;
+			float tempLowest = -20;
+			float middle = 30;
 
 			int r, g, b;
 
-			r = g = b = 20;
+			r = g = b = 0;
 
-			float temp = temperature;
-
-			if (temperature >= tempMiddle)
-			{
-				r = 255 * (int)(1.0 - (std::abs(temperature - tempHighest) / (temperature + tempHighest)));
-				if (r > 255)
-					r = 255;
-			}
+			// Check if below minimum.
+			if (temperature < tempLowest)
+				b = 255;
+			// Check if above maximum.
+			else if (temperature > tempHighest)
+				r = 255;
 			else
 			{
-				b = 255 * (int)(std::abs(temperature - tempLowest) / (temperature + tempLowest));
-				if (b > 255)
-					b = 255;
+				if (temperature > middle)
+					b = 0;
+				else
+					b = 255 * middle / temperature;
+
+				if (temperature < tempLowest || temperature > tempHighest)
+					g = 0;
+				else if (temperature < middle)
+					g = 255 * temperature / middle;
+				else if (temperature >= middle)
+					g = 255 * temperature / tempHighest;
+
+				if (temperature < middle)
+					r = 0;
+				else
+					r = 255 * tempHighest / temperature;
+
 			}
 
-			SDL_SetRenderDrawColor(mainRenderer, r, g, b, 0);
-			SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
+			EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, r, g, b, 128));
 		}
 }
 
