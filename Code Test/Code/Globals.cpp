@@ -23,7 +23,7 @@ int currentBrushTemperature = 20;//changing this will change the default brush t
 ParticleType currentBrushType = TYPE_SAND;
 int currentBrushSize = 4;
 
-int randomizedDirection = 0;
+Randomize random;
 
 int countedFrames = 0;
 bool running = false;
@@ -213,6 +213,7 @@ int settingColor[TYPE_TOTALTYPES][4]
 	{170, 60, 170, 0}
 };
 
+// Flammability is in a percentage basis (0 to 100)
 int settingFlammability[TYPE_TOTALTYPES]
 {
 	//Wall
@@ -224,13 +225,13 @@ int settingFlammability[TYPE_TOTALTYPES]
 	//Ice
 	0,
 	//Thermal
-	50,
+	2,
 	//Acid
 	0,
 	//Steam
 	0,
 	//plant
-	8,
+	25,
 	//salt
 	0,
 	//salt water
@@ -246,11 +247,11 @@ int settingFlammability[TYPE_TOTALTYPES]
 	//fire
 	0,
 	//gas
-	2,
+	80,
 	//light gas
-	2,
+	80,
 	//heavy gas
-	2,
+	80,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -271,32 +272,32 @@ int acidDamageChance = 10;//higher number means lower chance (calculated as (1 /
 int plantSpreadChance = 30;//higher number means lower chance (calculated as (1 / plantSpreadChance) meaning if chance was 10 there is a 1 in 10 chance per tick to spread plant through a water block)
 int glitchSpreadChance = 120;
 
-//airborn particle movement rates
+//airborn particle movement rates (movement in percentage chance)
 //steam
-int steamAscendRate = 6;
+int steamAscendRate = 65;
 int steamDescendRate = 0;
-int steamSidewardsRate = 2;
-int steamNoMovementRate = 1;
+int steamSidewardsRate = 25;
+int steamNoMovementRate = 10;
 //fire
-int fireAscendRate = 8;
+int fireAscendRate = 85;
 int fireDescendRate = 0;
-int fireSidewardsRate = 1;
+int fireSidewardsRate = 15;
 int fireNoMovementRate = 0;
 //gas
-int gasAscendRate = 4;
-int gasDescendRate = 1;
-int gasSidewardsRate = 2;
-int gasNoMovementRate = 1;
+int gasAscendRate = 50;
+int gasDescendRate = 10;
+int gasSidewardsRate = 30;
+int gasNoMovementRate = 10;
 //heavy gas
-int heavyGasAscendRate = 1;
-int heavyGasDescendRate = 6;
-int heavyGasSidewardsRate = 2;
-int heavyGasNoMovementRate = 1;
+int heavyGasAscendRate = 10;
+int heavyGasDescendRate = 60;
+int heavyGasSidewardsRate = 20;
+int heavyGasNoMovementRate = 10;
 //light gas
-int lightGasAscendRate = 10;
-int lightGasDescendRate = 1;
-int lightGasSidewardsRate = 4;
-int lightGasNoMovementRate = 1;
+int lightGasAscendRate = 75;
+int lightGasDescendRate = 6;
+int lightGasSidewardsRate = 10;
+int lightGasNoMovementRate = 9;
 
 
 //affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles

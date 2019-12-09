@@ -39,7 +39,7 @@ void EditPixel(int x, int y, Uint32 pixel)
 
 float GetKelvin(float celcius)
 {
-	return celcius + 273.15;
+	return celcius + 273.15f;
 }
 
 Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
@@ -222,7 +222,7 @@ bool DropParticle(int x, int y, bool randomize)
 	//attempt to randomize the way it will move while going down
 	if (randomize)
 	{
-		tempX += (rand() % 3) - 1;
+		tempX += random.three;
 
 		if (tempX < 0)
 			return false;
@@ -265,7 +265,7 @@ bool AscendParticle(int x, int y, bool randomize)
 	//attempt to randomize the way it will move while going up
 	if (randomize)
 	{
-		tempX += (rand() % 3) - 1;
+		tempX += random.three;
 
 		if (tempX < 0)
 			return false;
@@ -558,7 +558,7 @@ void SolidMobile::HandlePhysics()
 
 		if (canGoLeft && canGoRight)
 		{
-			switch (randomizedDirection)
+			switch (random.two)
 			{
 				//go left
 			case 1:
@@ -646,7 +646,7 @@ void SolidMobile::HandlePhysics()
 	else if (allParticles[right][down] == nullptr && allParticles[left][down] == nullptr)
 	{
 
-		switch (randomizedDirection)
+		switch (random.two)
 		{
 			//go left
 		case 1:
@@ -720,7 +720,7 @@ void Liquid::HandlePhysics()
 		//can go either way
 		if (canGoLeft && canGoRight)
 		{
-			switch (randomizedDirection)
+			switch (random.two)
 			{
 				//go left
 			case 1:
@@ -798,7 +798,7 @@ void Liquid::HandlePhysics()
 	//both ways are free, randomly choose one and move	
 	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] == nullptr)
 	{
-		switch (randomizedDirection)
+		switch (random.two)
 		{
 			//go left
 		case 1:
@@ -844,25 +844,22 @@ void Airborn::HandlePhysics()
 	left--;
 	right++;
 
-	//check what way we want to move first
-	int randomNum = rand() % (ascendRate + descendRate + sidewardsRate + noMovementRate);
-
 	//check if should ascend
-	if (randomNum < ascendRate)
+	if (random.oneHundred < ascendRate)
 	{
 		//check if we are at the top of the screen and if we can loop around
 		if (!CheckIfAtTop())
 			AscendParticle(point.x, point.y, false);
 	}
 	//check if should descend
-	else if (randomNum < (ascendRate + descendRate))
+	else if (random.oneHundred < (ascendRate + descendRate))
 	{
 		//check if we are at the top of the screen and if we can loop around
 		if (!CheckIfAtBottom())
 			DropParticle(point.x, point.y, false);
 	}
 	//chck if should go left or right
-	else if (randomNum < (ascendRate + descendRate + sidewardsRate))
+	else if (random.oneHundred < (ascendRate + descendRate + sidewardsRate))
 	{
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
@@ -891,7 +888,7 @@ void Airborn::HandlePhysics()
 		//can go either way
 		if (canGoLeft && canGoRight)
 		{
-			switch (randomizedDirection)
+			switch (random.two)
 			{
 				//go left
 			case 1:
@@ -1055,28 +1052,28 @@ bool Acid::HandleEvents()
 
 	//check each direction and attempt to damage any targeted blocks
 	if (canDamageUp)
-		if ((rand() % acidDamageChance + 1) == 1)
+		if (random.oneHundred >= acidDamageChance)
 		{
 			allParticles[point.x][up]->health--;
 			health--;
 		}
 
 	if (canDamageDown)
-		if ((rand() % acidDamageChance + 1) == 1)
+		if (random.oneHundred >= acidDamageChance)
 		{
 			allParticles[point.x][down]->health--;
 			health--;
 		}
 
 	if (canDamageLeft)
-		if ((rand() % acidDamageChance + 1) == 1)
+		if (random.oneHundred >= acidDamageChance)
 		{
 			allParticles[left][point.y]->health--;
 			health--;
 		}
 
 	if (canDamageRight)
-		if ((rand() % acidDamageChance + 1) == 1)
+		if (random.oneHundred >= acidDamageChance)
 		{
 			allParticles[right][point.y]->health--;
 			health--;
@@ -1140,26 +1137,14 @@ bool Plant::HandleEvents()
 		//check if can spread upwards
 		if (allParticles[point.x][up] != nullptr)
 			if (allParticles[point.x][up]->type == TYPE_WATER)
-			{
-				switch (rand() % plantSpreadChance)
-				{
-				case 0:
+				if (random.oneHundred >= plantSpreadChance)
 					canGoUp = true;
-					break;
-				}
-			}
 
 		//check if cna spread downwards
 		if (allParticles[point.x][down] != nullptr)
-			if (allParticles[point.x][down]->type == TYPE_WATER)
-			{
-				switch (rand() % plantSpreadChance)
-				{
-				case 0:
+			if (allParticles[point.x][down]->type == TYPE_WATER)			
+				if (random.oneHundred >= plantSpreadChance)
 					canGoDown = true;
-					break;
-				}
-			}
 	}
 
 	//check left and right
@@ -1167,27 +1152,17 @@ bool Plant::HandleEvents()
 	{
 		//check if cna spread left
 		if (allParticles[left][point.y] != nullptr)
-			if (allParticles[left][point.y]->type == TYPE_WATER)
-			{
-				switch (rand() % plantSpreadChance)
-				{
-				case 0:
+			if (allParticles[left][point.y]->type == TYPE_WATER)			
+				if (random.oneHundred >= plantSpreadChance)
 					canGoLeft = true;
-					break;
-				}
-			}
+			
 
 		//check if cna spread right
 		if (allParticles[right][point.y] != nullptr)
-			if (allParticles[right][point.y]->type == TYPE_WATER)
-			{
-				switch (rand() % plantSpreadChance)
-				{
-				case 0:
+			if (allParticles[right][point.y]->type == TYPE_WATER)			
+				if (random.oneHundred >= plantSpreadChance)				
 					canGoRight = true;
-					break;
-				}
-			}
+			
 	}
 
 	//check what directions we can spread and spread in those directions
@@ -1485,11 +1460,11 @@ bool Glitch::HandleEvents()
 	if (up >= 0)
 		if (allParticles[point.x][up] == nullptr)
 		{
-			if ((rand() % glitchSpreadChance) == 0)
+			if (random.oneHundred >= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
 		}
 		else if (allParticles[point.x][up]->type != TYPE_GLITCH)
-			if ((rand() % glitchSpreadChance) == 0)
+			if (random.oneHundred >= glitchSpreadChance)
 			{
 				DestroyParticle(point.x, up);
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
@@ -1498,11 +1473,11 @@ bool Glitch::HandleEvents()
 	if (down <= WINDOW_HEIGHT - 1)
 		if (allParticles[point.x][down] == nullptr)
 		{
-			if ((rand() % glitchSpreadChance) == 0)
+			if (random.oneHundred >= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
 		}
 		else if (allParticles[point.x][down]->type != TYPE_GLITCH)
-			if ((rand() % glitchSpreadChance) == 0)
+			if (random.oneHundred >= glitchSpreadChance)
 			{
 				DestroyParticle(point.x, down);
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
@@ -1511,11 +1486,11 @@ bool Glitch::HandleEvents()
 	if (left >= 0)
 		if (allParticles[left][point.y] == nullptr)
 		{
-			if ((rand() % glitchSpreadChance) == 0)
+			if (random.oneHundred >= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
 		}
 		else if (allParticles[left][point.y]->type != TYPE_GLITCH)
-			if ((rand() % glitchSpreadChance) == 0)
+			if (random.oneHundred >= glitchSpreadChance)
 			{
 				DestroyParticle(left, point.y);
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
@@ -1524,11 +1499,11 @@ bool Glitch::HandleEvents()
 	if (right <= WINDOW_WIDTH - 1)
 		if (allParticles[right][point.y] == nullptr)
 		{
-			if ((rand() % glitchSpreadChance) == 0)
+			if (random.oneHundred >= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
 		}
 		else if (allParticles[right][point.y]->type != TYPE_GLITCH)
-			if ((rand() % glitchSpreadChance) == 0)
+			if (random.oneHundred >= glitchSpreadChance)
 			{
 				DestroyParticle(right, point.y);
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
@@ -1627,24 +1602,20 @@ bool Fire::HandleEvents()
 
 					allParticles[point.x][up]->health = newHealth;
 				}
-				else
+				else if (random.oneHundred >= settingFlammability[allParticles[point.x][up]->type])
 				{
-					int rando = rand() % settingFlammability[allParticles[point.x][up]->type];
+					int newHealth = allParticles[point.x][up]->health;
+					int newX = point.x;
+					int newY = up;
+					float newTemp = temperature;
 
-					if (rando == 0)
-					{
-						int newHealth = allParticles[point.x][up]->health;
-						int newX = point.x;
-						int newY = up;
-						float newTemp = temperature;
+					DestroyParticle(point.x, up);
 
-						DestroyParticle(point.x, up);
+					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
 
-						CreateParticle(TYPE_FIRE, newX, newY, newTemp);
-
-						allParticles[point.x][up]->health = newHealth;
-					}
-				}		
+					allParticles[point.x][up]->health = newHealth;
+				}
+					
 
 	if (down <= WINDOW_HEIGHT - 1)
 		if (allParticles[point.x][down] != nullptr)
@@ -1662,24 +1633,20 @@ bool Fire::HandleEvents()
 
 					allParticles[point.x][down]->health = newHealth;
 				}
-				else
+				else if (random.oneHundred >= settingFlammability[allParticles[point.x][down]->type])
 				{
-					int rando = rand() % settingFlammability[allParticles[point.x][down]->type];
+					int newHealth = allParticles[point.x][down]->health;
+					int newX = point.x;
+					int newY = down;
+					float newTemp = temperature;
 
-					if (rando == 0)
-					{
-						int newHealth = allParticles[point.x][down]->health;
-						int newX = point.x;
-						int newY = down;
-						float newTemp = temperature;
+					DestroyParticle(point.x, down);
 
-						DestroyParticle(point.x, down);
+					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
 
-						CreateParticle(TYPE_FIRE, newX, newY, newTemp);
-
-						allParticles[point.x][down]->health = newHealth;
-					}
+					allParticles[point.x][down]->health = newHealth;
 				}
+				
 
 	if (left >= 0)
 		if (allParticles[left][point.y] != nullptr)
@@ -1697,24 +1664,20 @@ bool Fire::HandleEvents()
 
 					allParticles[left][point.y]->health = newHealth;
 				}
-				else
+				else if (random.oneHundred >= settingFlammability[allParticles[left][point.y]->type])
 				{
-					int rando = rand() % settingFlammability[allParticles[left][point.y]->type];
+					int newHealth = allParticles[left][point.y]->health;
+					int newX = left;
+					int newY = point.y;
+					float newTemp = temperature;
 
-					if (rando == 0)
-					{
-						int newHealth = allParticles[left][point.y]->health;
-						int newX = left;
-						int newY = point.y;
-						float newTemp = temperature;
+					DestroyParticle(left, point.y);
 
-						DestroyParticle(left, point.y);
+					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
 
-						CreateParticle(TYPE_FIRE, newX, newY, newTemp);
-
-						allParticles[left][point.y]->health = newHealth;
-					}
-				}		
+					allParticles[left][point.y]->health = newHealth;
+				}
+				
 
 	if (right <= WINDOW_WIDTH - 1)
 		if (allParticles[right][point.y] != nullptr)
@@ -1732,24 +1695,20 @@ bool Fire::HandleEvents()
 
 					allParticles[right][point.y]->health = newHealth;
 				}
-				else
+				else if (random.oneHundred >= settingFlammability[allParticles[right][point.y]->type])
 				{
-					int rando = rand() % settingFlammability[allParticles[right][point.y]->type];
+					int newHealth = allParticles[right][point.y]->health;
+					int newX = right;
+					int newY = point.y;
+					float newTemp = temperature;
 
-					if (rando == 0)
-					{
-						int newHealth = allParticles[right][point.y]->health;
-						int newX = right;
-						int newY = point.y;
-						float newTemp = temperature;
+					DestroyParticle(right, point.y);
 
-						DestroyParticle(right, point.y);
+					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
 
-						CreateParticle(TYPE_FIRE, newX, newY, newTemp);
-
-						allParticles[right][point.y]->health = newHealth;
-					}
+					allParticles[right][point.y]->health = newHealth;
 				}
+				
 
 	return false;
 }

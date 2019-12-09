@@ -271,5 +271,5 @@ void EventHandle(SDL_Event& event)
 		DestroyParticlesAtBrush(mouse.x, mouse.y);
 
 	// Randomize the direction particles will move.
-	randomizedDirection = rand() % 2;
+	random.Random();
 }
