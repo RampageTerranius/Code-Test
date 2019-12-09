@@ -268,11 +268,11 @@ float saltWaterEventTempMultiplier = 1.2f;//a value of 1.1 would give a 10% incr
 float lavaSolidifyTemp = 200;
 
 //randomised event chances
-int acidDamageChance = 30;//higher number means lower chance
-int plantSpreadChance = 20;//higher number means lower chance
-int glitchSpreadChance = 5;
+int acidDamageChance = 30;// Percentage chance.
+int plantSpreadChance = 20;// Percentage chance.
+int glitchSpreadChance = 5;// Percentage chance.
 
-//airborn particle movement rates (movement in percentage chance)
+//airborn particle movement rates (movement in percentage chance, MUST equal up to 100 in total)
 //steam
 int steamAscendRate = 65;
 int steamDescendRate = 0;
