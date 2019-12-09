@@ -268,9 +268,9 @@ float saltWaterEventTempMultiplier = 1.2f;//a value of 1.1 would give a 10% incr
 float lavaSolidifyTemp = 200;
 
 //randomised event chances
-int acidDamageChance = 10;//higher number means lower chance (calculated as (1 / acidDamageChance) meaning if chance was 10 there is a 1 in 10 chance per tick to damage a block)
-int plantSpreadChance = 30;//higher number means lower chance (calculated as (1 / plantSpreadChance) meaning if chance was 10 there is a 1 in 10 chance per tick to spread plant through a water block)
-int glitchSpreadChance = 120;
+int acidDamageChance = 30;//higher number means lower chance
+int plantSpreadChance = 20;//higher number means lower chance
+int glitchSpreadChance = 5;
 
 //airborn particle movement rates (movement in percentage chance)
 //steam
