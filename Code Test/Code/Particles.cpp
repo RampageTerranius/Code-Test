@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "Particles.h"
 
 // http://sdl.beuc.net/sdl.wiki/Pixel_Access
@@ -364,40 +366,16 @@ void Particle::Draw()
 		{
 			float tempHighest = 80;
 			float tempLowest = -20;
-			float middle = 30;
+
+			float ratio = 2 * (temperature - tempLowest) / (tempHighest - tempLowest);
 
 			int r, g, b;
 
-			r = g = b = 0;
+			r = std::max(0, (int)(255 * (ratio - 1)));
+			b = std::max(0, (int)(255 * (1 - ratio)));
+			g = 255 - b - r;
 
-			// Check if below minimum.
-			if (temperature < tempLowest)
-				b = 255;
-			// Check if above maximum.
-			else if (temperature > tempHighest)
-				r = 255;
-			else
-			{
-				if (temperature > middle)
-					b = 0;
-				else
-					b = 255 * middle / temperature;
-
-				if (temperature < tempLowest || temperature > tempHighest)
-					g = 0;
-				else if (temperature < middle)
-					g = 255 * temperature / middle;
-				else if (temperature >= middle)
-					g = 255 * temperature / tempHighest;
-
-				if (temperature < middle)
-					r = 0;
-				else
-					r = 255 * tempHighest / temperature;
-
-			}
-
-			EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, r, g, b, 128));
+			EditPixel(point.x, point.y, SDL_MapRGB(mainSurface->format, r, g, b));
 		}
 }
 
