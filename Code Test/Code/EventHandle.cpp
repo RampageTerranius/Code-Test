@@ -253,7 +253,7 @@ void DestroyParticlesAtBrush(int x, int y)
 		DestroyParticle(mouse.x, mouse.y);
 	else for (int i = currentBrushSize; i > -currentBrushSize; i--)
 		for (int n = currentBrushSize; n > -currentBrushSize; n--)
-			DestroyParticle(mouse.x + i, mouse.y + n);
+			DestroyParticle(mouse.x + i, mouse.y + n);//TODO: unlock all particles that were touching the outsides of the brush
 }
 
 // Handles all keyboard/mouse events.

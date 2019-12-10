@@ -170,7 +170,7 @@ float settingThermalConductivity[TYPE_TOTALTYPES]
 	//heavy gas
 	0.01f,
 	// Heat Pad.
-	0.005f,
+	0.05f,
 
 	//the following must ALWAYS be at the end
 	//source
