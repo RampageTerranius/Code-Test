@@ -8,7 +8,6 @@
 
 #include "ParticleTypes.h"
 #include "TTF.h"
-#include "Randomize.h"
 
 //used to determine default screen size
 #define WINDOW_WIDTH 1024
@@ -33,10 +32,6 @@ extern float avgFPS;
 extern int currentBrushTemperature;//changing this will change the default brush temperature
 extern ParticleType currentBrushType;
 extern int currentBrushSize;
-
-// What way particles will move on this frame.
-// 0 = Left, 1 = Right.
-extern Randomize random;
 
 extern int countedFrames;
 extern bool running;

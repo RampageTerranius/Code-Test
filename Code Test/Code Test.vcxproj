@@ -27,7 +27,6 @@
     <ClInclude Include="Code\Mouse.h" />
     <ClInclude Include="Code\Particles.h" />
     <ClInclude Include="Code\ParticleTypes.h" />
-    <ClInclude Include="Code\Randomize.h" />
     <ClInclude Include="Code\Render.h" />
     <ClInclude Include="Code\Shutdown + Startup.h" />
     <ClInclude Include="Code\TimerHandle.h" />
@@ -41,7 +40,6 @@
     <ClCompile Include="Code\Main.cpp" />
     <ClCompile Include="Code\mouse.cpp" />
     <ClCompile Include="Code\Particles.cpp" />
-    <ClCompile Include="Code\Randomize.cpp" />
     <ClCompile Include="Code\Render.cpp" />
     <ClCompile Include="Code\Shutdown + Startup.cpp" />
     <ClCompile Include="Code\TimerHandle.cpp" />

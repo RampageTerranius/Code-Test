@@ -269,7 +269,4 @@ void EventHandle(SDL_Event& event)
 	// On right click delete particles using brush.
 	if (mouse.right)
 		DestroyParticlesAtBrush(mouse.x, mouse.y);
-
-	// Randomize the direction particles will move.
-	random.Random();
 }

@@ -244,7 +244,7 @@ bool DropParticle(int x, int y, bool randomize)
 	//attempt to randomize the way it will move while going down
 	if (randomize)
 	{
-		tempX += random.three;
+		tempX += ((rand() % 3) - 1);
 
 		if (tempX < 0)
 			return false;
@@ -262,7 +262,7 @@ bool DropParticle(int x, int y, bool randomize)
 		return true;
 	}
 	//other wise if the particle directly below has less weight then swap particles
-	else if (allParticles[tempX][y + 1]->weight != -1)
+	else if (allParticles[tempX][y + 1]->weight >= 0)
 		if (allParticles[x][y]->weight > allParticles[tempX][y + 1]->weight)
 		{
 			UnlockNeighbourParticles(x, y);
@@ -287,7 +287,7 @@ bool AscendParticle(int x, int y, bool randomize)
 	//attempt to randomize the way it will move while going up
 	if (randomize)
 	{
-		tempX += random.three;
+		tempX += ((rand() % 3) - 1);
 
 		if (tempX < 0)
 			return false;
@@ -573,16 +573,16 @@ void SolidMobile::HandlePhysics()
 
 		if (canGoLeft && canGoRight)
 		{
-			switch (random.two)
+			switch (rand() % 2)
 			{
 				//go left
-			case 1:
+			case 0:
 				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(left, down, point.x, point.y);
 				return;
 
 				//go right
-			case 2:
+			case 1:
 				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(right, down, point.x, point.y);
 				return;
@@ -661,17 +661,17 @@ void SolidMobile::HandlePhysics()
 	else if (allParticles[right][down] == nullptr && allParticles[left][down] == nullptr)
 	{
 
-		switch (random.two)
+		switch (rand() % 2)
 		{
 			//go left
-		case 1:
+		case 0:
 			//update the array
 			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, left, down);
 			return;
 
 			//go right
-		case 2:
+		case 1:
 			//update the array
 			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, right, down);
@@ -735,16 +735,16 @@ void Liquid::HandlePhysics()
 		//can go either way
 		if (canGoLeft && canGoRight)
 		{
-			switch (random.two)
+			switch (rand() % 2)
 			{
 				//go left
-			case 1:
+			case 0:
 				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(left, point.y, point.x, point.y);
 				return;
 
 				//go right
-			case 2:
+			case 1:
 				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(right, point.y, point.x, point.y);
 				return;
@@ -813,17 +813,17 @@ void Liquid::HandlePhysics()
 	//both ways are free, randomly choose one and move	
 	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] == nullptr)
 	{
-		switch (random.two)
+		switch (rand() % 2)
 		{
 			//go left
-		case 1:
+		case 0:
 			//update the array
 			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, left, point.y);
 			return;
 
 			//go right
-		case 2:
+		case 1:
 			//update the array
 			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, right, point.y);
@@ -859,22 +859,24 @@ void Airborn::HandlePhysics()
 	left--;
 	right++;
 
+	int random = rand() % 100;
+
 	//check if should ascend
-	if (random.oneHundred < ascendRate)
+	if (random < ascendRate)
 	{
 		//check if we are at the top of the screen and if we can loop around
 		if (!CheckIfAtTop())
 			AscendParticle(point.x, point.y, false);
 	}
 	//check if should descend
-	else if (random.oneHundred < (ascendRate + descendRate))
+	else if (random < (ascendRate + descendRate))
 	{
 		//check if we are at the top of the screen and if we can loop around
 		if (!CheckIfAtBottom())
 			DropParticle(point.x, point.y, false);
 	}
 	//chck if should go left or right
-	else if (random.oneHundred < (ascendRate + descendRate + sidewardsRate))
+	else if (random < (ascendRate + descendRate + sidewardsRate))
 	{
 		bool canGoLeft, canGoRight;
 		canGoLeft = canGoRight = false;
@@ -903,16 +905,16 @@ void Airborn::HandlePhysics()
 		//can go either way
 		if (canGoLeft && canGoRight)
 		{
-			switch (random.two)
+			switch (rand() % 2)
 			{
 				//go left
-			case 1:
+			case 0:
 				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(left, point.y, point.x, point.y);
 				break;
 
 				//go right
-			case 2:
+			case 1:
 				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(right, point.y, point.x, point.y);
 				break;
@@ -1064,31 +1066,32 @@ bool Acid::HandleEvents()
 			if (allParticles[right][point.y]->type != TYPE_ACID)
 				canDamageRight = true;
 
+	int random = rand() % 100;
 
 	//check each direction and attempt to damage any targeted blocks
 	if (canDamageUp)
-		if (random.oneHundred <= acidDamageChance)
+		if (random <= acidDamageChance)
 		{
 			allParticles[point.x][up]->health--;
 			health--;
 		}
 
 	if (canDamageDown)
-		if (random.oneHundred <= acidDamageChance)
+		if (random <= acidDamageChance)
 		{
 			allParticles[point.x][down]->health--;
 			health--;
 		}
 
 	if (canDamageLeft)
-		if (random.oneHundred <= acidDamageChance)
+		if (random <= acidDamageChance)
 		{
 			allParticles[left][point.y]->health--;
 			health--;
 		}
 
 	if (canDamageRight)
-		if (random.oneHundred <= acidDamageChance)
+		if (random <= acidDamageChance)
 		{
 			allParticles[right][point.y]->health--;
 			health--;
@@ -1146,19 +1149,21 @@ bool Plant::HandleEvents()
 	bool canGoUp, canGoDown, canGoLeft, canGoRight;
 	canGoUp = canGoDown = canGoLeft = canGoRight = false;
 
+	int random = rand() % 100;
+
 	//check up and down
 	if (point.y > 0 && point.y < WINDOW_HEIGHT - 1)
 	{
 		//check if can spread upwards
 		if (allParticles[point.x][up] != nullptr)
 			if (allParticles[point.x][up]->type == TYPE_WATER)
-				if (random.oneHundred <= plantSpreadChance)
+				if (random <= plantSpreadChance)
 					canGoUp = true;
 
 		//check if cna spread downwards
 		if (allParticles[point.x][down] != nullptr)
 			if (allParticles[point.x][down]->type == TYPE_WATER)			
-				if (random.oneHundred <= plantSpreadChance)
+				if (random <= plantSpreadChance)
 					canGoDown = true;
 	}
 
@@ -1168,14 +1173,14 @@ bool Plant::HandleEvents()
 		//check if cna spread left
 		if (allParticles[left][point.y] != nullptr)
 			if (allParticles[left][point.y]->type == TYPE_WATER)			
-				if (random.oneHundred <= plantSpreadChance)
+				if (random <= plantSpreadChance)
 					canGoLeft = true;
 			
 
 		//check if cna spread right
 		if (allParticles[right][point.y] != nullptr)
 			if (allParticles[right][point.y]->type == TYPE_WATER)			
-				if (random.oneHundred <= plantSpreadChance)				
+				if (random <= plantSpreadChance)				
 					canGoRight = true;
 			
 	}
@@ -1475,11 +1480,11 @@ bool Glitch::HandleEvents()
 	if (up >= 0)
 		if (allParticles[point.x][up] == nullptr)
 		{
-			if (random.oneHundred <= glitchSpreadChance)
+			if (rand() % 100 <= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
 		}
 		else if (allParticles[point.x][up]->type != TYPE_GLITCH)
-			if (random.oneHundred <= glitchSpreadChance)
+			if (rand() % 100 <= glitchSpreadChance)
 			{
 				DestroyParticle(point.x, up);
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
@@ -1488,11 +1493,11 @@ bool Glitch::HandleEvents()
 	if (down <= WINDOW_HEIGHT - 1)
 		if (allParticles[point.x][down] == nullptr)
 		{
-			if (random.oneHundred <= glitchSpreadChance)
+			if (rand() % 100 <= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
 		}
 		else if (allParticles[point.x][down]->type != TYPE_GLITCH)
-			if (random.oneHundred <= glitchSpreadChance)
+			if (rand() % 100 <= glitchSpreadChance)
 			{
 				DestroyParticle(point.x, down);
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
@@ -1501,11 +1506,11 @@ bool Glitch::HandleEvents()
 	if (left >= 0)
 		if (allParticles[left][point.y] == nullptr)
 		{
-			if (random.oneHundred <= glitchSpreadChance)
+			if (rand() % 100 <= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
 		}
 		else if (allParticles[left][point.y]->type != TYPE_GLITCH)
-			if (random.oneHundred <= glitchSpreadChance)
+			if (rand() % 100 <= glitchSpreadChance)
 			{
 				DestroyParticle(left, point.y);
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
@@ -1514,11 +1519,11 @@ bool Glitch::HandleEvents()
 	if (right <= WINDOW_WIDTH - 1)
 		if (allParticles[right][point.y] == nullptr)
 		{
-			if (random.oneHundred <= glitchSpreadChance)
+			if (rand() % 100 <= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
 		}
 		else if (allParticles[right][point.y]->type != TYPE_GLITCH)
-			if (random.oneHundred <= glitchSpreadChance)
+			if (rand() % 100 <= glitchSpreadChance)
 			{
 				DestroyParticle(right, point.y);
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
@@ -1617,7 +1622,7 @@ bool Fire::HandleEvents()
 
 					allParticles[point.x][up]->health = newHealth;
 				}
-				else if (random.oneHundred <= settingFlammability[allParticles[point.x][up]->type])
+				else if (rand() % 100 <= settingFlammability[allParticles[point.x][up]->type])
 				{
 					int newHealth = allParticles[point.x][up]->health;
 					int newX = point.x;
@@ -1648,7 +1653,7 @@ bool Fire::HandleEvents()
 
 					allParticles[point.x][down]->health = newHealth;
 				}
-				else if (random.oneHundred <= settingFlammability[allParticles[point.x][down]->type])
+				else if (rand() % 100 <= settingFlammability[allParticles[point.x][down]->type])
 				{
 					int newHealth = allParticles[point.x][down]->health;
 					int newX = point.x;
@@ -1679,7 +1684,7 @@ bool Fire::HandleEvents()
 
 					allParticles[left][point.y]->health = newHealth;
 				}
-				else if (random.oneHundred <= settingFlammability[allParticles[left][point.y]->type])
+				else if (rand() % 100 <= settingFlammability[allParticles[left][point.y]->type])
 				{
 					int newHealth = allParticles[left][point.y]->health;
 					int newX = left;
@@ -1710,7 +1715,7 @@ bool Fire::HandleEvents()
 
 					allParticles[right][point.y]->health = newHealth;
 				}
-				else if (random.oneHundred <= settingFlammability[allParticles[right][point.y]->type])
+				else if (rand() % 100 <= settingFlammability[allParticles[right][point.y]->type])
 				{
 					int newHealth = allParticles[right][point.y]->health;
 					int newX = right;

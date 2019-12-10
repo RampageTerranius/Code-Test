@@ -23,8 +23,6 @@ int currentBrushTemperature = 20;//changing this will change the default brush t
 ParticleType currentBrushType = TYPE_SAND;
 int currentBrushSize = 4;
 
-Randomize random;
-
 int countedFrames = 0;
 bool running = false;
 
@@ -170,7 +168,7 @@ float settingThermalConductivity[TYPE_TOTALTYPES]
 	//heavy gas
 	0.01f,
 	// Heat Pad.
-	0.005f,
+	0.05f,
 
 	//the following must ALWAYS be at the end
 	//source

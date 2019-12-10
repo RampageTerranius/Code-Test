@@ -51,9 +51,6 @@
     <ClInclude Include="Code\TTF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Randomize.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Main.cpp">
@@ -87,9 +84,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Code\keyboard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Randomize.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
