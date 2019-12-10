@@ -139,7 +139,7 @@ public:
 };
 
 //salt water particles
-//basically just standard water but a bit mroe heavier and will damage any plants it touches
+//basically just standard water but a bit more heavier and will damage any plants it touches
 class SaltWater : public Liquid
 {
 public:
@@ -246,4 +246,11 @@ class HeavyGas : public Airborn
 {
 public:
 	HeavyGas(int newX, int newY, float newTemperature);
+};
+
+class HeatPad : public SolidImmobile
+{
+public:
+	HeatPad(int newX, int newY, float newTemperature);
+	void Draw();
 };

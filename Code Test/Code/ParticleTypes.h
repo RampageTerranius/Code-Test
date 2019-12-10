@@ -23,6 +23,7 @@ enum ParticleType
 	TYPE_GAS,
 	TYPE_LIGHTGAS,
 	TYPE_HEAVYGAS,
+	TYPE_HEATPAD,
 
 	//the following must ALWAYS be at the end
 	TYPE_SOURCE,
@@ -48,6 +49,7 @@ static std::string typeNames[] = {  "Wall",
 									"Gas",
 									"Light Gas",
 									"Heavy Gas",
+									"Heat Pad",
 
 
 									//the following must ALWAYS be at the end

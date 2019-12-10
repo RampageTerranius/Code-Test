@@ -42,6 +42,24 @@ float GetKelvin(float celcius)
 	return celcius + 273.15f;
 }
 
+
+// Draws the heat for a particle at the given X/Y coordinates.
+void DrawParticleHeat(int x, int y)
+{	
+	float tempHighest = 80;
+	float tempLowest = -20;
+
+	float ratio = 2 * (allParticles[x][y]->temperature - tempLowest) / (tempHighest - tempLowest);
+
+	int r, g, b;
+
+	r = std::max(0, (int)(255 * (ratio - 1)));
+	b = std::max(0, (int)(255 * (1 - ratio)));
+	g = 255 - b - r;
+
+	EditPixel(x, y, SDL_MapRGB(mainSurface->format, r, g, b));	
+}
+
 Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
 
 void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
@@ -133,6 +151,10 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 
 		case TYPE_HEAVYGAS:
 			allParticles[x][y] = new HeavyGas(x, y, temp);
+			return;
+
+		case TYPE_HEATPAD:
+			allParticles[x][y] = new HeatPad(x, y, temp);
 			return;
 
 		default:
@@ -316,20 +338,26 @@ void EvenOutTemperatures(int x1, int y1, int x2, int y2)
 			//first particle is higher temp then second
 			if (allParticles[x1][y1]->temperature > allParticles[x2][y2]->temperature)
 			{
-				allParticles[x1][y1]->temperature -= calculatedTemperatureChange;
-				allParticles[x2][y2]->temperature += calculatedTemperatureChange;
+				if (allParticles[x1][y1]->type != TYPE_HEATPAD)
+					allParticles[x1][y1]->temperature -= calculatedTemperatureChange;
+				if (allParticles[x2][y2]->type != TYPE_HEATPAD)
+					allParticles[x2][y2]->temperature += calculatedTemperatureChange;
 			}
 			else//second particle is higher temp then first
 			{
-				allParticles[x1][y1]->temperature += calculatedTemperatureChange;
-				allParticles[x2][y2]->temperature -= calculatedTemperatureChange;
+				if (allParticles[x1][y1]->type != TYPE_HEATPAD)
+					allParticles[x1][y1]->temperature += calculatedTemperatureChange;
+				if (allParticles[x2][y2]->type != TYPE_HEATPAD)
+					allParticles[x2][y2]->temperature -= calculatedTemperatureChange;
 			}
 		}
 		else//both temperatures are close enough to just even them out at same temperature
 		{
 			float temp = (allParticles[x1][y1]->temperature + allParticles[x2][y2]->temperature) / 2;
-			allParticles[x1][y1]->temperature = temp;
-			allParticles[x2][y2]->temperature = temp;
+			if (allParticles[x1][y1]->type != TYPE_HEATPAD)
+				allParticles[x1][y1]->temperature = temp;
+			if (allParticles[x2][y2]->type != TYPE_HEATPAD)
+				allParticles[x2][y2]->temperature = temp;
 		}
 	}
 }
@@ -363,20 +391,7 @@ void Particle::Draw()
 	if (!drawHeat)
 		EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, settingColor[type][0], settingColor[type][1], settingColor[type][2], settingColor[type][3]));
 	else
-		{
-			float tempHighest = 80;
-			float tempLowest = -20;
-
-			float ratio = 2 * (temperature - tempLowest) / (tempHighest - tempLowest);
-
-			int r, g, b;
-
-			r = std::max(0, (int)(255 * (ratio - 1)));
-			b = std::max(0, (int)(255 * (1 - ratio)));
-			g = 255 - b - r;
-
-			EditPixel(point.x, point.y, SDL_MapRGB(mainSurface->format, r, g, b));
-		}
+		DrawParticleHeat(point.x, point.y);
 }
 
 bool Particle::HandleEvents()
@@ -1723,4 +1738,13 @@ LightGas::LightGas(int newX, int newY, float newTemperature) : Airborn(TYPE_LIGH
 
 HeavyGas::HeavyGas(int newX, int newY, float newTemperature) : Airborn(TYPE_HEAVYGAS, heavyGasAscendRate, heavyGasDescendRate, heavyGasSidewardsRate, heavyGasNoMovementRate, newX, newY, newTemperature)
 {
+}
+
+HeatPad::HeatPad(int newX, int newY, float newTemperature) : SolidImmobile(TYPE_HEAVYGAS, newX, newY, newTemperature)
+{
+}
+
+void HeatPad::Draw()
+{
+	DrawParticleHeat(point.x, point.y);
 }

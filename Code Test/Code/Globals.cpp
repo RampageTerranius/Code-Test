@@ -76,6 +76,8 @@ int settingWeight[TYPE_TOTALTYPES]
 	3,
 	//heavy gas
 	7,
+	// Heat Pad.
+	-1,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -121,6 +123,8 @@ int settingHealth[TYPE_TOTALTYPES]
 	50,
 	//heavy gas
 	50,
+	// Heat Pad.
+	60,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -165,6 +169,8 @@ float settingThermalConductivity[TYPE_TOTALTYPES]
 	0.01f,
 	//heavy gas
 	0.01f,
+	// Heat Pad.
+	0.005f,
 
 	//the following must ALWAYS be at the end
 	//source
@@ -210,7 +216,10 @@ int settingColor[TYPE_TOTALTYPES][4]
 	//light gas
 	{160, 40, 160, 0},
 	//heavy gas
-	{170, 60, 170, 0}
+	{170, 60, 170, 0},
+	// Heat pad (this particle uses heat color to self print).
+	{0, 0, 0, 0}
+
 };
 
 // Flammability is in a percentage basis (0 to 100)
@@ -252,6 +261,8 @@ int settingFlammability[TYPE_TOTALTYPES]
 	80,
 	//heavy gas
 	80,
+	// Heat pad.
+	0,
 
 	//the following must ALWAYS be at the end
 	//source
