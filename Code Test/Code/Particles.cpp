@@ -46,16 +46,26 @@ float GetKelvin(float celcius)
 // Draws the heat for a particle at the given X/Y coordinates.
 void DrawParticleHeat(int x, int y)
 {	
-	float tempHighest = 80;
+	float tempHighest = 100;
 	float tempLowest = -20;
 
 	float ratio = 2 * (allParticles[x][y]->temperature - tempLowest) / (tempHighest - tempLowest);
 
 	int r, g, b;
 
-	r = std::max(0, (int)(255 * (ratio - 1)));
-	b = std::max(0, (int)(255 * (1 - ratio)));
-	g = 255 - b - r;
+	r = g = b = 0;
+
+
+	if (allParticles[x][y]->temperature >= tempHighest)
+		r = 255;
+	else if (allParticles[x][y]->temperature <= tempLowest)
+		b = 255;
+	else
+	{
+		r = std::max(0, (int)(255 * (ratio - 1)));
+		b = std::max(0, (int)(255 * (1 - ratio)));
+		g = 255 - b - r;
+	}
 
 	EditPixel(x, y, SDL_MapRGB(mainSurface->format, r, g, b));	
 }
@@ -1745,7 +1755,7 @@ HeavyGas::HeavyGas(int newX, int newY, float newTemperature) : Airborn(TYPE_HEAV
 {
 }
 
-HeatPad::HeatPad(int newX, int newY, float newTemperature) : SolidImmobile(TYPE_HEAVYGAS, newX, newY, newTemperature)
+HeatPad::HeatPad(int newX, int newY, float newTemperature) : SolidImmobile(TYPE_HEATPAD, newX, newY, newTemperature)
 {
 }
 
