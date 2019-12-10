@@ -3,7 +3,6 @@
 #include "TTF.h"
 #include "Globals.h"
 
-//sdl
 #include <SDL.h>
 
 #include "Particles.h"
@@ -17,16 +16,18 @@ void Render()
 	// Set the surface to black.
 	SDL_FillRect(mainSurface, nullptr, 0x000000);
 
-	// render all particles.
+	// Render all particles.
 	for (int i = WINDOW_WIDTH - 1; i >= 0; i--)
 		for (int n = WINDOW_HEIGHT - 1; n >= 0; n--)
 			if (allParticles[i][n] != nullptr)
-				allParticles[i][n]->Draw();		
+				allParticles[i][n]->Draw();
 
 	SDL_Texture* pixelTexture = SDL_CreateTextureFromSurface(mainRenderer, mainSurface);
 	SDL_RenderCopy(mainRenderer, pixelTexture, nullptr, nullptr);
+
+	// Once we have finished printing the particles we may print the UI overtop.
 	
-	//render a box showing the brush location
+	// Render a box showing the brush location.
 	if (renderBrush)
 	{
 		SDL_SetRenderDrawColor(mainRenderer, 255, 255, 255, 0);
@@ -35,45 +36,45 @@ void Render()
 			SDL_RenderDrawPoint(mainRenderer, mouse.x, mouse.y);
 		else
 		{
-			//draw left side of box
+			// Draw left side of box.
 			for (int i = currentBrushSize; i > -currentBrushSize; i--)
 				SDL_RenderDrawPoint(mainRenderer, mouse.x - currentBrushSize, mouse.y + i);
 
-			//draw right side of box
+			// Draw right side of box.
 			for (int i = currentBrushSize; i > -currentBrushSize; i--)
 				SDL_RenderDrawPoint(mainRenderer, mouse.x + currentBrushSize, mouse.y + i);
 
-			//draw top of box
+			// Draw top of box.
 			for (int i = currentBrushSize; i > -currentBrushSize; i--)
 				SDL_RenderDrawPoint(mainRenderer, mouse.x + i, mouse.y - currentBrushSize);
 
-			//draw bottom of box
+			// Draw bottom of box.
 			for (int i = currentBrushSize; i > -currentBrushSize; i--)
 				SDL_RenderDrawPoint(mainRenderer, mouse.x + i, mouse.y + currentBrushSize);
 		}
 	}
 
-	//render what type of brush is selected at the top left	
+	//render what type of brush is selected at the top left.
 	if (!createAsSource)
 		brushName.SetText(mainRenderer, typeNames[currentBrushType]);
 	else
 		brushName.SetText(mainRenderer, "Source - " + typeNames[currentBrushType]);
 	brushName.Draw(mainRenderer, 20, 20);
 
-	//render what brush size is selected under that
+	// Render what brush size is selected under that.
 	brushSize.SetText(mainRenderer, std::to_string(currentBrushSize));
 	brushSize.Draw(mainRenderer, 20, 54);
 
-	//render brush temperature
+	// Render brush temperature.
 	brushTemperature.SetText(mainRenderer, std::to_string(currentBrushTemperature) + "c");
 	brushTemperature.Draw(mainRenderer, 20, 88);
 
-	//render selected particle type and temperature
+	// Render selected particle type and temperature.
 	if (allParticles[mouse.x][mouse.y] != nullptr)
 	{
 		selectedParticleTemperature.SetText(mainRenderer, std::to_string(allParticles[mouse.x][mouse.y]->temperature) + "c");
 
-		//check if source block
+		// Check if source block.
 		if (allParticles[mouse.x][mouse.y]->type != TYPE_SOURCE)
 			selectedParticleName.SetText(mainRenderer, typeNames[allParticles[mouse.x][mouse.y]->type]);
 		else
@@ -92,11 +93,11 @@ void Render()
 	selectedParticleTemperature.Draw(mainRenderer, 20, 206);
 
 
-	//render the current framerate
+	// Render the current framerate.
 	currentFrameRate.SetText(mainRenderer, std::to_string(static_cast<int>(avgFPS)));
 	currentFrameRate.Draw(mainRenderer, 20, WINDOW_HEIGHT - 34);
 
-	//render the frame and increase the counter frames
+	// Render the frame and increase the counter frames.
 	SDL_UnlockSurface(mainSurface);
 
 	std::cout << avgFPS << "\n";

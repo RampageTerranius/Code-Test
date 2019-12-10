@@ -1067,28 +1067,28 @@ bool Acid::HandleEvents()
 
 	//check each direction and attempt to damage any targeted blocks
 	if (canDamageUp)
-		if (random.oneHundred >= acidDamageChance)
+		if (random.oneHundred <= acidDamageChance)
 		{
 			allParticles[point.x][up]->health--;
 			health--;
 		}
 
 	if (canDamageDown)
-		if (random.oneHundred >= acidDamageChance)
+		if (random.oneHundred <= acidDamageChance)
 		{
 			allParticles[point.x][down]->health--;
 			health--;
 		}
 
 	if (canDamageLeft)
-		if (random.oneHundred >= acidDamageChance)
+		if (random.oneHundred <= acidDamageChance)
 		{
 			allParticles[left][point.y]->health--;
 			health--;
 		}
 
 	if (canDamageRight)
-		if (random.oneHundred >= acidDamageChance)
+		if (random.oneHundred <= acidDamageChance)
 		{
 			allParticles[right][point.y]->health--;
 			health--;
@@ -1152,13 +1152,13 @@ bool Plant::HandleEvents()
 		//check if can spread upwards
 		if (allParticles[point.x][up] != nullptr)
 			if (allParticles[point.x][up]->type == TYPE_WATER)
-				if (random.oneHundred >= plantSpreadChance)
+				if (random.oneHundred <= plantSpreadChance)
 					canGoUp = true;
 
 		//check if cna spread downwards
 		if (allParticles[point.x][down] != nullptr)
 			if (allParticles[point.x][down]->type == TYPE_WATER)			
-				if (random.oneHundred >= plantSpreadChance)
+				if (random.oneHundred <= plantSpreadChance)
 					canGoDown = true;
 	}
 
@@ -1168,14 +1168,14 @@ bool Plant::HandleEvents()
 		//check if cna spread left
 		if (allParticles[left][point.y] != nullptr)
 			if (allParticles[left][point.y]->type == TYPE_WATER)			
-				if (random.oneHundred >= plantSpreadChance)
+				if (random.oneHundred <= plantSpreadChance)
 					canGoLeft = true;
 			
 
 		//check if cna spread right
 		if (allParticles[right][point.y] != nullptr)
 			if (allParticles[right][point.y]->type == TYPE_WATER)			
-				if (random.oneHundred >= plantSpreadChance)				
+				if (random.oneHundred <= plantSpreadChance)				
 					canGoRight = true;
 			
 	}
@@ -1475,11 +1475,11 @@ bool Glitch::HandleEvents()
 	if (up >= 0)
 		if (allParticles[point.x][up] == nullptr)
 		{
-			if (random.oneHundred >= glitchSpreadChance)
+			if (random.oneHundred <= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
 		}
 		else if (allParticles[point.x][up]->type != TYPE_GLITCH)
-			if (random.oneHundred >= glitchSpreadChance)
+			if (random.oneHundred <= glitchSpreadChance)
 			{
 				DestroyParticle(point.x, up);
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
@@ -1488,11 +1488,11 @@ bool Glitch::HandleEvents()
 	if (down <= WINDOW_HEIGHT - 1)
 		if (allParticles[point.x][down] == nullptr)
 		{
-			if (random.oneHundred >= glitchSpreadChance)
+			if (random.oneHundred <= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
 		}
 		else if (allParticles[point.x][down]->type != TYPE_GLITCH)
-			if (random.oneHundred >= glitchSpreadChance)
+			if (random.oneHundred <= glitchSpreadChance)
 			{
 				DestroyParticle(point.x, down);
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
@@ -1501,11 +1501,11 @@ bool Glitch::HandleEvents()
 	if (left >= 0)
 		if (allParticles[left][point.y] == nullptr)
 		{
-			if (random.oneHundred >= glitchSpreadChance)
+			if (random.oneHundred <= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
 		}
 		else if (allParticles[left][point.y]->type != TYPE_GLITCH)
-			if (random.oneHundred >= glitchSpreadChance)
+			if (random.oneHundred <= glitchSpreadChance)
 			{
 				DestroyParticle(left, point.y);
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
@@ -1514,11 +1514,11 @@ bool Glitch::HandleEvents()
 	if (right <= WINDOW_WIDTH - 1)
 		if (allParticles[right][point.y] == nullptr)
 		{
-			if (random.oneHundred >= glitchSpreadChance)
+			if (random.oneHundred <= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
 		}
 		else if (allParticles[right][point.y]->type != TYPE_GLITCH)
-			if (random.oneHundred >= glitchSpreadChance)
+			if (random.oneHundred <= glitchSpreadChance)
 			{
 				DestroyParticle(right, point.y);
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
@@ -1617,7 +1617,7 @@ bool Fire::HandleEvents()
 
 					allParticles[point.x][up]->health = newHealth;
 				}
-				else if (random.oneHundred >= settingFlammability[allParticles[point.x][up]->type])
+				else if (random.oneHundred <= settingFlammability[allParticles[point.x][up]->type])
 				{
 					int newHealth = allParticles[point.x][up]->health;
 					int newX = point.x;
@@ -1648,7 +1648,7 @@ bool Fire::HandleEvents()
 
 					allParticles[point.x][down]->health = newHealth;
 				}
-				else if (random.oneHundred >= settingFlammability[allParticles[point.x][down]->type])
+				else if (random.oneHundred <= settingFlammability[allParticles[point.x][down]->type])
 				{
 					int newHealth = allParticles[point.x][down]->health;
 					int newX = point.x;
@@ -1679,7 +1679,7 @@ bool Fire::HandleEvents()
 
 					allParticles[left][point.y]->health = newHealth;
 				}
-				else if (random.oneHundred >= settingFlammability[allParticles[left][point.y]->type])
+				else if (random.oneHundred <= settingFlammability[allParticles[left][point.y]->type])
 				{
 					int newHealth = allParticles[left][point.y]->health;
 					int newX = left;
@@ -1710,7 +1710,7 @@ bool Fire::HandleEvents()
 
 					allParticles[right][point.y]->health = newHealth;
 				}
-				else if (random.oneHundred >= settingFlammability[allParticles[right][point.y]->type])
+				else if (random.oneHundred <= settingFlammability[allParticles[right][point.y]->type])
 				{
 					int newHealth = allParticles[right][point.y]->health;
 					int newX = right;
