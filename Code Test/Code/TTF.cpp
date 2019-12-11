@@ -17,7 +17,11 @@ TTF::TTF()
 void TTF::Clear()
 {
 	if (texture != nullptr)
+	{
 		SDL_DestroyTexture(texture);
+		if (texture != nullptr)
+			texture = nullptr;
+	}
 
 	if (font != nullptr)
 		TTF_CloseFont(font);
