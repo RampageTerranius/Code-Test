@@ -6,7 +6,7 @@ void EntityHandle()
 {
 	if (!pauseParticles)
 	{
-		// Handling Evens.
+		// Handling Events.
 		for (int i = WINDOW_WIDTH - 1; i >= 0; i--)
 			for (int n = WINDOW_HEIGHT - 1; n >= 0; n--)
 				if (allParticles[i][n] != nullptr)

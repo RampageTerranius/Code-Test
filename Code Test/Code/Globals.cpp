@@ -1,219 +1,219 @@
 #include "globals.h"
 
-//global variables
+// Global variables.
 const std::string PROGRAM_NAME = "Falling Sand";
 
 int frameRateLimit = 60;
 
-//used to determine default screen size
+// Used to determine default screen size.
 
-const int MAX_BRUSH_SIZE = 32;//the total largest size the brush may be
+const int MAX_BRUSH_SIZE = 32;// The total largest size the brush may be.
 
-//sdl window and renderer
+// Sdl window and renderer.
 SDL_Window* mainWindow = nullptr;
 SDL_Renderer* mainRenderer = nullptr;
 SDL_Surface* mainSurface = nullptr;
 
-//main texture used for drawing pixels to screen
+// Main texture used for drawing pixels to screen.
 SDL_Texture* pixelTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 float avgFPS = 0;
 
-int currentBrushTemperature = 20;//changing this will change the default brush temperature
-ParticleType currentBrushType = TYPE_SAND;
+int currentBrushTemperature = 20;// Changing this will change the default brush temperature.
+ParticleType currentBrushType = TYPE_WALL;
 int currentBrushSize = 4;
 
 int countedFrames = 0;
 bool running = false;
 
-//ingame settings, these are the default settings for the given options
+// Ingame settings, these are the default settings for the given options.
 
-bool drawHeat = false;//when true will render particles color via heat instead of handing off draw fucntions to the particle its self
-bool loopScreen = true;//when true particles that attempt to drop downwards while at the bottom of the screen will instead loop to the top of the screen, does the same for particles attempting to move upwards as well
-bool pauseParticles = false;//when true particles physics and events will be paused, does not pause the entire program
-bool renderBrush = true;//when true will show an outline of where particles will be brushed to
-bool createAsSource = false;//if the blocks created should be source particles or standard particles
+bool drawHeat = false;// When true will render particles color via heat instead of handing off draw fucntions to the particle its self
+bool loopScreen = false;// When true particles that attempt to drop downwards while at the bottom of the screen will instead loop to the top of the screen, does the same for particles attempting to move upwards as well
+bool pauseParticles = false;// When true particles physics and events will be paused, does not pause the entire program
+bool renderBrush = true;// When true will show an outline of where particles will be brushed to
+bool createAsSource = false;// If the blocks created should be source particles or standard particles
 
 
-//weight (-1 donates it does not calculate weight)
+// Weight (-1 donates it does not calculate weight)
 int settingWeight[TYPE_TOTALTYPES]
 {
-	//Wall
+	// Wall.
 	-1,
-	//Sand
+	// Sand.
 	10,
-	//Water
+	// Water.
 	3,
-	//Ice
+	// Ice.
 	-1,
-	//Thermal
+	// Thermal.
 	4,
-	//Acid
+	// Acid.
 	1,
-	//Steam
+	// Steam.
 	2,
-	//plant
+	// Plant.
 	-1,
-	//salt
+	// Salt.
 	6,
-	//salt water
+	// Salt water.
 	5,
-	//salt ice,
+	// Salt ice.
 	-1,
-	//glitch
+	// Glitch.
 	-1,
-	//stone
+	// Stone.
 	20,
-	//lava
+	// Lava.
 	7,
-	//fire
+	// Fire.
 	-1,
-	//gas
+	// Gas.
 	5,
-	//light gas
+	// Light gas.
 	3,
-	//heavy gas
+	// Heavy gas.
 	7,
 	// Heat Pad.
 	-1,
 
-	//the following must ALWAYS be at the end
-	//source
+	// The following must ALWAYS be at the end.
+	// Source.
 	-1
 };
 
-//health (-1 donates can not be broken)
+// Health (-1 donates can not be broken)
 int settingHealth[TYPE_TOTALTYPES]
 {
-	//Wall
+	// Wall.
 	500,
-	//Sand
+	// Sand.
 	160,
-	//Water
+	// Water.
 	80,
-	//Ice
+	// Ice.
 	100,
-	//Thermal
+	// Thermal.
 	20,
-	//Acid
-	200,//loses health each time it damages another block
-	//Steam
+	// Acid.
+	200,// Loses health each time it damages another block.
+	// Steam.
 	20,
-	//Plant
+	// Plant.
 	120,
-	//salt
+	// Salt.
 	140,
-	//salt water
+	// Salt water.
 	100,
-	//salt ice
+	// Salt ice.
 	120,
-	//glitch
+	// Glitch.
 	50,
-	//stone
+	// Stone.
 	260,
-	//lava
+	// Lava.
 	100,
-	//fire(loses health per tick)
+	// Fire(loses health per tick)
 	300,
-	//gas
+	// Gas.
 	50,
-	//light gas
+	// Light gas.
 	50,
-	//heavy gas
+	// Heavy gas.
 	50,
 	// Heat Pad.
 	60,
 
-	//the following must ALWAYS be at the end
-	//source
+	// The following must ALWAYS be at the end.
+	// Source.
 	300
 };
 
 float settingThermalConductivity[TYPE_TOTALTYPES]
 {
-	//Wall
+	// Wall.
 	0.0006f,
-	//Sand
+	// Sand.
 	0.0025f,
-	//Water
+	// Water.
 	0.0125f,
-	//Ice
+	// Ice.
 	0.015f,
-	//Thermal
+	// Thermal.
 	2.5f,
-	//Acid
+	// Acid.
 	0.2f,
-	//Steam
+	// Steam.
 	0.03f,
-	//plant
+	// Plant.
 	0.026f,
-	//salt
+	// Salt.
 	0.0185f,
-	//salt water
+	// Salt water.
 	0.015f,
-	//salt ice
+	// Salt ice.
 	0.0175f,
-	//glitch
+	// Glitch.
 	0,
-	//stone
+	// Stone.
 	0.0018f,
-	//lava
+	// Lava.
 	0.005f,
-	//fire
+	// Fire.
 	0.1f,
-	//gas
+	// Gas.
 	0.01f,
-	//light gas
+	// Light gas.
 	0.01f,
-	//heavy gas
+	// Heavy gas.
 	0.01f,
 	// Heat Pad.
 	0.05f,
 
-	//the following must ALWAYS be at the end
-	//source
+	// The following must ALWAYS be at the end.
+	// Source.
 	0
 };
 
-//color settings
-//format is R, G, B, A
+// Color settings.
+// Format is R, G, B, A.
 int settingColor[TYPE_TOTALTYPES][4]
 {
-	//Wall
+	// Wall.
 	{87, 87, 87, 0},
-	//Sand
+	// Sand.
 	{207, 226, 34, 0},
-	//Water
+	// Water.
 	{0, 0, 255, 0},
-	//Ice
+	// Ice.
 	{100, 255, 255, 0},
-	//Thermal
+	// Thermal.
 	{150, 50, 255, 0},
-	//Acid
+	// Acid.
 	{102, 0, 102, 0},
-	//Steam
+	// Steam.
 	{200, 255, 255, 0},
-	//plant
+	// Plant.
 	{20, 150, 20, 0},
-	//salt
+	// Salt.
 	{230, 230, 230, 0},
-	//salt water
+	// Salt water.
 	{0, 0, 150, 0},
-	//salt ice
+	// Salt ice.
 	{100, 255, 150, 0},
-	//glitch(this color is not used here, glitch particles color is randomized)
+	// Glitch (this color is not used here, glitch particles color is randomized)
 	{0, 0, 0, 0},
-	//stone
+	// Stone.
 	{127, 127, 90, 0},
-	//lava
+	// Lava.
 	{255, 153, 51, 0},
-	//fire
+	// Fire.
 	{255, 20, 20, 0},
-	//gas
+	// Gas.
 	{150, 20, 150, 0},
-	//light gas
+	// Light gas.
 	{160, 40, 160, 0},
-	//heavy gas
+	// Heavy gas.
 	{170, 60, 170, 0},
 	// Heat pad (this particle uses heat color to self print).
 	{0, 0, 0, 0}
@@ -223,96 +223,96 @@ int settingColor[TYPE_TOTALTYPES][4]
 // Flammability is in a percentage basis (0 to 100)
 int settingFlammability[TYPE_TOTALTYPES]
 {
-	//Wall
+	// Wall.
 	0,
-	//Sand
+	// Sand.
 	0,
-	//Water
+	// Water.
 	0,
-	//Ice
+	// Ice.
 	0,
-	//Thermal
+	// Thermal.
 	2,
-	//Acid
+	// Acid.
 	0,
-	//Steam
+	// Steam.
 	0,
-	//plant
+	// Plant.
 	25,
-	//salt
+	// Salt.
 	0,
-	//salt water
+	// Salt water.
 	0,
-	//salt ice,
+	// Salt ice.
 	0,
-	//glitch
+	// Glitch.
 	0,
-	//stone
+	// Stone.
 	0,
-	//lava
+	// Lava.
 	0,
-	//fire
+	// Fire.
 	0,
-	//gas
+	// Gas.
 	80,
-	//light gas
+	// light gas.
 	80,
-	//heavy gas
+	// Heavy gas.
 	80,
 	// Heat pad.
 	0,
 
-	//the following must ALWAYS be at the end
-	//source
+	// The following must ALWAYS be at the end.
+	// Source.
 	-1
 };
 
-//other settings
-//freeze/melt/boil points
+// Other settings.
+// Freeze/melt/boil points.
 float waterFreezePoint = 0;
 float iceMeltPoint = 2;
 float steamCondensationPoint = 98;
 float waterBoilIntoSteamPoint = 100;
-float saltWaterEventTempMultiplier = 1.2f;//a value of 1.1 would give a 10% increase over water boil/freeze points
+float saltWaterEventTempMultiplier = 1.2f;// A value of 1.1 would give a 10% increase over water boil/freeze points.
 float lavaSolidifyTemp = 200;
 
-//randomised event chances
+// Randomised event chances.
 int acidDamageChance = 30;// Percentage chance.
 int plantSpreadChance = 20;// Percentage chance.
 int glitchSpreadChance = 5;// Percentage chance.
 
-//airborn particle movement rates (movement in percentage chance, MUST equal up to 100 in total)
-//steam
+// Airborn particle movement rates (movement in percentage chance, MUST equal up to 100 in total)
+// Steam.
 int steamAscendRate = 65;
 int steamDescendRate = 0;
 int steamSidewardsRate = 25;
 int steamNoMovementRate = 10;
-//fire
+// Fire.
 int fireAscendRate = 85;
 int fireDescendRate = 0;
 int fireSidewardsRate = 15;
 int fireNoMovementRate = 0;
-//gas
+// Gas.
 int gasAscendRate = 50;
 int gasDescendRate = 10;
 int gasSidewardsRate = 30;
 int gasNoMovementRate = 10;
-//heavy gas
+// Heavy gas.
 int heavyGasAscendRate = 10;
 int heavyGasDescendRate = 60;
 int heavyGasSidewardsRate = 20;
 int heavyGasNoMovementRate = 10;
-//light gas
+// Light gas.
 int lightGasAscendRate = 75;
 int lightGasDescendRate = 6;
 int lightGasSidewardsRate = 10;
 int lightGasNoMovementRate = 9;
 
 
-//affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles
-// is calculated like so
+// Affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles.
+// Is calculated like so.
 // abs( (allParticles[x1][y1]->temperature - allParticles[x2][y2]->temperature) / allParticles[x1][y1]->temperature) * 100 ) / temperatureDifferenceDivisor
-//lower number = faster spread
+// Lower number = faster spread.
 int temperatureDifferenceDivisor = 15;
 
 TTF brushName = TTF();

@@ -2,11 +2,10 @@
 
 #include "TTF.h"
 #include "Globals.h"
-
-#include <SDL.h>
-
 #include "Particles.h"
 #include "Mouse.h"
+
+#include <SDL.h>
 
 void Render()
 {

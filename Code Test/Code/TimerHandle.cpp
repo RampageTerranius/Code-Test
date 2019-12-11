@@ -23,10 +23,10 @@ void Timer::Pause()
 {
 	if (started && !paused)
 	{
-		//pause the timer
+		// Pause the timer.
 		paused = true;
 
-		//get the time it was paused
+		// Get the time it was paused.
 		pauseTick = SDL_GetTicks() - startTick;
 	}
 }
@@ -35,27 +35,27 @@ void Timer::Unpause()
 {
 	if (paused)
 	{
-		//unpause
+		// Unpause.
 		paused = false;
 
-		//set the time for the timer
+		// Set the time for the timer.
 		startTick = SDL_GetTicks() - pauseTick;
 
-		//reset the paused tick
+		// Reset the paused tick.
 		pauseTick = 0;
 	}
 }
 
 int Timer::GetTicks()
 {
-	//make sure timer has been started
+	// Make sure timer has been started.
 	if (started)
-		//check if the timer is paused or not
+		// Check if the timer is paused or not.
 		if (paused)
-			//if paused we need to get the time it was paused
+			// If paused we need to get the time it was paused.
 			return pauseTick;
 		else
-			//if not paused we need to return the true time
+			// If not paused we need to return the true time.
 			return SDL_GetTicks() - startTick;
 
 	return 0;
@@ -72,7 +72,7 @@ void TimerHandle(Timer* cap, Timer* fps)
 		int frameTicks = cap->GetTicks();
 		if (frameTicks < (1000 / frameRateLimit))
 		{
-			//Wait remaining time
+			// Wait remaining time.
 			SDL_Delay((1000 / frameRateLimit) - frameTicks);
 		}
 	}

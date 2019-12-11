@@ -1,4 +1,5 @@
 #include "Shutdown + Startup.h"
+
 #include "Particles.h"
 
 #include <SDL.h>
@@ -40,7 +41,7 @@ bool Setup()
 		return false;
 	}
 
-	//create main window
+	// Create main window.
 	Uint32 windowFlags = SDL_WINDOW_OPENGL;
 	mainWindow = SDL_CreateWindow(PROGRAM_NAME.c_str(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, windowFlags);
 
@@ -49,7 +50,7 @@ bool Setup()
 	Uint32 renderFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
 	mainRenderer = SDL_CreateRenderer(mainWindow, -1, renderFlags);
 
-	//setup ttf objects
+	// Setup ttf objects.
 	if (!brushName.SetFont("pxl.ttf", 24))
 	{
 		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
@@ -82,11 +83,6 @@ bool Setup()
 		return false;
 	}
 
-	// Prepare the 2d vector or particles used to keep track of all particles.
-	//allParticles.resize(WINDOW_WIDTH);
-	//for (int i = 0; i < WINDOW_WIDTH; ++i)
-		//allParticles[i].resize(WINDOW_HEIGHT);
-
 	// SPEED TESTING LINES
 	// DISABLE THESE IF NOT SPEED TESTING
 	for (int i = 0; i < WINDOW_WIDTH; i++)
@@ -99,13 +95,13 @@ bool Setup()
 
 void Shutdown()
 {
-	//destroy the main window before shutdown
+	// Destroy the main window before shutdown.
 	SDL_DestroyWindow(mainWindow);
 
-	//destroy the main renderer before shutdown
+	// Destroy the main renderer before shutdown.
 	SDL_DestroyRenderer(mainRenderer);
 
-	//clear up the pointer array used for the particles
+	// Clear up the pointer array used for the particles.
 	for (int i = 0; i < WINDOW_WIDTH - 1; i++)
 		for (int n = 0; n < WINDOW_HEIGHT - 1; n++)
 		{
@@ -113,7 +109,7 @@ void Shutdown()
 			allParticles[i][n] = nullptr;
 		}
 
-	//clean up all TTF files
+	// Clean up all TTF files.
 	brushName.Clear();
 	brushSize.Clear();
 	brushTemperature.Clear();
@@ -121,9 +117,10 @@ void Shutdown()
 	selectedParticleName.Clear();
 	currentFrameRate.Clear();
 
-	//destroy the surface used for drawing particles
+	// Destroy the surface used for drawing particles.
 	SDL_FreeSurface(mainSurface);
-	mainSurface = nullptr;
+	if (mainSurface != nullptr)
+		mainSurface = nullptr;
 
 	SDL_Quit();
 }

@@ -1,10 +1,9 @@
 #include "TTF.h"
 
-#include <string>
-
-//sdl
 #include <SDL.h>
 #include <SDL_ttf.h>
+
+#include <string>
 
 TTF::TTF()
 {
@@ -14,7 +13,7 @@ TTF::TTF()
 	texture = nullptr;
 }
 
-//cleans up any in use fonts and surfaces, should be called on closing program
+// Cleans up any in use fonts and surfaces, should be called on closing program.
 void TTF::Clear()
 {
 	if (texture != nullptr)
@@ -24,7 +23,7 @@ void TTF::Clear()
 		TTF_CloseFont(font);
 }
 
-//set the currently in use font
+// Set the currently in use font.
 bool TTF::SetFont(std::string fontLocation, int size)
 {
 	if (font == nullptr)
@@ -37,7 +36,7 @@ bool TTF::SetFont(std::string fontLocation, int size)
 	}
 	else
 	{
-		//close the current font first THEN open the new one
+		// Close the current font first THEN open the new one.
 		TTF_CloseFont(font);
 		font = TTF_OpenFont(fontLocation.c_str(), size);
 		if (font != nullptr)
@@ -54,18 +53,18 @@ void TTF::SetColor(int r, int g, int b)
 	color.b = b;
 };
 
-//set the text to show, creates a surface with the given text
+// Set the text to show, creates a surface with the given text.
 void TTF::SetText(SDL_Renderer* renderer, std::string newText)
 {
 	if (font != nullptr)
 	{
-		//if we already have the same message then stop here
+		// If we already have the same message then stop here.
 		if (text == newText)
 			return;
 		else
 			text = newText;
 
-		//delete the old texture if it exists
+		// Delete the old texture if it exists.
 		if (texture != nullptr)
 			SDL_DestroyTexture(texture);
 
@@ -76,19 +75,19 @@ void TTF::SetText(SDL_Renderer* renderer, std::string newText)
 	}
 }
 
-//draws the surface to the given renderer
+// Draws the surface to the given renderer.
 void TTF::Draw(SDL_Renderer* renderer, int x, int y)
 {
-	//make sure we have data to work with
+	// Make sure we have data to work with.
 	if (renderer != nullptr && texture != nullptr && font != nullptr)
 	{
-		//prepare the render zones ahead of time
+		// Prepare the render zones ahead of time.
 		SDL_Rect rect;
 		rect.x = x;
 		rect.y = y;
 		SDL_QueryTexture(texture, nullptr, nullptr, &rect.w, &rect.h);
 
-		//render the texture of the words to the given renderer
+		// Render the texture of the words to the given renderer.
 		SDL_RenderCopy(renderer, texture, nullptr, &rect);
 	};
 }
