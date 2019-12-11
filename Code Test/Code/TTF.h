@@ -1,10 +1,9 @@
 #pragma once
 
-#include <string>
-
-//sdl
 #include <SDL.h>
 #include <SDL_ttf.h>
+
+#include <string>
 
 class TTF
 {

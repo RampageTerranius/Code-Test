@@ -1,14 +1,13 @@
 #pragma once
 
+#include "Globals.h"
+#include "ParticleTypes.h"
+
+#include <SDL.h>
+
 #include <string>
 #include <vector>
 #include <iostream>
-
-//sdl
-#include <SDL.h>
-
-#include "Globals.h"
-#include "ParticleTypes.h"
 
 class Particle
 {
@@ -79,16 +78,16 @@ bool DropParticle(int x, int y);
 bool AscendParticle(int x, int y, bool randomize);
 void EvenOutTemperatures(int x1, int y1, int x2, int y2);
 
-//wall particles
-//does not move
+// Wall particles.
+// Does not move.
 class Wall : public SolidImmobile
 {
 public:
 	Wall(int newX, int newY, float newTemperature);
 };
 
-//plant particles
-//does not move but can convert neighbouring water particles into plant particles
+// Plant particles.
+// Does not move but can convert neighbouring water particles into plant particles.
 class Plant : public SolidImmobile
 {
 public:
@@ -96,8 +95,8 @@ public:
 	bool HandleEvents();
 };
 
-//glitch particle
-//slowly consumes all space, will delete and remove other blocks in its way
+// Glitch particle.
+// Slowly consumes all space, will delete and remove other blocks in its way.
 class Glitch : public SolidImmobile
 {
 public:
@@ -106,16 +105,16 @@ public:
 	bool HandleEvents();
 };
 
-//sand particles
+// Sand particles.
 class Sand : public SolidMobile
 {
 public:
 	Sand(int newX, int newY, float newTemperature);
 };
 
-//water particles
-//always attempts to move downwards if nothing is in way, will always try to move either left or right if cant move down
-//can freeze into water
+// Water particles.
+// Always attempts to move downwards if nothing is in way, will always try to move either left or right if cant move down.
+// Can freeze into water.
 class Water : public Liquid
 {
 public:
@@ -123,14 +122,14 @@ public:
 	bool HandleEvents();
 };
 
-//basically just water but has a very high thermal conductivity
+// Basically just water but has a very high thermal conductivity.
 class ThermalFluid : public Liquid
 {
 public:
 	ThermalFluid(int newX, int newY, float newTemperature);
 };
 
-//basicalyl jsut water but it damaged blocks around it
+// Basically jsut water but it damaged blocks around it.
 class Acid : public Liquid
 {
 public:
@@ -138,8 +137,8 @@ public:
 	bool HandleEvents();
 };
 
-//salt water particles
-//basically just standard water but a bit more heavier and will damage any plants it touches
+// Salt water particles.
+// Basically just standard water but a bit more heavier and will damage any plants it touches.
 class SaltWater : public Liquid
 {
 public:
@@ -147,8 +146,8 @@ public:
 	bool HandleEvents();
 };
 
-//salt particle
-//basically sand but can combine with water to become salt water
+// Salt particle.
+// Basically sand but can combine with water to become salt water.
 class Salt : public SolidMobile
 {
 public:
@@ -156,9 +155,9 @@ public:
 	bool HandleEvents();
 };
 
-//ice particles
-//does not move
-//can melt into water
+// Ice particles.
+// Does not move.
+// Can melt into water.
 class Ice : public SolidImmobile
 {
 public:
@@ -166,9 +165,9 @@ public:
 	bool HandleEvents();
 };
 
-//salt ice particles
-//does not move
-//can melt into salt water
+// Salt ice particles.
+// Does not move.
+// Can melt into salt water.
 class SaltIce : public SolidImmobile
 {
 public:
@@ -176,9 +175,9 @@ public:
 	bool HandleEvents();
 };
 
-//steam particles
-//move upwards in a randomised direction, somewhat like a reverese water particle
-//turns back into water when cools down
+// Steam particles.
+// Move upwards in a randomised direction, somewhat like a reverese water particle.
+// Turns back into water when cools down.
 class Steam : public Airborn
 {
 public:
@@ -186,9 +185,9 @@ public:
 	bool HandleEvents();
 };
 
-//source particle
-//creates other particles of the given source type around it
-//can be a source for any other type of block, useful for self repairing walls or for self replenishing water for example
+// Source particle.
+// Creates other particles of the given source type around it.
+// Can be a source for any other type of block, useful for self repairing walls or for self replenishing water for example.
 class Source : public SolidImmobile
 {
 public:
@@ -199,8 +198,8 @@ public:
 	ParticleType sourceType;
 };
 
-//stone particles
-//can melt into lava at high heat
+// Stone particles.
+// Can melt into lava at high heat.
 class Stone : public SolidMobile
 {
 public:
@@ -208,8 +207,8 @@ public:
 	bool HandleEvents();
 };
 
-//lava particles
-//can turn into stone at low temperatures
+// Lava particles.
+// Can turn into stone at low temperatures.
 class Lava : public Liquid
 {
 public:
@@ -217,9 +216,9 @@ public:
 	bool HandleEvents();
 };
 
-//fire particles
-//airborn type that will lose health quickly
-//sets flammable particles on fire
+// Fire particles.
+// Airborn type that will lose health quickly.
+// Sets flammable particles on fire.
 class Fire : public Airborn
 {
 public:
@@ -227,9 +226,9 @@ public:
 	bool HandleEvents();
 };
 
-//gas particles
-//airborn type
-//standard airborn that will spread fire fast
+// Gas particles.
+// Airborn type.
+// Standard airborn that will spread fire fast.
 class Gas : public Airborn
 {
 public:

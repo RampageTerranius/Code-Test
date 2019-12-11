@@ -1,18 +1,15 @@
 #include "Shutdown + Startup.h"
+#include "Particles.h"
 
-#include <string>
-
-//sdl
 #include <SDL.h>
 #include <SDL_ttf.h>
-#include <iostream>
 
-#include "Particles.h"
+#include <string>
+#include <iostream>
 
 bool Setup()
 {
-
-	//initialize each SDL segment individually
+	// Initialize each SDL segment individually.
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
 		std::cout << ("Unable to initialize SDL_VIDEO: %s", SDL_GetError());

@@ -1,4 +1,4 @@
 #pragma once
 
-//runs code to do with particles currently loaded
+// Runs code to do with particles currently loaded.
 void EntityHandle();

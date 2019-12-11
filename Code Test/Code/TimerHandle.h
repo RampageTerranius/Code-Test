@@ -1,11 +1,10 @@
 #pragma once
 
-//sdl
-#include <SDL.h>
-
 #include "Globals.h"
 
-//class for handling timers
+#include <SDL.h>
+
+// Class for handling timers.
 class Timer
 {
 	public:

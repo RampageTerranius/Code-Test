@@ -1,6 +1,6 @@
 #pragma once
 
-//project
+// Project files.
 #include "TimerHandle.h"
 #include "EntityHandle.h"
 #include "EventHandle.h"

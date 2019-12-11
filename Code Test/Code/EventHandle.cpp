@@ -1,44 +1,44 @@
 #include "EventHandle.h"
 
-//sdl
-#include <SDL.h>
-
 #include "Mouse.h"
 #include "Keyboard.h"
 #include "Globals.h"
 #include "Particles.h"
 
-//used to switch the brush type back or forth automaticlaly
+#include <SDL.h>
+
+// Used to switch the brush type back or forth automatically.
 void SwitchBrushType(bool gotoNext)
 {
-	//temp variables used to determine how many particles there is and the current brush type
+	// Temp variables used to determine how many particles there is and the current brush type.
 	int i = currentBrushType;
 
-	//if told to goto next brush
+	// If told to goto next brush.
 	if (gotoNext)
 	{
 		i++;
 
-		//make sure we havent gone over the struct size
+		// Make sure we havent gone over the struct size.
 		if (i > TYPE_TOTALTYPES - 2)
 			i = 0;
 
-		//cast the int as particleType and update the current brush
+		// Cast the int as particleType and update the current brush.
 		currentBrushType = static_cast<ParticleType>(i);
 	}
-	else//if told to goto last brush type
+	else// If told to goto last brush type.
 	{
 		i--;
 
-		//make sure we havent gone under the struct size
+		// Make sure we havent gone under the struct size.
 		if (i < 0)
 			i = TYPE_TOTALTYPES - 2;
 
-		//cast the int as particleType and update the current brush
+		// Cast the int as particleType and update the current brush.
 		currentBrushType = static_cast<ParticleType>(i);
 	}
 }
 
+// Handles all key/mouse events.
 void UpdateEventStructs(SDL_Event event)
 {
 	while (SDL_PollEvent(&event))
@@ -184,7 +184,7 @@ void UpdateEventStructs(SDL_Event event)
 			}
 			break;
 
-			//on mouse movement
+			// On mouse movement.
 		case SDL_MOUSEMOTION:
 			SDL_GetMouseState(&mouse.x, &mouse.y);
 			if (mouse.x < 0)
@@ -197,7 +197,7 @@ void UpdateEventStructs(SDL_Event event)
 				mouse.y = WINDOW_HEIGHT - 1;
 			break;
 
-			//on mouse button down
+			// On mouse button down.
 		case SDL_MOUSEBUTTONDOWN:
 			switch (event.button.button)
 			{
@@ -215,7 +215,7 @@ void UpdateEventStructs(SDL_Event event)
 			}
 			break;
 
-			//on mouse button up
+			// On mouse button up.
 		case SDL_MOUSEBUTTONUP:
 			switch (event.button.button)
 			{
@@ -238,7 +238,8 @@ void UpdateEventStructs(SDL_Event event)
 
 void CreateParticlesAtBrush(ParticleType type, int x, int y, float temperature)
 {
-	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
+	// TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm.
+	// Check the size of the brush and create particles in the range given.
 	if (currentBrushSize == 1)
 		CreateParticle(type, mouse.x, mouse.y, temperature, createAsSource);
 	else for (int i = currentBrushSize; i > -currentBrushSize; i--)
@@ -248,12 +249,21 @@ void CreateParticlesAtBrush(ParticleType type, int x, int y, float temperature)
 
 void DestroyParticlesAtBrush(int x, int y)
 {
-	//TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm
+	// TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm.
+	// Check the size of the brush and delete particles in range.
 	if (currentBrushSize == 1)
 		DestroyParticle(mouse.x, mouse.y);
-	else for (int i = currentBrushSize; i > -currentBrushSize; i--)
-		for (int n = currentBrushSize; n > -currentBrushSize; n--)
-			DestroyParticle(mouse.x + i, mouse.y + n);//TODO: unlock all particles that were touching the outsides of the brush
+	else for (int i = currentBrushSize + 1; i > -(currentBrushSize + 1); i--)
+		for (int n = currentBrushSize + 1; n > -(currentBrushSize + 1); n--)
+		{
+			if ((i <= currentBrushSize && i >= -currentBrushSize) && (n <= currentBrushSize && n >= -currentBrushSize))
+				DestroyParticle(mouse.x + i, mouse.y + n);// Delete all particles inside of brush
+			else if ((i >= 0 && i <= WINDOW_WIDTH) && (n >= 0 && n <= WINDOW_HEIGHT))
+				if (allParticles[i][n] != nullptr)
+					allParticles[i][n]->locked = false;// Unlock all neighbouring particles of the brush.
+		}
+
+	
 }
 
 // Handles all keyboard/mouse events.
