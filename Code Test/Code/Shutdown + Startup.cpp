@@ -11,6 +11,7 @@
 
 bool Setup()
 {
+
 	//initialize each SDL segment individually
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{

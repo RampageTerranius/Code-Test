@@ -1,6 +1,19 @@
 #include <algorithm>
+#include <iostream>
 
 #include "Particles.h"
+
+// https://codingforspeed.com/using-faster-psudo-random-generator-xorshift/
+uint32_t xor128(void) {
+	static uint32_t x = 123456789;
+	static uint32_t y = 362436069;
+	static uint32_t z = 521288629;
+	static uint32_t w = 88675123;
+	uint32_t t;
+	t = x ^ (x << 11);
+	x = y; y = z; z = w;
+	return w = w ^ (w >> 19) ^ (t ^ (t >> 8));
+}
 
 // http://sdl.beuc.net/sdl.wiki/Pixel_Access
 void EditPixel(int x, int y, Uint32 pixel)
@@ -254,7 +267,7 @@ bool DropParticle(int x, int y, bool randomize)
 	//attempt to randomize the way it will move while going down
 	if (randomize)
 	{
-		tempX += ((rand() % 3) - 1);
+		tempX += ((xor128() % 3) - 1);
 
 		if (tempX < 0)
 			return false;
@@ -297,7 +310,7 @@ bool AscendParticle(int x, int y, bool randomize)
 	//attempt to randomize the way it will move while going up
 	if (randomize)
 	{
-		tempX += ((rand() % 3) - 1);
+		tempX += ((xor128() % 3) - 1);
 
 		if (tempX < 0)
 			return false;
@@ -583,7 +596,7 @@ void SolidMobile::HandlePhysics()
 
 		if (canGoLeft && canGoRight)
 		{
-			switch (rand() % 2)
+			switch (xor128() % 2)
 			{
 				//go left
 			case 0:
@@ -671,7 +684,7 @@ void SolidMobile::HandlePhysics()
 	else if (allParticles[right][down] == nullptr && allParticles[left][down] == nullptr)
 	{
 
-		switch (rand() % 2)
+		switch (xor128() % 2)
 		{
 			//go left
 		case 0:
@@ -745,7 +758,7 @@ void Liquid::HandlePhysics()
 		//can go either way
 		if (canGoLeft && canGoRight)
 		{
-			switch (rand() % 2)
+			switch (xor128() % 2)
 			{
 				//go left
 			case 0:
@@ -823,7 +836,7 @@ void Liquid::HandlePhysics()
 	//both ways are free, randomly choose one and move	
 	else if (allParticles[right][point.y] == nullptr && allParticles[left][point.y] == nullptr)
 	{
-		switch (rand() % 2)
+		switch (xor128() % 2)
 		{
 			//go left
 		case 0:
@@ -869,7 +882,7 @@ void Airborn::HandlePhysics()
 	left--;
 	right++;
 
-	int random = rand() % 100;
+	int random = xor128() % 100;
 
 	//check if should ascend
 	if (random < ascendRate)
@@ -915,7 +928,7 @@ void Airborn::HandlePhysics()
 		//can go either way
 		if (canGoLeft && canGoRight)
 		{
-			switch (rand() % 2)
+			switch (xor128() % 2)
 			{
 				//go left
 			case 0:
@@ -1076,7 +1089,7 @@ bool Acid::HandleEvents()
 			if (allParticles[right][point.y]->type != TYPE_ACID)
 				canDamageRight = true;
 
-	int random = rand() % 100;
+	int random = xor128() % 100;
 
 	//check each direction and attempt to damage any targeted blocks
 	if (canDamageUp)
@@ -1159,7 +1172,7 @@ bool Plant::HandleEvents()
 	bool canGoUp, canGoDown, canGoLeft, canGoRight;
 	canGoUp = canGoDown = canGoLeft = canGoRight = false;
 
-	int random = rand() % 100;
+	int random = xor128() % 100;
 
 	//check up and down
 	if (point.y > 0 && point.y < WINDOW_HEIGHT - 1)
@@ -1465,8 +1478,7 @@ Glitch::Glitch(int newX, int newY, float newTemperature) : SolidImmobile(TYPE_GL
 }
 void Glitch::Draw()
 {
-	SDL_SetRenderDrawColor(mainRenderer, (rand() % 255), (rand() % 255), (rand() % 255), 0);
-	SDL_RenderDrawPoint(mainRenderer, point.x, point.y);
+	EditPixel(point.x, point.y, xor128());
 }
 
 bool Glitch::HandleEvents()
@@ -1490,11 +1502,11 @@ bool Glitch::HandleEvents()
 	if (up >= 0)
 		if (allParticles[point.x][up] == nullptr)
 		{
-			if (rand() % 100 <= glitchSpreadChance)
+			if (xor128() % 100 <= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
 		}
 		else if (allParticles[point.x][up]->type != TYPE_GLITCH)
-			if (rand() % 100 <= glitchSpreadChance)
+			if (xor128() % 100 <= glitchSpreadChance)
 			{
 				DestroyParticle(point.x, up);
 				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
@@ -1503,11 +1515,11 @@ bool Glitch::HandleEvents()
 	if (down <= WINDOW_HEIGHT - 1)
 		if (allParticles[point.x][down] == nullptr)
 		{
-			if (rand() % 100 <= glitchSpreadChance)
+			if (xor128() % 100 <= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
 		}
 		else if (allParticles[point.x][down]->type != TYPE_GLITCH)
-			if (rand() % 100 <= glitchSpreadChance)
+			if (xor128() % 100 <= glitchSpreadChance)
 			{
 				DestroyParticle(point.x, down);
 				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
@@ -1516,11 +1528,11 @@ bool Glitch::HandleEvents()
 	if (left >= 0)
 		if (allParticles[left][point.y] == nullptr)
 		{
-			if (rand() % 100 <= glitchSpreadChance)
+			if (xor128() % 100 <= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
 		}
 		else if (allParticles[left][point.y]->type != TYPE_GLITCH)
-			if (rand() % 100 <= glitchSpreadChance)
+			if (xor128() % 100 <= glitchSpreadChance)
 			{
 				DestroyParticle(left, point.y);
 				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
@@ -1529,11 +1541,11 @@ bool Glitch::HandleEvents()
 	if (right <= WINDOW_WIDTH - 1)
 		if (allParticles[right][point.y] == nullptr)
 		{
-			if (rand() % 100 <= glitchSpreadChance)
+			if (xor128() % 100 <= glitchSpreadChance)
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
 		}
 		else if (allParticles[right][point.y]->type != TYPE_GLITCH)
-			if (rand() % 100 <= glitchSpreadChance)
+			if (xor128() % 100 <= glitchSpreadChance)
 			{
 				DestroyParticle(right, point.y);
 				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
@@ -1632,7 +1644,7 @@ bool Fire::HandleEvents()
 
 					allParticles[point.x][up]->health = newHealth;
 				}
-				else if (rand() % 100 <= settingFlammability[allParticles[point.x][up]->type])
+				else if (xor128() % 100 <= settingFlammability[allParticles[point.x][up]->type])
 				{
 					int newHealth = allParticles[point.x][up]->health;
 					int newX = point.x;
@@ -1663,7 +1675,7 @@ bool Fire::HandleEvents()
 
 					allParticles[point.x][down]->health = newHealth;
 				}
-				else if (rand() % 100 <= settingFlammability[allParticles[point.x][down]->type])
+				else if (xor128() % 100 <= settingFlammability[allParticles[point.x][down]->type])
 				{
 					int newHealth = allParticles[point.x][down]->health;
 					int newX = point.x;
@@ -1694,7 +1706,7 @@ bool Fire::HandleEvents()
 
 					allParticles[left][point.y]->health = newHealth;
 				}
-				else if (rand() % 100 <= settingFlammability[allParticles[left][point.y]->type])
+				else if (xor128() % 100 <= settingFlammability[allParticles[left][point.y]->type])
 				{
 					int newHealth = allParticles[left][point.y]->health;
 					int newX = left;
@@ -1725,7 +1737,7 @@ bool Fire::HandleEvents()
 
 					allParticles[right][point.y]->health = newHealth;
 				}
-				else if (rand() % 100 <= settingFlammability[allParticles[right][point.y]->type])
+				else if (xor128() % 100 <= settingFlammability[allParticles[right][point.y]->type])
 				{
 					int newHealth = allParticles[right][point.y]->health;
 					int newX = right;
