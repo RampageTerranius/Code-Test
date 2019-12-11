@@ -17,12 +17,6 @@ bool Setup()
 		return false;
 	}
 
-	if (SDL_Init(SDL_INIT_AUDIO) != 0)
-	{
-		std::cout << ("Unable to initialize SDL_AUDIO: %s", SDL_GetError());
-		return false;
-	}
-
 	if (SDL_Init(SDL_INIT_EVENTS) != 0)
 	{
 		std::cout << ("Unable to initialize SDL_EVENTS: %s", SDL_GetError());
