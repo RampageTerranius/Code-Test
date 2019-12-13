@@ -10,6 +10,7 @@ class Timer
 	public:
 		void Start();
 		void Stop();
+		void Reset();
 		void Pause();
 		void Unpause();
 		int GetTicks();		

@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
 
 	while(running)
 	{
+		capTimer.Reset();
 		capTimer.Start();
 
 		//handle any input from the user

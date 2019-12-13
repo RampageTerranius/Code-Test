@@ -19,6 +19,14 @@ void Timer::Stop()
 	}
 }
 
+void Timer::Reset()
+{
+	startTick = 0;
+	pauseTick = 0;
+	started = false;
+	paused = false;
+}
+
 void Timer::Pause()
 {
 	if (started && !paused)
@@ -70,10 +78,9 @@ void TimerHandle(Timer* cap, Timer* fps)
 	if (frameRateLimit > 0)
 	{
 		int frameTicks = cap->GetTicks();
-		if (frameTicks < (1000 / frameRateLimit))
-		{
+		if (frameTicks < (1000 / frameRateLimit))		
 			// Wait remaining time.
 			SDL_Delay((1000 / frameRateLimit) - frameTicks);
-		}
+		
 	}
 }
