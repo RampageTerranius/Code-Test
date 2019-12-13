@@ -320,4 +320,5 @@ TTF brushSize = TTF();
 TTF brushTemperature = TTF();
 TTF selectedParticleTemperature = TTF();
 TTF selectedParticleName = TTF();
+TTF selectedParticleHealth = TTF();
 TTF currentFrameRate = TTF();

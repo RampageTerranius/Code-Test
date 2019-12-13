@@ -71,6 +71,11 @@ bool Setup()
 		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
 		return false;
 	}
+	if (!selectedParticleHealth.SetFont("pxl.ttf", 24))
+	{
+		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
+		return false;
+	}
 	if (!currentFrameRate.SetFont("pxl.ttf", 24))
 	{
 		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
@@ -109,6 +114,7 @@ void Shutdown()
 	brushTemperature.Clear();
 	selectedParticleTemperature.Clear();
 	selectedParticleName.Clear();
+	selectedParticleHealth.Clear();
 	currentFrameRate.Clear();
 
 	// Destroy the surface used for drawing particles.

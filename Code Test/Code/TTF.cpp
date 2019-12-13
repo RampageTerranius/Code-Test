@@ -72,6 +72,10 @@ void TTF::SetText(SDL_Renderer* renderer, std::string newText)
 		if (texture != nullptr)
 			SDL_DestroyTexture(texture);
 
+		if (texture != nullptr)
+			texture = nullptr;
+
+		// Create the new texture.
 		SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), color);
 		texture = SDL_CreateTextureFromSurface(renderer, surface);
 

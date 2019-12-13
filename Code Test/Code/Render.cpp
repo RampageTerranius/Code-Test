@@ -81,15 +81,19 @@ void Render()
 			Source* s = (Source*)allParticles[mouse.x][mouse.y];
 			selectedParticleName.SetText(mainRenderer, typeNames[allParticles[mouse.x][mouse.y]->type] + typeNames[s->sourceType]);
 		}
+
+		selectedParticleHealth.SetText(mainRenderer, "HP: " + std::to_string(allParticles[mouse.x][mouse.y]->health) + "|" + std::to_string(settingHealth[allParticles[mouse.x][mouse.y]->type]));
 	}
 	else
 	{
 		selectedParticleName.SetText(mainRenderer, "None");
 		selectedParticleTemperature.SetText(mainRenderer, "0c");
+		selectedParticleHealth.SetText(mainRenderer, "HP: 0|0");
 	}
 
 	selectedParticleName.Draw(mainRenderer, 20, 172);
 	selectedParticleTemperature.Draw(mainRenderer, 20, 206);
+	selectedParticleHealth.Draw(mainRenderer, 20, 240);
 
 
 	// Render the current framerate.

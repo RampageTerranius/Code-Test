@@ -107,4 +107,5 @@ extern TTF brushSize;
 extern TTF brushTemperature;
 extern TTF selectedParticleTemperature;
 extern TTF selectedParticleName;
+extern TTF selectedParticleHealth;
 extern TTF currentFrameRate;
