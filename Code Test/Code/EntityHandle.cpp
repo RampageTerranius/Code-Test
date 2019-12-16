@@ -10,14 +10,23 @@ void EntityHandle()
 		// Handling Events.
 		for (int i = WINDOW_WIDTH - 1; i >= 0; i--)
 			for (int n = WINDOW_HEIGHT - 1; n >= 0; n--)
-				if (allParticles[i][n] != nullptr)
-					allParticles[i][n]->HandleEvents();
+			{
+				Particle* p = allParticles[i][n];
+
+				if (p != nullptr)
+					p->HandleEvents();
+			}
+				
 
 		// Handling physics.
 		for (int i = WINDOW_WIDTH - 1; i >= 0; i--)
 			for (int n = WINDOW_HEIGHT - 1; n >= 0; n--)
-				if (allParticles[i][n] != nullptr)
-					if (!allParticles[i][n]->locked)
-						allParticles[i][n]->HandlePhysics();		
+			{
+				Particle* p = allParticles[i][n];
+
+				if (p != nullptr)
+					if (!p->locked)
+						p->HandlePhysics();
+			}
 	}
 }
