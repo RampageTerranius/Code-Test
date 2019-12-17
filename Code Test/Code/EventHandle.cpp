@@ -48,54 +48,148 @@ void UpdateEventStructs(SDL_Event event)
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym)
 			{
-			case SDLK_ESCAPE:
-				running = false;
-				break;
-
 			case SDLK_a:
 				keyboard.a = true;
-				currentBrushSize--;
-				if (currentBrushSize < 1)
-					currentBrushSize = 1;
+				break;
+
+			case SDLK_b:
+				keyboard.b = true;
+				break;
+
+			case SDLK_c:
+				keyboard.c = true;
 				break;
 
 			case SDLK_d:
 				keyboard.d = true;
-				currentBrushSize++;
-				if (currentBrushSize > MAX_BRUSH_SIZE)
-					currentBrushSize = MAX_BRUSH_SIZE;
 				break;
 
 			case SDLK_e:
 				keyboard.e = true;
-				createAsSource = !createAsSource;
 				break;
 
-			case SDLK_w:
-				keyboard.w = true;
-				SwitchBrushType(true);
+			case SDLK_f:
+				keyboard.f = true;
 				break;
 
-			case SDLK_s:
-				keyboard.s = true;
-				SwitchBrushType(false);
+			case SDLK_g:
+				keyboard.g = true;
 				break;
 
 			case SDLK_h:
 				keyboard.h = true;
 				break;
 
-			case SDLK_v:
-				 viewMode = static_cast<ViewType>(viewMode + 1);
+			case SDLK_i:
+				keyboard.i = true;
+				break;
 
-				// Make sure we havent gone over the limit.
-				if (viewMode == VIEW_TOTALVIEWS)
-					viewMode = static_cast<ViewType>(0);
+			case SDLK_j:
+				keyboard.j = true;
+				break;
+
+			case SDLK_k:
+				keyboard.k = true;
+				break;
+
+			case SDLK_l:
+				keyboard.l = true;
+				break;
+
+			case SDLK_m:
+				keyboard.m = true;
+				break;
+
+			case SDLK_n:
+				keyboard.n = true;
+				break;
+
+			case SDLK_o:
+				keyboard.o = true;
+				break;
+
+			case SDLK_p:
+				keyboard.p = true;
+				break;
+
+			case SDLK_q:
+				keyboard.q = true;
+				break;
+
+			case SDLK_r:
+				keyboard.r = true;
+				break;
+
+			case SDLK_s:
+				keyboard.s = true;
+				break;
+
+			case SDLK_t:
+				keyboard.t = true;
+				break;
+
+			case SDLK_u:
+				keyboard.u = true;
+				break;
+
+			case SDLK_v:
+				keyboard.v = true;
+				break;
+
+			case SDLK_w:
+				keyboard.w = true;
 				break;
 
 			case SDLK_x:
 				keyboard.x = true;
-				loopScreen = !loopScreen;
+				break;
+
+			case SDLK_y:
+				keyboard.y = true;
+				break;
+
+			case SDLK_z:
+				keyboard.z = true;
+				break;
+
+			case SDLK_1:
+				keyboard.n1 = true;
+				break;
+
+			case SDLK_2:
+				keyboard.n2 = true;
+				break;
+
+			case SDLK_3:
+				keyboard.n3 = true;
+				break;
+
+			case SDLK_4:
+				keyboard.n4 = true;
+				break;
+
+			case SDLK_5:
+				keyboard.n5 = true;
+				break;
+
+			case SDLK_6:
+				keyboard.n6 = true;
+				break;
+
+			case SDLK_7:
+				keyboard.n7 = true;
+				break;
+
+			case SDLK_8:
+				keyboard.n8 = true;
+				break;
+
+			case SDLK_9:
+				keyboard.n9 = true;
+				break;
+
+			case SDLK_0:
+				keyboard.n0 = true;
 				break;
 
 			case SDLK_MINUS:
@@ -108,18 +202,10 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_LEFTBRACKET:
 				keyboard.leftBracket = true;
-				if (keyboard.lShift || keyboard.rShift)
-					currentBrushTemperature -= 10;
-				else
-					currentBrushTemperature--;
 				break;
 
 			case SDLK_RIGHTBRACKET:
 				keyboard.rightBracket = true;
-				if (keyboard.lShift || keyboard.rShift)
-					currentBrushTemperature += 10;
-				else
-					currentBrushTemperature++;
 				break;
 
 			case SDLK_LSHIFT:
@@ -130,9 +216,36 @@ void UpdateEventStructs(SDL_Event event)
 				keyboard.rShift = true;
 				break;
 
+			case SDLK_LCTRL:
+				keyboard.lCtrl = true;
+				break;
+
+			case SDLK_RCTRL:
+				keyboard.rCtrl = true;
+				break;
+
+			case SDLK_LALT:
+				keyboard.lAlt = true;
+				break;
+
+			case SDLK_RALT:
+				keyboard.rAlt = true;
+				break;
+
+			case SDLK_ESCAPE:
+				keyboard.escape = true;
+				break;
+
 			case SDLK_SPACE:
 				keyboard.space = true;
-				pauseParticles = !pauseParticles;
+				break;
+
+			case SDLK_TAB:
+				keyboard.tab = true;
+				break;
+
+			case SDLK_CAPSLOCK:
+				keyboard.capsLock = true;
 				break;
 			}
 
@@ -145,6 +258,14 @@ void UpdateEventStructs(SDL_Event event)
 				keyboard.a = false;
 				break;
 
+			case SDLK_b:
+				keyboard.b = false;
+				break;
+
+			case SDLK_c:
+				keyboard.c = false;
+				break;
+
 			case SDLK_d:
 				keyboard.d = false;
 				break;
@@ -153,21 +274,129 @@ void UpdateEventStructs(SDL_Event event)
 				keyboard.e = false;
 				break;
 
-			case SDLK_w:
-				keyboard.w = false;
+			case SDLK_f:
+				keyboard.f = false;
 				break;
 
-			case SDLK_s:
-				keyboard.s = false;
+			case SDLK_g:
+				keyboard.g = false;
 				break;
 
 			case SDLK_h:
 				keyboard.h = false;
 				break;
 
+			case SDLK_i:
+				keyboard.i = false;
+				break;
+
+			case SDLK_j:
+				keyboard.j = false;
+				break;
+
+			case SDLK_k:
+				keyboard.k = false;
+				break;
+
+			case SDLK_l:
+				keyboard.l = false;
+				break;
+
+			case SDLK_m:
+				keyboard.m = false;
+				break;
+
+			case SDLK_n:
+				keyboard.n = false;
+				break;
+
+			case SDLK_o:
+				keyboard.o = false;
+				break;
+
+			case SDLK_p:
+				keyboard.p = false;
+				break;
+
+			case SDLK_q:
+				keyboard.q = false;
+				break;
+
+			case SDLK_r:
+				keyboard.r = false;
+				break;
+
+			case SDLK_s:
+				keyboard.s = false;
+				break;
+
+			case SDLK_t:
+				keyboard.t = false;
+				break;
+
+			case SDLK_u:
+				keyboard.u = false;
+				break;
+
+			case SDLK_v:
+				keyboard.v = false;
+				break;
+
+			case SDLK_w:
+				keyboard.w = false;
+				break;
+
 			case SDLK_x:
 				keyboard.x = false;
 				break;
+
+			case SDLK_y:
+				keyboard.y = false;
+				break;
+
+			case SDLK_z:
+				keyboard.z = false;
+				break;
+
+			case SDLK_1:
+				keyboard.n1 = false;
+				break;
+
+			case SDLK_2:
+				keyboard.n2 = false;
+				break;
+
+			case SDLK_3:
+				keyboard.n3 = false;
+				break;
+
+			case SDLK_4:
+				keyboard.n4 = false;
+				break;
+
+			case SDLK_5:
+				keyboard.n5 = false;
+				break;
+
+			case SDLK_6:
+				keyboard.n6 = false;
+				break;
+
+			case SDLK_7:
+				keyboard.n7 = false;
+				break;
+
+			case SDLK_8:
+				keyboard.n8 = false;
+				break;
+
+			case SDLK_9:
+				keyboard.n9 = false;
+				break;
+
+			case SDLK_0:
+				keyboard.n0 = false;
+				break;			
 
 			case SDLK_MINUS:
 				keyboard.minus = false;
@@ -175,6 +404,14 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_PLUS:
 				keyboard.plus = false;
+				break;
+
+			case SDLK_LEFTBRACKET:
+				keyboard.leftBracket = false;
+				break;
+
+			case SDLK_RIGHTBRACKET:
+				keyboard.rightBracket = false;
 				break;
 
 			case SDLK_LSHIFT:
@@ -185,8 +422,35 @@ void UpdateEventStructs(SDL_Event event)
 				keyboard.rShift = false;
 				break;
 
+			case SDLK_LCTRL:
+				keyboard.lCtrl = false;
+				break;
+
+			case SDLK_RCTRL:
+				keyboard.rCtrl = false;
+				break;
+
+			case SDLK_LALT:
+				keyboard.lAlt = false;
+				break;
+			case SDLK_RALT:
+				keyboard.rAlt = false;
+				break;
+
+			case SDLK_ESCAPE:
+				keyboard.escape = false;
+				break;
+
 			case SDLK_SPACE:
 				keyboard.space = false;
+				break;
+
+			case SDLK_TAB:
+				keyboard.tab = false;
+				break;
+
+			case SDLK_CAPSLOCK:
+				keyboard.capsLock = false;
 				break;
 			}
 			break;
@@ -286,4 +550,90 @@ void EventHandle(SDL_Event& event)
 	// On right click delete particles using brush.
 	if (mouse.right)
 		DestroyParticlesAtBrush(mouse.x, mouse.y);
+
+	if (keyboard.a)
+	{
+		keyboard.a = false;
+		currentBrushSize--;
+		if (currentBrushSize < 1)
+			currentBrushSize = 1;
+	}
+
+	if (keyboard.b)
+	{
+		keyboard.b = false;
+		renderBrush = !renderBrush;
+	}
+
+	if (keyboard.d)
+	{
+		keyboard.d = false;
+		currentBrushSize++;
+		if (currentBrushSize > MAX_BRUSH_SIZE)
+			currentBrushSize = MAX_BRUSH_SIZE;
+	}
+
+	if (keyboard.e)
+	{
+		keyboard.e = false;
+		createAsSource = !createAsSource;
+	}
+
+	if (keyboard.s)
+	{
+		keyboard.s = false;
+		SwitchBrushType(false);
+	}
+
+	if (keyboard.v)
+	{
+		keyboard.v = false;
+		viewMode = static_cast<ViewType>(viewMode + 1);
+
+		// Make sure we havent gone over the limit.
+		if (viewMode == VIEW_TOTALVIEWS)
+			viewMode = static_cast<ViewType>(0);
+	}
+
+	if (keyboard.x)
+	{
+		keyboard.x = false;
+		loopScreen = !loopScreen;
+	}
+
+	if (keyboard.w)
+	{
+		keyboard.w = false;
+		SwitchBrushType(true);
+	}
+
+	if (keyboard.leftBracket)
+	{
+		keyboard.leftBracket = false;
+		if (keyboard.lShift || keyboard.rShift)
+			currentBrushTemperature -= 10;
+		else
+			currentBrushTemperature--;
+	}
+
+	if (keyboard.rightBracket)
+	{
+		keyboard.rightBracket = false;
+		if (keyboard.lShift || keyboard.rShift)
+			currentBrushTemperature += 10;
+		else
+			currentBrushTemperature++;
+	}
+
+	if (keyboard.space)
+	{
+		keyboard.space = false;
+		pauseParticles = !pauseParticles;
+	}
+
+	if (keyboard.escape)
+	{
+		keyboard.escape = false;
+		running = false;
+	}
 }
