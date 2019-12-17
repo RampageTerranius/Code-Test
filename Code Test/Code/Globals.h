@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ParticleTypes.h"
+#include "ViewTypes.h"
 #include "TTF.h"
 
 #include <SDL.h>
@@ -36,7 +37,7 @@ extern bool running;
 
 // Ingame settings, these are the default settings for the given options.
 
-extern bool drawHeat;// When true will render particles color via heat instead of handing off draw fucntions to the particle its self.
+extern ViewType viewMode;// Determines what view mode we are currently in.
 extern bool loopScreen;// When true particles that attempt to drop downwards while at the bottom of the screen will instead loop to the top of the screen, does the same for particles attempting to move upwards as well.
 extern bool pauseParticles;// When true particles physics and events will be paused, does not pause the entire program.
 extern bool renderBrush;// When true will show an outline of where particles will be brushed to.
@@ -67,6 +68,7 @@ extern float lavaSolidifyTemp;
 // Randomised event chances.
 extern int acidDamageChance;
 extern int plantSpreadChance;
+extern int seedSpreadChance;
 extern int glitchSpreadChance;
 
 // Particle movement rates.
@@ -95,6 +97,11 @@ extern int heavyGasAscendRate;
 extern int heavyGasDescendRate;
 extern int heavyGasSidewardsRate;
 extern int heavyGasNoMovementRate;
+// Seed.
+extern int seedAscendRate;
+extern int seedDescendRate;
+extern int seedSidewardsRate;
+extern int seedNoMovementRate;
 
 
 // Affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles.

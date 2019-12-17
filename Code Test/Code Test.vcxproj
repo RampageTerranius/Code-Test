@@ -31,7 +31,7 @@
     <ClInclude Include="Code\Shutdown + Startup.h" />
     <ClInclude Include="Code\TimerHandle.h" />
     <ClInclude Include="Code\TTF.h" />
-    <ClInclude Include="QuadTree.h" />
+    <ClInclude Include="Code\ViewTypes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\EntityHandle.cpp" />

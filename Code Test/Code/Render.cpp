@@ -20,6 +20,8 @@ void Render()
 		for (int n = WINDOW_HEIGHT - 1; n >= 0; n--)
 			if (allParticles[i][n] != nullptr)
 				allParticles[i][n]->Draw();
+	// TODO: particles themselves have a switch in them for handling view type
+	// switch this so that we check the type ahead of tiem to help speed up the rendering.
 
 	SDL_Texture* pixelTexture = SDL_CreateTextureFromSurface(mainRenderer, mainSurface);
 	SDL_RenderCopy(mainRenderer, pixelTexture, nullptr, nullptr);

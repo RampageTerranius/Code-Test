@@ -19,7 +19,7 @@ void SwitchBrushType(bool gotoNext)
 		i++;
 
 		// Make sure we havent gone over the struct size.
-		if (i > TYPE_TOTALTYPES - 2)
+		if (i >= TYPE_TOTALTYPES - 2)
 			i = 0;
 
 		// Cast the int as particleType and update the current brush.
@@ -83,7 +83,14 @@ void UpdateEventStructs(SDL_Event event)
 
 			case SDLK_h:
 				keyboard.h = true;
-				drawHeat = !drawHeat;
+				break;
+
+			case SDLK_v:
+				 viewMode = static_cast<ViewType>(viewMode + 1);
+
+				// Make sure we havent gone over the limit.
+				if (viewMode == VIEW_TOTALVIEWS)
+					viewMode = static_cast<ViewType>(0);
 				break;
 
 			case SDLK_x:

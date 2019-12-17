@@ -253,3 +253,10 @@ public:
 	HeatPad(int newX, int newY, float newTemperature);
 	void Draw();
 };
+
+class Seed : public Airborn
+{
+public:
+	Seed(int newX, int newY, float newTemperature);
+	bool HandleEvents();
+};

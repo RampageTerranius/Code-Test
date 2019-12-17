@@ -88,6 +88,8 @@ bool Setup()
 		for (int n = 0; n < (WINDOW_HEIGHT / 2); n++)
 			CreateParticle(TYPE_SAND, i, n, 30);
 
+	SDL_MinimizeWindow(mainWindow);
+
 	return true;
 }
 

@@ -28,11 +28,11 @@ bool running = false;
 
 // Ingame settings, these are the default settings for the given options.
 
-bool drawHeat = false;// When true will render particles color via heat instead of handing off draw fucntions to the particle its self
-bool loopScreen = false;// When true particles that attempt to drop downwards while at the bottom of the screen will instead loop to the top of the screen, does the same for particles attempting to move upwards as well
-bool pauseParticles = false;// When true particles physics and events will be paused, does not pause the entire program
-bool renderBrush = true;// When true will show an outline of where particles will be brushed to
-bool createAsSource = false;// If the blocks created should be source particles or standard particles
+ViewType viewMode = VIEW_TYPE;// Determines what view mode we are currently in.
+bool loopScreen = false;// When true particles that attempt to drop downwards while at the bottom of the screen will instead loop to the top of the screen, does the same for particles attempting to move upwards as well.
+bool pauseParticles = false;// When true particles physics and events will be paused, does not pause the entire program.
+bool renderBrush = true;// When true will show an outline of where particles will be brushed to.
+bool createAsSource = false;// If the blocks created should be source particles or standard particles.
 
 
 // Weight (-1 donates it does not calculate weight)
@@ -75,6 +75,8 @@ int settingWeight[TYPE_TOTALTYPES]
 	// Heavy gas.
 	7,
 	// Heat Pad.
+	-1,
+	// Seed.
 	-1,
 
 	// The following must ALWAYS be at the end.
@@ -123,6 +125,8 @@ int settingHealth[TYPE_TOTALTYPES]
 	50,
 	// Heat Pad.
 	60,
+	// Seed.
+	20,
 
 	// The following must ALWAYS be at the end.
 	// Source.
@@ -169,6 +173,8 @@ float settingThermalConductivity[TYPE_TOTALTYPES]
 	0.01f,
 	// Heat Pad.
 	0.05f,
+	// Seed.
+	0.02f,
 
 	// The following must ALWAYS be at the end.
 	// Source.
@@ -216,7 +222,9 @@ int settingColor[TYPE_TOTALTYPES][4]
 	// Heavy gas.
 	{170, 60, 170, 0},
 	// Heat pad (this particle uses heat color to self print).
-	{0, 0, 0, 0}
+	{0, 0, 0, 0},
+	// Seed.
+	{0, 100, 0, 0}
 
 };
 
@@ -261,6 +269,8 @@ int settingFlammability[TYPE_TOTALTYPES]
 	80,
 	// Heat pad.
 	0,
+	// Seed.
+	40,
 
 	// The following must ALWAYS be at the end.
 	// Source.
@@ -279,6 +289,7 @@ float lavaSolidifyTemp = 200;
 // Randomised event chances.
 int acidDamageChance = 30;// Percentage chance.
 int plantSpreadChance = 20;// Percentage chance.
+int seedSpreadChance = 2;// Percentage chance.
 int glitchSpreadChance = 5;// Percentage chance.
 
 // Airborn particle movement rates (movement in percentage chance, MUST equal up to 100 in total)
@@ -307,7 +318,11 @@ int lightGasAscendRate = 75;
 int lightGasDescendRate = 6;
 int lightGasSidewardsRate = 10;
 int lightGasNoMovementRate = 9;
-
+// Seed.
+int seedAscendRate = 15;
+int seedDescendRate = 25;
+int seedSidewardsRate = 20;
+int seedNoMovementRate = 40;
 
 // Affects how big of a multiplier is used depending on the percentage difference in temperature between two different particles.
 // Is calculated like so.

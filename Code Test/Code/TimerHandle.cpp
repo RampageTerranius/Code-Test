@@ -78,9 +78,8 @@ void TimerHandle(Timer* cap, Timer* fps)
 	if (frameRateLimit > 0)
 	{
 		int frameTicks = cap->GetTicks();
-		if (frameTicks < (1000 / frameRateLimit))		
-			// Wait remaining time.
-			SDL_Delay((1000 / frameRateLimit) - frameTicks);
-		
+		// Wait remaining time.
+		if (frameTicks < (1000 / frameRateLimit))			
+			SDL_Delay((1000 / frameRateLimit) - frameTicks);		
 	}
 }
