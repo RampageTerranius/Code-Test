@@ -20,8 +20,8 @@ void Render()
 		for (int n = WINDOW_HEIGHT - 1; n >= 0; n--)
 			if (allParticles[i][n] != nullptr)
 				allParticles[i][n]->Draw();
-	// TODO: particles themselves have a switch in them for handling view type
-	// switch this so that we check the type ahead of tiem to help speed up the rendering.
+	// TODO: particles themselves have a switch in their Draw() function for handling view type
+	// switch this so that we check the type ahead of time to help speed up the rendering a bit.
 
 	SDL_Texture* pixelTexture = SDL_CreateTextureFromSurface(mainRenderer, mainSurface);
 	SDL_RenderCopy(mainRenderer, pixelTexture, nullptr, nullptr);
@@ -31,7 +31,7 @@ void Render()
 	// Render a box showing the brush location.
 	if (renderBrush)
 	{
-		SDL_SetRenderDrawColor(mainRenderer, 255, 255, 255, 0);
+		SDL_SetRenderDrawColor(mainRenderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 
 		if (currentBrushSize == 1)
 			SDL_RenderDrawPoint(mainRenderer, mouse.x, mouse.y);

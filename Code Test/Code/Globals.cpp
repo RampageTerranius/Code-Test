@@ -26,6 +26,8 @@ int currentBrushSize = 4;
 int countedFrames = 0;
 bool running = false;
 
+SDL_Color backgroundColor = {255, 255, 255, 0};
+
 // Ingame settings, these are the default settings for the given options.
 
 ViewType viewMode = VIEW_TYPE;// Determines what view mode we are currently in.

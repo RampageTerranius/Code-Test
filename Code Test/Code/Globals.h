@@ -35,6 +35,8 @@ extern int currentBrushSize;
 extern int countedFrames;
 extern bool running;
 
+extern SDL_Color backgroundColor;
+
 // Ingame settings, these are the default settings for the given options.
 
 extern ViewType viewMode;// Determines what view mode we are currently in.
