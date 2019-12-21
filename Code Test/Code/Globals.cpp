@@ -330,7 +330,7 @@ int seedNoMovementRate = 40;
 // Is calculated like so.
 // abs( (allParticles[x1][y1]->temperature - allParticles[x2][y2]->temperature) / allParticles[x1][y1]->temperature) * 100 ) / temperatureDifferenceDivisor
 // Lower number = faster spread.
-int temperatureDifferenceDivisor = 15;
+int temperatureDifferenceDivisor = 5;
 
 TTF brushName = TTF();
 TTF brushSize = TTF();

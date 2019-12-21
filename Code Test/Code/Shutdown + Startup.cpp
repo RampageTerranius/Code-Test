@@ -88,7 +88,7 @@ bool Setup()
 		for (int n = 0; n < (WINDOW_HEIGHT / 2); n++)
 			CreateParticle(TYPE_SAND, i, n, 30);
 
-	SDL_MinimizeWindow(mainWindow);
+	//SDL_MinimizeWindow(mainWindow);
 
 	return true;
 }
@@ -96,6 +96,9 @@ bool Setup()
 
 void Shutdown()
 {
+	// Destroy the surface used for drawing particles.
+	SDL_FreeSurface(mainSurface);
+
 	// Destroy the main window before shutdown.
 	SDL_DestroyWindow(mainWindow);
 
@@ -118,11 +121,6 @@ void Shutdown()
 	selectedParticleName.Clear();
 	selectedParticleHealth.Clear();
 	currentFrameRate.Clear();
-
-	// Destroy the surface used for drawing particles.
-	SDL_FreeSurface(mainSurface);
-	if (mainSurface != nullptr)
-		mainSurface = nullptr;
 
 	SDL_Quit();
 }

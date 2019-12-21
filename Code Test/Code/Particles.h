@@ -27,7 +27,7 @@ class Particle
 		float thermalConductivity;
 		ParticleType type;
 
-		bool locked;
+		//bool locked;
 };
 
 extern Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];

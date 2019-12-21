@@ -15,8 +15,7 @@ void EntityHandle()
 
 				if (p != nullptr)
 					p->HandleEvents();
-			}
-				
+			}				
 
 		// Handling physics.
 		for (int i = WINDOW_WIDTH - 1; i >= 0; i--)
@@ -25,7 +24,7 @@ void EntityHandle()
 				Particle* p = allParticles[i][n];
 
 				if (p != nullptr)
-					if (!p->locked)
+					//if (!p->locked)
 						p->HandlePhysics();
 			}
 	}
