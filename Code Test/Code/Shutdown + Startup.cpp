@@ -5,8 +5,99 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+#include <windows.h>
 #include <string>
 #include <iostream>
+#include <filesystem>
+#include <exception>
+#include "SimpleINI/SimpleIni.h"
+
+bool LoadParticle(CSimpleIni ini)
+{
+	try
+	{
+		ParticleType newType = ParticleType();
+		
+		// Load all basic particle data.
+		newType.name = ini.GetValue("Particle", "Name");
+
+		std::string str = ini.GetValue("Particle", "Type");
+		if (str == "immobile")
+			newType.movementType = MOVEMENTTYPE_IMMOBILE;
+		else if (str == "pile")
+			newType.movementType = MOVEMENTTYPE_PILE;
+		else if (str == "liquid")
+			newType.movementType = MOVEMENTTYPE_LIQUID;
+		else if (str == "airborn")
+			newType.movementType = MOVEMENTTYPE_AIRBORN;
+		else
+			newType.movementType = MOVEMENTTYPE_IMMOBILE;
+
+		newType.weight = std::stof(ini.GetValue("Particle", "Weight"));
+		newType.startingHealth = std::stoi(ini.GetValue("Particle", "Health"));
+		newType.thermalConductivity = std::stof(ini.GetValue("Particle", "Thermal_Conductivity"));
+		newType.Flammability = std::stoi(ini.GetValue("Particle", "Flammability"));
+
+		// Load particle colors.
+		newType.R = std::stoi(ini.GetValue("Color", "R"));
+		newType.G = std::stoi(ini.GetValue("Color", "G"));
+		newType.B = std::stoi(ini.GetValue("Color", "B"));		
+
+		//Load particle effects.
+		CSimpleIniA::TNamesDepend effects;
+		ini.GetAllKeys("Effects", effects);
+
+		for (CSimpleIniA::TNamesDepend::iterator iterator = effects.begin(); iterator != effects.end(); iterator++)
+		{
+			std::string a = iterator->pComment;
+			std::string a = iterator->pItem;
+
+			ParticleEffect newEffect;
+			if (iterator->pComment == "ChangeTypeAtHighTemperature")
+			{
+				newEffect.effectType = EFFECT_CHANGE_TYPE_AT_HIGH_TEMPERATURE;
+				newEffect.effectData = iterator->pItem;
+			} 
+			else if (iterator->pComment == "ChangeTypeAtLowTemperature")
+			{
+				newEffect.effectType = EFFECT_CHANGE_TYPE_AT_LOW_TEMPERATURE;
+				newEffect.effectData = iterator->pItem;
+			}
+
+			if (newEffect.effectType != EFFECT_NULL)
+				newType.particleEffects.push_back(newEffect);
+		}
+
+		// Push the new particle type into the list now that its created.
+		ParticleTypes.push_back(newType);
+
+		std::cout << "Sucessfully loaded particle type " + newType.name;
+
+	}
+	catch (std::exception e)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool DirExists(std::string& folderName)
+{
+	// Get the attributes of the file/folder.
+	DWORD fileAttributes = GetFileAttributesA(folderName.c_str());
+
+	// Check if the attributes are invalid.
+	if (fileAttributes == INVALID_FILE_ATTRIBUTES)
+		return false;	
+
+	// Check if the attributes say it is a directory.
+	if (fileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		return true;
+	
+	// Otherwise it is not a directory but something else.
+	return false;
+}
 
 bool Setup()
 {
@@ -82,11 +173,62 @@ bool Setup()
 		return false;
 	}
 
+	// Attempt to load all particle files in the Particles folder.
+	char buf[256];
+	GetCurrentDirectoryA(256, buf);
+	std::string path(buf);
+	path += "\\Particles";
+
+	if (DirExists(path))
+	{
+		// Get all the files in the folder.
+		WIN32_FIND_DATA fileFindData;
+		HANDLE hFind = FindFirstFile((path + "\\*").c_str(), &fileFindData);
+
+		std::vector<std::string> fileNames;
+
+		// Make sure the handle is valid.
+		if (hFind != INVALID_HANDLE_VALUE)
+		{
+			do
+			{
+				if (fileFindData.dwFileAttributes != FILE_ATTRIBUTE_DIRECTORY)
+					fileNames.push_back(fileFindData.cFileName);
+			} while (FindNextFile(hFind, &fileFindData));
+
+			FindClose(hFind);
+		}
+
+		// Check that there is files in this folder.
+		if (fileNames.size() > 0)
+		{	
+			// Create an iterator of the fileNames vector and begin iterating through the list.
+			for (std::vector<std::string>::const_iterator iterator = fileNames.begin(); iterator != fileNames.end(); iterator++)
+			{
+				CSimpleIniA ini;
+				std::string str = path + "\\" + (*iterator);
+				if (ini.LoadFile(str.c_str()) != SI_FAIL);				
+					LoadParticle(&ini);				
+			}
+		}
+		else
+		{
+			std::cout << "No particles found in Particle folder, program will now terminate.";
+			return false;
+		}
+
+	}
+	else
+	{
+		std::cout << "Particles folder does not exist, program will now terminate.";
+		return false;
+	}
+
 	// SPEED TESTING LINES
 	// DISABLE THESE IF NOT SPEED TESTING
 	for (int i = 0; i < WINDOW_WIDTH; i++)
 		for (int n = 0; n < (WINDOW_HEIGHT / 2); n++)
-			CreateParticle(TYPE_SAND, i, n, 30);
+			CreateParticle("Sand", i, n, 30);
 
 	SDL_MinimizeWindow(mainWindow);
 

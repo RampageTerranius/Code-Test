@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+/*#include <string>
 
 // Used to help objects keep track of what they are for rendering purposes
 // as the lists will be using base particles that are using polymorphism to determine how to handle physics.
@@ -56,4 +56,4 @@ static std::string typeNames[] = {  "Wall",
 
 									// The following must ALWAYS be at the end.
 									"Source - ", // Used to determine if it is a source type, you should NEVER directly be creating a source type.
-									"ILLEGAL TYPE" };// Used to determine how many types there is.
+									"ILLEGAL TYPE" };// Used to determine how many types there is.*/

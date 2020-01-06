@@ -3,6 +3,28 @@
 #include <algorithm>
 #include <iostream>
 
+ParticleType::ParticleType()
+{
+	name = "NO NAME";
+	movementType = MOVEMENTTYPE_IMMOBILE;
+	weight = -1;
+	startingHealth = -1;
+	thermalConductivity = 0;
+
+	ascendRate = 0;
+	descendRate = 0;
+	sidewardsRate = 0;
+	noMovementRate = 100;
+
+	Flammability = 0;
+
+	R = 0;
+	G = 0;
+	B = 0;
+
+	particleEffects = std::vector<ParticleEffect>();
+}
+
 // https://codingforspeed.com/using-faster-psudo-random-generator-xorshift/
 uint32_t xor128(void) {
 	static uint32_t x = 123456789;
@@ -80,7 +102,7 @@ void DrawParticleHeat(int x, int y)
 
 Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
 
-void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
+void CreateParticle(std::string particleName, int x, int y, float temp, bool asSource)
 {
 	// Make sure were not trying to create an entity off screen.
 	if (x < 0 || x >= WINDOW_WIDTH || y < 0 || y >= WINDOW_HEIGHT)
@@ -94,104 +116,24 @@ void CreateParticle(ParticleType type, int x, int y, float temp, bool asSource)
 		return;
 	}	
 
-	// Check what type of entity we need to create and assign it the required data.
-	if (!asSource)
+	for (std::vector<ParticleType>::const_iterator iterator = ParticleTypes.begin(); iterator != ParticleTypes.end(); iterator++)
 	{
-		switch (type)
+		if (iterator->name == particleName)
 		{
-		case TYPE_WALL:
-			allParticles[x][y] = new Wall(x, y, temp);
-			return;
+			Particle* newParticle = new Particle((*iterator), x, y, temp);
 
-		case TYPE_SAND:
-			allParticles[x][y] = new Sand(x, y, temp);
-			return;
+			newParticle->isSource = asSource;
 
-		case TYPE_WATER:
-			allParticles[x][y] = new Water(x, y, temp);
+			allParticles[x][y] = newParticle;
 			return;
-
-		case TYPE_ICE:
-			allParticles[x][y] = new Ice(x, y, temp);
-			return;
-
-		case TYPE_THERMALFLUID:
-			allParticles[x][y] = new ThermalFluid(x, y, temp);
-			return;
-
-		case TYPE_ACID:
-			allParticles[x][y] = new Acid(x, y, temp);
-			return;
-
-		case TYPE_STEAM:
-			allParticles[x][y] = new Steam(x, y, temp);
-			return;
-
-		case TYPE_PLANT:
-			allParticles[x][y] = new Plant(x, y, temp);
-			return;
-
-		case TYPE_SALT:
-			allParticles[x][y] = new Salt(x, y, temp);
-			return;
-
-		case TYPE_SALTWATER:
-			allParticles[x][y] = new SaltWater(x, y, temp);
-			return;
-
-		case TYPE_SALTICE:
-			allParticles[x][y] = new SaltIce(x, y, temp);
-			return;
-
-		case TYPE_GLITCH:
-			allParticles[x][y] = new Glitch(x, y, temp);
-			return;
-
-		case TYPE_STONE:
-			allParticles[x][y] = new Stone(x, y, temp);
-			return;
-
-		case TYPE_LAVA:
-			allParticles[x][y] = new Lava(x, y, temp);
-			return;
-
-		case TYPE_FIRE:
-			allParticles[x][y] = new Fire(x, y, temp);
-			return;
-
-		case TYPE_GAS:
-			allParticles[x][y] = new Gas(x, y, temp);
-			return;
-
-		case TYPE_LIGHTGAS:
-			allParticles[x][y] = new LightGas(x, y, temp);
-			return;
-
-		case TYPE_HEAVYGAS:
-			allParticles[x][y] = new HeavyGas(x, y, temp);
-			return;
-
-		case TYPE_HEATPAD:
-			allParticles[x][y] = new HeatPad(x, y, temp);
-			return;
-
-		default:
-			// NOTE: these debug options cause MAJOR lag when adding particles, do nto use htem unless absolutely needed.
-			//std::cout << "Attempt to create a unknown particle type at " + std::to_string(x) + "|" + std::to_string(y) + "\n";
-			break;
 		}
-	}
-	else
-	{
-		allParticles[x][y] = new Source(type, x, y, temp);
-		return;
 	}
 }
 
 // Overload for default mode.
-void CreateParticle(ParticleType type, int x, int y, float temp)
+void CreateParticle(std::string particleName, int x, int y, float temp)
 {
-	CreateParticle(type, x, y, temp, false);
+	CreateParticle(particleName, x, y, temp, false);
 }
 
 // Destroys the particle at the given location and wipes the memory of it.
@@ -294,8 +236,8 @@ bool DropParticle(int x, int y, bool randomize)
 		return true;
 	}
 	// Other wise if the particle directly below has less weight then swap particles.
-	else if (pDown->weight >= 0)
-		if (allParticles[x][y]->weight > pDown->weight)
+	else if (pDown->type->weight >= 0)
+		if (allParticles[x][y]->type->weight > pDown->type->weight)
 		{
 			UnlockNeighbourParticles(x, y);
 			MoveParticles(x, y, tempX, y + 1);			
@@ -339,8 +281,8 @@ bool AscendParticle(int x, int y, bool randomize)
 		return true;
 	}
 	// Other wise if the particle directly above has more weight then swap particles.
-	else if (pUp->weight != -1)
-		if (allParticles[x][y]->weight < pUp->weight)
+	else if (pUp->type->weight != -1)
+		if (allParticles[x][y]->type->weight < pUp->type->weight)
 		{
 			UnlockNeighbourParticles(x, y);
 			MoveParticles(x, y, tempX, y - 1);
@@ -366,7 +308,7 @@ void EvenOutTemperatures(int x1, int y1, int x2, int y2)
 		// Get the difference between both temperatures in an attempt to either increase or decrease the spread of temperature between objects.
 		float calculatedTemperatureDifference = (std::abs(((p1->temperature - p2->temperature) / p1->temperature) * 100)) / temperatureDifferenceDivisor;
 
-		float calculatedTemperatureChange = calculatedTemperatureDifference * std::abs(p1->thermalConductivity + p2->thermalConductivity);
+		float calculatedTemperatureChange = calculatedTemperatureDifference * std::abs(p1->type->thermalConductivity + p2->type->thermalConductivity);
 
 
 		// Check if the temperature change will mean they both even each other out or not.
@@ -375,25 +317,25 @@ void EvenOutTemperatures(int x1, int y1, int x2, int y2)
 			// First particle is higher temp then second.
 			if (p1->temperature > p2->temperature)
 			{
-				if (p1->type != TYPE_HEATPAD)
+				if (p1->type->name != "Heat Pad")
 					p1->temperature -= calculatedTemperatureChange;
-				if (p2->type != TYPE_HEATPAD)
+				if (p1->type->name != "Heat Pad")
 					p2->temperature += calculatedTemperatureChange;
 			}
 			else// Second particle is higher temp then first.
 			{
-				if (p1->type != TYPE_HEATPAD)
+				if (p1->type->name != "Heat Pad")
 					p1->temperature += calculatedTemperatureChange;
-				if (p2->type != TYPE_HEATPAD)
+				if (p1->type->name != "Heat Pad")
 					p2->temperature -= calculatedTemperatureChange;
 			}
 		}
 		else// Both temperatures are close enough to just even them out at same temperature.
 		{
 			float temp = (p1->temperature + p2->temperature) / 2;
-			if (p1->type != TYPE_HEATPAD)
+			if (p1->type->name != "Heat Pad")
 				p1->temperature = temp;
-			if (p2->type != TYPE_HEATPAD)
+			if (p2->type->name != "Heat Pad")
 				p2->temperature = temp;
 		}
 	}
@@ -402,23 +344,19 @@ void EvenOutTemperatures(int x1, int y1, int x2, int y2)
 Particle::Particle(ParticleType newType, int newX, int newY, float newTemperature)
 {
 	Reset();
-	type = newType;
+	type = &newType;
 	point.x = newX;
 	point.y = newY;
 	temperature = newTemperature;
-	thermalConductivity = settingThermalConductivity[type];
-	health = settingHealth[type];
-	weight = settingWeight[type];
+	health = newType.startingHealth;
 }
 
 void Particle::Reset()
 {
-	type = TYPE_WALL;
+	type = nullptr;
 	point.x = point.y = 0;	
 	temperature = 0;
-	thermalConductivity = 0;
-	health = 100;
-	weight = -1;
+	health = 0;
 	locked = false;
 }
 
@@ -429,7 +367,7 @@ void Particle::Draw()
 	{
 	// Changes color depending on the type of pixel.
 	case VIEW_TYPE:
-		EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, settingColor[type][0], settingColor[type][1], settingColor[type][2], settingColor[type][3]));
+		EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, type->R, type->G, type->B, 0));
 		break;
 
 	// Changes color depending o nthe heat of the pixel.
@@ -450,7 +388,7 @@ void Particle::Draw()
 bool Particle::HandleEvents()
 {
 	// Temperature handle.
-	if (thermalConductivity > 0)
+	if (type->thermalConductivity > 0)
 	{
 		// Values to help with determining what ways to calculate.
 		int up, down, left, right;
@@ -1467,7 +1405,7 @@ bool SaltWater::HandleEvents()
 		float newTemp = temperature;
 
 		DestroyParticle(point.x, point.y);
-		CreateParticle(TYPE_SALTICE, newX, newY, newTemp);
+		CreateParticle("Salt Ice", newX, newY, newTemp);
 
 		return true;
 	}

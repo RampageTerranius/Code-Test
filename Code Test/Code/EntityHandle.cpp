@@ -15,8 +15,7 @@ void EntityHandle()
 
 				if (p != nullptr)
 					p->HandleEvents();
-			}
-				
+			}				
 
 		// Handling physics.
 		for (int i = WINDOW_WIDTH - 1; i >= 0; i--)

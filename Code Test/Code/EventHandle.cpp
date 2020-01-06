@@ -433,6 +433,7 @@ void UpdateEventStructs(SDL_Event event)
 			case SDLK_LALT:
 				keyboard.lAlt = false;
 				break;
+
 			case SDLK_RALT:
 				keyboard.rAlt = false;
 				break;

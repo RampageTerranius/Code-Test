@@ -20,7 +20,7 @@ SDL_Texture* pixelTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_RGBA
 float avgFPS = 0;
 
 int currentBrushTemperature = 20;// Changing this will change the default brush temperature.
-ParticleType currentBrushType = TYPE_WALL;
+int currentBrushType = 0;
 int currentBrushSize = 4;
 
 int countedFrames = 0;
@@ -40,12 +40,8 @@ bool createAsSource = false;// If the blocks created should be source particles 
 // Weight (-1 donates it does not calculate weight)
 int settingWeight[TYPE_TOTALTYPES]
 {
-	// Wall.
-	-1,
 	// Sand.
 	10,
-	// Water.
-	3,
 	// Ice.
 	-1,
 	// Thermal.
@@ -89,12 +85,8 @@ int settingWeight[TYPE_TOTALTYPES]
 // Health (-1 donates can not be broken)
 int settingHealth[TYPE_TOTALTYPES]
 {
-	// Wall.
-	500,
 	// Sand.
 	160,
-	// Water.
-	80,
 	// Ice.
 	100,
 	// Thermal.
@@ -137,12 +129,8 @@ int settingHealth[TYPE_TOTALTYPES]
 
 float settingThermalConductivity[TYPE_TOTALTYPES]
 {
-	// Wall.
-	0.0006f,
 	// Sand.
 	0.0025f,
-	// Water.
-	0.0125f,
 	// Ice.
 	0.015f,
 	// Thermal.
@@ -187,12 +175,8 @@ float settingThermalConductivity[TYPE_TOTALTYPES]
 // Format is R, G, B, A.
 int settingColor[TYPE_TOTALTYPES][4]
 {
-	// Wall.
-	{87, 87, 87, 0},
 	// Sand.
 	{207, 226, 34, 0},
-	// Water.
-	{0, 0, 255, 0},
 	// Ice.
 	{100, 255, 255, 0},
 	// Thermal.
@@ -233,19 +217,11 @@ int settingColor[TYPE_TOTALTYPES][4]
 // Flammability is in a percentage basis (0 to 100)
 int settingFlammability[TYPE_TOTALTYPES]
 {
-	// Wall.
-	0,
 	// Sand.
-	0,
-	// Water.
-	0,
-	// Ice.
 	0,
 	// Thermal.
 	2,
 	// Acid.
-	0,
-	// Steam.
 	0,
 	// Plant.
 	25,
@@ -281,10 +257,7 @@ int settingFlammability[TYPE_TOTALTYPES]
 
 // Other settings.
 // Freeze/melt/boil points.
-float waterFreezePoint = 0;
-float iceMeltPoint = 2;
 float steamCondensationPoint = 98;
-float waterBoilIntoSteamPoint = 100;
 float saltWaterEventTempMultiplier = 1.2f;// A value of 1.1 would give a 10% increase over water boil/freeze points.
 float lavaSolidifyTemp = 200;
 
@@ -295,11 +268,6 @@ int seedSpreadChance = 2;// Percentage chance.
 int glitchSpreadChance = 5;// Percentage chance.
 
 // Airborn particle movement rates (movement in percentage chance, MUST equal up to 100 in total)
-// Steam.
-int steamAscendRate = 65;
-int steamDescendRate = 0;
-int steamSidewardsRate = 25;
-int steamNoMovementRate = 10;
 // Fire.
 int fireAscendRate = 85;
 int fireDescendRate = 0;

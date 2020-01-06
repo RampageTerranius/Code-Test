@@ -1,0 +1,16 @@
+[Particle]
+Name=Water
+Type=liquid
+Weight=3
+Health=80
+Thermal_Conductivity=0.0125
+Flammability=0
+
+[Color]
+R=0
+G=0
+B=255
+
+[Effects]
+ChangeTypeAtLowTemperature=Ice,0
+ChangeTypeAtHighTemperature=Steam,100
