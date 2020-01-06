@@ -399,34 +399,74 @@ bool Particle::HandleEvents()
 		left--;
 		right++;
 
-		bool canGoUp, canGoDown, canGoLeft, canGoRight;
-		canGoUp = canGoDown = canGoLeft = canGoRight = false;
+		bool upExists, downExists, leftExists, rightExists;
+		upExists = downExists = leftExists = rightExists = false;
 
+		// Determine what directions around this particle we can work with.
 		if (up >= 0)
-			canGoUp = true;
+			if (allParticles[point.x][up] != nullptr)
+				upExists = true;
 
 		if (down < WINDOW_HEIGHT)
-			canGoDown = true;
+			if (allParticles[point.x][down] != nullptr)
+				downExists = true;
 
 		if (left >= 0)
-			canGoLeft = true;
+			if (allParticles[left][point.y] != nullptr)
+				leftExists = true;
 
 		if (right < WINDOW_WIDTH)
-			canGoRight = true;
+			if (allParticles[right][point.y] != nullptr)
+				rightExists = true;
 
 
-		// Check and update each direction that we can.
-		if (canGoUp)
+		for (std::vector<ParticleEffect>::const_iterator iterator = type->particleEffects.begin(); iterator != type->particleEffects.end(); iterator++)
+			switch (iterator->effectType)
+			{
+			case EFFECT_CHANGE_TYPE_AT_LOW_TEMPERATURE:
+				
+				break;
+			case EFFECT_CHANGE_TYPE_AT_HIGH_TEMPERATURE:
+				break;
+
+			case EFFECT_DAMAGE_SURROUNDING:
+				int damageChance = std::stoi(iterator->effectData);
+
+				if (upExists)
+					if ((xor128() % 100) < damageChance)
+						allParticles[point.x][up]->health--;
+				if (downExists)
+					if ((xor128() % 100) < damageChance)
+						allParticles[point.x][down]->health--;
+				if (leftExists)
+					if ((xor128() % 100) < damageChance)
+						allParticles[left][point.y]->health--;
+				if (rightExists)
+					if ((xor128() % 100) < damageChance)
+						allParticles[right][point.y]->health--;
+
+				break;
+			}
+
+
+
+
+
+
+
+		// Check and update temperatures of each direction that we can.
+		if (up >= 0)
 			EvenOutTemperatures(point.x, point.y, point.x, up);
 
-		if (canGoDown)
-			EvenOutTemperatures(point.x, point.y, point.x, down);
-
-		if (canGoLeft)
+		if (down < WINDOW_HEIGHT)
 			EvenOutTemperatures(point.x, point.y, left, point.y);
 
-		if (canGoRight)
+		if (left >= 0)
+			EvenOutTemperatures(point.x, point.y, left, point.y);
+
+		if (right < WINDOW_WIDTH)
 			EvenOutTemperatures(point.x, point.y, right, point.y);
+			
 	}
 
 	// Health check.
@@ -495,473 +535,395 @@ bool Particle::CheckIfAtTop()
 // Default particle physics.
 void Particle::HandlePhysics()
 {
-}
-
-// Solid immobile particles.
-// Particles that stay in spot and do not move at all.
-SolidImmobile::SolidImmobile(ParticleType newType, int newX, int newY, float newTemperature) : Particle (newType, newX, newY, newTemperature)
-{
-}
-
-bool SolidImmobile::HandleEvents()
-{
-	Particle::HandleEvents();
-
-	return false;
-}
-
-// Solid mobile particles.
-// Particles that drop downwards.
-SolidMobile::SolidMobile(ParticleType newType, int newX, int newY, float newTemperature) : Particle(newType, newX, newY, newTemperature)
-{
-
-}
-
-bool SolidMobile::HandleEvents()
-{
-	Particle::HandleEvents();
-
-	return false;
-}
-
-void SolidMobile::HandlePhysics()
-{
-
-	// Make sure we arent already at the bottom level, if we are we dont need to check the physics.
-	if (CheckIfAtBottom())
-		return;
-
-	// Check if an object exists under this one.
-	if (DropParticle(point.x, point.y))
-		return;
-
-	int left, right, down;
-	left = right = point.x;
-	left--;
-	right++;
-	down = point.y + 1;
-
-	if (left < 0)
-		left = 0;
-
-	if (right >= WINDOW_WIDTH)
-		right = WINDOW_WIDTH - 1;
-
-	Particle* pCenter = allParticles[point.x][point.y];
-	Particle* pDown = allParticles[point.x][down];
-	Particle* pLeftDown = allParticles[left][down];
-	Particle* pRightDown = allParticles[right][down];
-
-	// Check if we are surrounded.
-	if (pLeftDown != nullptr && pDown != nullptr && pRightDown != nullptr)
+	switch (type->movementType)
 	{
-		// If we are check if we can move via gravity with the surrounding blocks.
+	case MOVEMENTTYPE_PILE:
+		// Make sure we arent already at the bottom level, if we are we dont need to check the physics.
+		if (CheckIfAtBottom())
+			return;
 
-		bool canGoLeft, canGoRight;
-		canGoLeft = canGoRight = false;
+		// Check if an object exists under this one.
+		if (DropParticle(point.x, point.y))
+			return;
 
-		if (pLeftDown->weight != -1)
-			if (pCenter->weight < pLeftDown->weight)
-				canGoLeft = true;
+		int left, right, down;
+		left = right = point.x;
+		left--;
+		right++;
+		down = point.y + 1;
 
-		if (pRightDown->weight != -1)
-			if (pCenter->weight < pRightDown->weight)
-				canGoRight = true;
+		if (left < 0)
+			left = 0;
 
-		// Can go both ways, randomize the direction.
-		if (canGoLeft && canGoRight)
+		if (right >= WINDOW_WIDTH)
+			right = WINDOW_WIDTH - 1;
+
+		Particle* pCenter = allParticles[point.x][point.y];
+		Particle* pDown = allParticles[point.x][down];
+		Particle* pLeftDown = allParticles[left][down];
+		Particle* pRightDown = allParticles[right][down];
+
+		// Check if we are surrounded.
+		if (pLeftDown != nullptr && pDown != nullptr && pRightDown != nullptr)
 		{
-			switch (xor128() % 2)
+			// If we are check if we can move via gravity with the surrounding blocks.
+
+			bool canGoLeft, canGoRight;
+			canGoLeft = canGoRight = false;
+
+			if (pLeftDown->type->weight != -1)
+				if (pCenter->type->weight < pLeftDown->type->weight)
+					canGoLeft = true;
+
+			if (pRightDown->type->weight != -1)
+				if (pCenter->type->weight < pRightDown->type->weight)
+					canGoRight = true;
+
+			// Can go both ways, randomize the direction.
+			if (canGoLeft && canGoRight)
 			{
-				// Go left.
-			case 0:
+				switch (xor128() % 2)
+				{
+					// Go left.
+				case 0:
+					UnlockNeighbourParticles(point.x, point.y);
+					MoveParticles(left, down, point.x, point.y);
+					return;
+
+					// Go right.
+				case 1:
+					UnlockNeighbourParticles(point.x, point.y);
+					MoveParticles(right, down, point.x, point.y);
+					return;
+				}
+			}
+			// Can only go left.
+			else if (canGoLeft)
+			{
 				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(left, down, point.x, point.y);
 				return;
-
-				// Go right.
-			case 1:
+			}
+			// Can only go roght.
+			else if (canGoRight)
+			{
 				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(right, down, point.x, point.y);
 				return;
 			}
-		}
-		// Can only go left.
-		else if (canGoLeft)
-		{
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(left, down, point.x, point.y);
-			return;
-		}
-		// Can only go roght.
-		else if (canGoRight)
-		{
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(right, down, point.x, point.y);
+
+			// Neither way is less weight and we know that were surrounded, lock the particle and do not run any further code.
+			locked = true;
 			return;
 		}
 
-		// Neither way is less weight and we know that were surrounded, lock the particle and do not run any further code.
-		locked = true;
-		return;
-	}
+		// Since there is an object under this one lets check if we can fall to the left or right.
+		if (point.x == 0)// Check if we are on the left most edge.
+		{
+			// We are on the left most edge, try to drop to the bottom right.
+			if (pRightDown == nullptr)
+			{
+				// Update particles.
+				UnlockNeighbourParticles(point.x, point.y);
+				MoveParticles(point.x, point.y, right, down);
+				return;
+			}
 
-	// Since there is an object under this one lets check if we can fall to the left or right.
-	if (point.x == 0)// Check if we are on the left most edge.
-	{
-		// We are on the left most edge, try to drop to the bottom right.
-		if (pRightDown == nullptr)
+			// Even if we cant drop, we know that we can not go anywhere so stop here and lock the particle.
+			locked = true;
+			return;
+		}
+
+		if (point.x == WINDOW_WIDTH - 1)// Making sure were not at the right most edge.
+		{
+			// We are on the right most edge, try to drop to the bottom left.
+			if (pLeftDown == nullptr)
+			{
+				// Update particles.
+				UnlockNeighbourParticles(point.x, point.y);
+				MoveParticles(point.x, point.y, left, down);
+				return;
+			}
+
+			// Even if we cant drop, we know that we can not go anywhere so stop here and lock the particle.
+			locked = true;
+			return;
+		}
+
+		// If the bottom left is empty and the bottom right isnt then drop to the bottom left.
+		if (pLeftDown == nullptr && pRightDown != nullptr)
+		{
+			// Update particles.
+			UnlockNeighbourParticles(point.x, point.y);
+			MoveParticles(point.x, point.y, left, down);
+			return;
+		}
+		// If the bottom right is empty and the bottom left isnt the drop to the bottom right.
+		else if (pRightDown == nullptr && pLeftDown != nullptr)
 		{
 			// Update particles.
 			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, right, down);
 			return;
 		}
-
-		// Even if we cant drop, we know that we can not go anywhere so stop here and lock the particle.
-		locked = true;
-		return;
-	}
-
-	if (point.x == WINDOW_WIDTH - 1)// Making sure were not at the right most edge.
-	{
-		// We are on the right most edge, try to drop to the bottom left.
-		if (pLeftDown == nullptr)
+		// If both sides are free randomly choose one direction and drop down that side.	
+		else if (pRightDown == nullptr && pLeftDown == nullptr)
 		{
-			// Update particles.
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(point.x, point.y, left, down);
-			return;
-		}
 
-		// Even if we cant drop, we know that we can not go anywhere so stop here and lock the particle.
-		locked = true;
-		return;
-	}
-
-	// If the bottom left is empty and the bottom right isnt then drop to the bottom left.
-	if (pLeftDown == nullptr && pRightDown != nullptr)
-	{
-		// Update particles.
-		UnlockNeighbourParticles(point.x, point.y);
-		MoveParticles(point.x, point.y, left, down);
-		return;
-	}
-	// If the bottom right is empty and the bottom left isnt the drop to the bottom right.
-	else if (pRightDown == nullptr && pLeftDown != nullptr)
-	{
-		// Update particles.
-		UnlockNeighbourParticles(point.x, point.y);
-		MoveParticles(point.x, point.y, right, down);
-		return;
-	}
-	// If both sides are free randomly choose one direction and drop down that side.	
-	else if (pRightDown == nullptr && pLeftDown == nullptr)
-	{
-
-		switch (xor128() % 2)
-		{
-			// Go left.
-		case 0:
-			// Update particles.
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(point.x, point.y, left, down);
-			return;
-
-			// Go right.
-		case 1:
-			// Update particles.
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(point.x, point.y, right, down);
-			return;
-		}
-	}
-}
-
-// Liquid particles.
-// Particles that drop downwards and attempt to flatten themselves out on surfaces.
-
-Liquid::Liquid(ParticleType newType, int newX, int newY, float newTemperature) : Particle(newType, newX, newY, newTemperature)
-{
-
-}
-
-bool Liquid::HandleEvents()
-{
-	Particle::HandleEvents();
-
-	return false;
-}
-
-void Liquid::HandlePhysics()
-{
-	// Make sure we arent already at the bottom level, if we are we dont need to check the physics.
-	if (CheckIfAtBottom())
-		return;
-
-	// Check if an object exists under this one.
-	if (DropParticle(point.x, point.y))
-		return;
-
-	int left, right, down;
-	left = right = point.x;
-	left--;
-	right++;
-	down = point.y + 1;
-
-	if (left < 0)
-		left = 0;
-
-	if (right >= WINDOW_WIDTH)
-		right = WINDOW_WIDTH - 1;
-
-	Particle* pCenter = allParticles[point.x][point.y];
-	Particle* pDown = allParticles[point.x][down];
-	Particle* pLeft = allParticles[left][point.y];
-	Particle* pRight = allParticles[right][point.y];
-
-	// Check if we are surrounded.
-	if (pLeft != nullptr && pDown != nullptr && pRight != nullptr)
-	{
-		// If we are check if we can move via gravity with the surrounding blocks.
-		bool canGoLeft, canGoRight;
-		canGoLeft = canGoRight = false;
-
-		if (pLeft->weight != -1)
-			if (pCenter->weight < pLeft->weight)
-				canGoLeft = true;
-
-		if (pRight->weight != -1)
-			if (pCenter->weight < pRight->weight)
-				canGoRight = true;
-
-		// Can go either way.
-		if (canGoLeft && canGoRight)
-		{
 			switch (xor128() % 2)
 			{
 				// Go left.
 			case 0:
+				// Update particles.
 				UnlockNeighbourParticles(point.x, point.y);
-				MoveParticles(left, point.y, point.x, point.y);
+				MoveParticles(point.x, point.y, left, down);
 				return;
 
 				// Go right.
 			case 1:
+				// Update particles.
+				UnlockNeighbourParticles(point.x, point.y);
+				MoveParticles(point.x, point.y, right, down);
+				return;
+			}
+		}
+		break;
+	case MOVEMENTTYPE_LIQUID:
+		// Make sure we arent already at the bottom level, if we are we dont need to check the physics.
+		if (CheckIfAtBottom())
+			return;
+
+		// Check if an object exists under this one.
+		if (DropParticle(point.x, point.y))
+			return;
+
+		int left, right, down;
+		left = right = point.x;
+		left--;
+		right++;
+		down = point.y + 1;
+
+		if (left < 0)
+			left = 0;
+
+		if (right >= WINDOW_WIDTH)
+			right = WINDOW_WIDTH - 1;
+
+		Particle* pCenter = allParticles[point.x][point.y];
+		Particle* pDown = allParticles[point.x][down];
+		Particle* pLeft = allParticles[left][point.y];
+		Particle* pRight = allParticles[right][point.y];
+
+		// Check if we are surrounded.
+		if (pLeft != nullptr && pDown != nullptr && pRight != nullptr)
+		{
+			// If we are check if we can move via gravity with the surrounding blocks.
+			bool canGoLeft, canGoRight;
+			canGoLeft = canGoRight = false;
+
+			if (pLeft->type->weight != -1)
+				if (pCenter->type->weight < pLeft->type->weight)
+					canGoLeft = true;
+
+			if (pRight->type->weight != -1)
+				if (pCenter->type->weight < pRight->type->weight)
+					canGoRight = true;
+
+			// Can go either way.
+			if (canGoLeft && canGoRight)
+			{
+				switch (xor128() % 2)
+				{
+					// Go left.
+				case 0:
+					UnlockNeighbourParticles(point.x, point.y);
+					MoveParticles(left, point.y, point.x, point.y);
+					return;
+
+					// Go right.
+				case 1:
+					UnlockNeighbourParticles(point.x, point.y);
+					MoveParticles(right, point.y, point.x, point.y);
+					return;
+				}
+			}
+			// Can only go left.
+			else if (canGoLeft)
+			{
+				UnlockNeighbourParticles(point.x, point.y);
+				MoveParticles(left, point.y, point.x, point.y);
+				return;
+			}
+			// Can only go right.
+			else if (canGoRight)
+			{
 				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(right, point.y, point.x, point.y);
 				return;
 			}
-		} 
-		// Can only go left.
-		else if (canGoLeft)
-		{
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(left, point.y, point.x, point.y);
-			return;
-		}
-		// Can only go right.
-		else if (canGoRight)
-		{
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(right, point.y, point.x, point.y);
+
+			// Neither way is less weight and we know that were surrounded, do not run any further code.
 			return;
 		}
 
-		// Neither way is less weight and we know that were surrounded, do not run any further code.
-		return;
-	}
-
-	// There is an object under this one, try and move to the left or right.
-	if (point.x == 0)// Check if we are on the left most edge.
-	{
-		// We are on the left most edge, try to drop to the bottom right.
-		if (pRight == nullptr)
+		// There is an object under this one, try and move to the left or right.
+		if (point.x == 0)// Check if we are on the left most edge.
 		{
-			// Update particles.
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(point.x, point.y, right, point.y);
-			return;
-		}
-		return;// Even if we cant drop, we know that we can not go anywhere so stop here.
-	}
-
-	if (point.x == WINDOW_WIDTH - 1)// Making sure were not at the right most edge.
-	{
-		// We are on the right most edge, try to drop to the bottom left.
-		if (pLeft == nullptr)
-		{
-			// Update particles.
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(point.x, point.y, left, point.y);
-			return;
-		}
-		return;// Even if we cant drop, we know that we can not go anywhere so stop here.
-	}
-
-	// If left is empty only.
-	if (pLeft == nullptr && pRight != nullptr)
-	{
-		UnlockNeighbourParticles(point.x, point.y);
-		MoveParticles(point.x, point.y, left, point.y);
-	}
-	// If right is empty only.
-	else if (pRight == nullptr && pLeft != nullptr)
-	{
-		UnlockNeighbourParticles(point.x, point.y);
-		MoveParticles(point.x, point.y, right, point.y);
-	}
-	// Both ways are free, randomly choose one and move.
-	else if (pRight == nullptr && pLeft == nullptr)
-	{
-		switch (xor128() % 2)
-		{
-			// Go left.
-		case 0:
-			// Update particles.
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(point.x, point.y, left, point.y);
-			return;
-
-			// Go right.
-		case 1:
-			// Update particles.
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(point.x, point.y, right, point.y);
-			return;
-		}
-	}
-}
-
-// Airborn particles.
-// Particles that float around in the air either going directly up or slowly hovering around.
-Airborn::Airborn(ParticleType newType, int newAscendRate, int newDescendRate, int newSidewardsRate, int newNoMovementRate, int newX, int newY, float newTemperature) : Particle(newType, newX, newY, newTemperature)
-{
-	ascendRate = newAscendRate;
-	descendRate = newDescendRate;
-	sidewardsRate = newSidewardsRate;
-	noMovementRate = newNoMovementRate;
-}
-
-bool Airborn::HandleEvents()
-{
-	Particle::HandleEvents();
-
-	return false;
-}
-
-void Airborn::HandlePhysics()
-{
-	int up, down, left, right;
-	up = down = point.y;
-	left = right = point.x;
-	up--;
-	down++;
-	left--;
-	right++;
-
-	Particle* pCenter = allParticles[point.x][point.y];
-	Particle* pLeft;
-	Particle* pRight;
-
-	int random = xor128() % 100 + 1;
-
-	// Check if should ascend.
-	if (random < ascendRate)
-	{
-		// Check if we are at the top of the screen and if we can loop around.
-		if (!CheckIfAtTop())
-			AscendParticle(point.x, point.y, false);
-	}
-	// Check if should descend.
-	else if (random < (ascendRate + descendRate))
-	{
-		// Check if we are at the top of the screen and if we can loop around.
-		if (!CheckIfAtBottom())
-			DropParticle(point.x, point.y, false);
-	}
-	// Check if should go left or right.
-	else if (random < (ascendRate + descendRate + sidewardsRate))
-	{
-		bool canGoLeft, canGoRight;
-		canGoLeft = canGoRight = false;
-		if (left >= 0)
-		{
-			pLeft = allParticles[left][point.y];
-			if (pLeft == nullptr)
-				canGoLeft = true;
-			else
-			{
-				if (pLeft->weight != -1)
-					if (pCenter->weight < pLeft->weight)
-						canGoLeft = true;
-			}
-		}
-
-		if (right < WINDOW_WIDTH)
-		{
-			pRight = allParticles[right][point.y];
-
+			// We are on the left most edge, try to drop to the bottom right.
 			if (pRight == nullptr)
-				canGoRight = true;
-			else
 			{
-				if (pRight->weight != -1)
-					if (pCenter->weight < pRight->weight)
-						canGoRight = true;
+				// Update particles.
+				UnlockNeighbourParticles(point.x, point.y);
+				MoveParticles(point.x, point.y, right, point.y);
+				return;
 			}
+			return;// Even if we cant drop, we know that we can not go anywhere so stop here.
 		}
 
-		// Can go either way.
-		if (canGoLeft && canGoRight)
+		if (point.x == WINDOW_WIDTH - 1)// Making sure were not at the right most edge.
+		{
+			// We are on the right most edge, try to drop to the bottom left.
+			if (pLeft == nullptr)
+			{
+				// Update particles.
+				UnlockNeighbourParticles(point.x, point.y);
+				MoveParticles(point.x, point.y, left, point.y);
+				return;
+			}
+			return;// Even if we cant drop, we know that we can not go anywhere so stop here.
+		}
+
+		// If left is empty only.
+		if (pLeft == nullptr && pRight != nullptr)
+		{
+			UnlockNeighbourParticles(point.x, point.y);
+			MoveParticles(point.x, point.y, left, point.y);
+		}
+		// If right is empty only.
+		else if (pRight == nullptr && pLeft != nullptr)
+		{
+			UnlockNeighbourParticles(point.x, point.y);
+			MoveParticles(point.x, point.y, right, point.y);
+		}
+		// Both ways are free, randomly choose one and move.
+		else if (pRight == nullptr && pLeft == nullptr)
 		{
 			switch (xor128() % 2)
 			{
 				// Go left.
 			case 0:
+				// Update particles.
 				UnlockNeighbourParticles(point.x, point.y);
-				MoveParticles(left, point.y, point.x, point.y);
-				break;
+				MoveParticles(point.x, point.y, left, point.y);
+				return;
 
 				// Go right.
 			case 1:
+				// Update particles.
 				UnlockNeighbourParticles(point.x, point.y);
-				MoveParticles(right, point.y, point.x, point.y);
-				break;
+				MoveParticles(point.x, point.y, right, point.y);
+				return;
 			}
 		}
-		// Can only go left.
-		else if (canGoLeft)
+		break;
+	case MOVEMENTTYPE_AIRBORN:
+		int up, down, left, right;
+		up = down = point.y;
+		left = right = point.x;
+		up--;
+		down++;
+		left--;
+		right++;
+
+		Particle* pCenter = allParticles[point.x][point.y];
+		Particle* pLeft;
+		Particle* pRight;
+
+		int random = xor128() % 100 + 1;
+
+		// Check if should ascend.
+		if (random < type->ascendRate)
 		{
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(left, point.y, point.x, point.y);
+			// Check if we are at the top of the screen and if we can loop around.
+			if (!CheckIfAtTop())
+				AscendParticle(point.x, point.y, false);
 		}
-		// Can only go right.
-		else
+		// Check if should descend.
+		else if (random < (type->ascendRate + type->descendRate))
 		{
-			UnlockNeighbourParticles(point.x, point.y);
-			MoveParticles(right, point.y, point.x, point.y);
-		}		
+			// Check if we are at the top of the screen and if we can loop around.
+			if (!CheckIfAtBottom())
+				DropParticle(point.x, point.y, false);
+		}
+		// Check if should go left or right.
+		else if (random < (type->ascendRate + type->descendRate + type->sidewardsRate))
+		{
+			bool canGoLeft, canGoRight;
+			canGoLeft = canGoRight = false;
+			if (left >= 0)
+			{
+				pLeft = allParticles[left][point.y];
+				if (pLeft == nullptr)
+					canGoLeft = true;
+				else
+				{
+					if (pLeft->type->weight != -1)
+						if (pCenter->type->weight < pLeft->type->weight)
+							canGoLeft = true;
+				}
+			}
 
-		// Neither way is less weight and we know that were surrounded, do not run any further code.
-		locked = true;
-		return;	
-	}	
-}
+			if (right < WINDOW_WIDTH)
+			{
+				pRight = allParticles[right][point.y];
 
-// Wall particles.
-Wall::Wall(int newX, int newY, float newTemperature) : SolidImmobile(TYPE_WALL, newX, newY, newTemperature)
-{	
-}
+				if (pRight == nullptr)
+					canGoRight = true;
+				else
+				{
+					if (pRight->type->weight != -1)
+						if (pCenter->type->weight < pRight->type->weight)
+							canGoRight = true;
+				}
+			}
 
-// Sand particles.
-Sand::Sand(int newX, int newY, float newTemperature) : SolidMobile(TYPE_SAND, newX, newY, newTemperature)
-{	
-}
+			// Can go either way.
+			if (canGoLeft && canGoRight)
+			{
+				switch (xor128() % 2)
+				{
+					// Go left.
+				case 0:
+					UnlockNeighbourParticles(point.x, point.y);
+					MoveParticles(left, point.y, point.x, point.y);
+					break;
 
-// Water particles.
-Water::Water(int newX, int newY, float newTemperature) : Liquid(TYPE_WATER, newX, newY, newTemperature)
-{
+					// Go right.
+				case 1:
+					UnlockNeighbourParticles(point.x, point.y);
+					MoveParticles(right, point.y, point.x, point.y);
+					break;
+				}
+			}
+			// Can only go left.
+			else if (canGoLeft)
+			{
+				UnlockNeighbourParticles(point.x, point.y);
+				MoveParticles(left, point.y, point.x, point.y);
+			}
+			// Can only go right.
+			else
+			{
+				UnlockNeighbourParticles(point.x, point.y);
+				MoveParticles(right, point.y, point.x, point.y);
+			}
+
+			// Neither way is less weight and we know that were surrounded, do not run any further code.
+			locked = true;
+			return;
+		}
+		break;
+	}
 }
 
 bool Water::HandleEvents()
@@ -998,11 +960,6 @@ bool Water::HandleEvents()
 	return false;
 }
 
-// Ice particles.
-Ice::Ice(int newX, int newY, float newTemperature) : SolidImmobile(TYPE_ICE, newX, newY, newTemperature)
-{
-}
-
 bool Ice::HandleEvents()
 {
 	// Handle default events first, this includes temperature shifting.
@@ -1022,15 +979,6 @@ bool Ice::HandleEvents()
 	}
 
 	return false;
-}
-
-ThermalFluid::ThermalFluid(int newX, int newY, float newTemperature) : Liquid(TYPE_THERMALFLUID, newX, newY, newTemperature)
-{
-}
-
-// Acid particles.
-Acid::Acid(int newX, int newY, float newTemperature) : Liquid(TYPE_ACID, newX, newY, newTemperature)
-{
 }
 
 // Acid needs to randomly damage other blocks around it that are not acid.
@@ -1113,11 +1061,6 @@ bool Acid::HandleEvents()
 	return false;
 }
 
-// Steam particles.
-Steam::Steam(int newX, int newY, float newTemperature) : Airborn(TYPE_STEAM, steamAscendRate, steamDescendRate, steamSidewardsRate, steamNoMovementRate, newX, newY, newTemperature)
-{
-}
-
 bool Steam::HandleEvents()
 {
 	// Handle default events first, this includes temperature shifting.
@@ -1135,11 +1078,6 @@ bool Steam::HandleEvents()
 	}
 
 	return false;
-}
-
-// Plant particles.
-Plant::Plant(int newX, int newY, float newTemperature) : SolidImmobile(TYPE_PLANT, newX, newY, newTemperature)
-{
 }
 
 bool Plant::HandleEvents()
@@ -1257,11 +1195,6 @@ bool Plant::HandleEvents()
 		return true;
 	else
 		return false;
-}
-
-// Salt particle.
-Salt::Salt(int newX, int newY, float newTemperature) : SolidMobile(TYPE_SALT, newX, newY, newTemperature)
-{
 }
 
 bool Salt::HandleEvents()
@@ -1386,11 +1319,6 @@ bool Salt::HandleEvents()
 	return false;
 }
 
-// Salt water particle.
-SaltWater::SaltWater(int newX, int newY, float newTemperature) : Liquid(TYPE_SALTWATER, newX, newY, newTemperature)
-{
-}
-
 bool SaltWater::HandleEvents()
 {
 	// Handle default events, this includes handling temperature shifts.
@@ -1425,11 +1353,6 @@ bool SaltWater::HandleEvents()
 	return false;
 }
 
-// Salt ice particles.
-SaltIce::SaltIce(int newX, int newY, float newTemperature) : SolidImmobile(TYPE_SALTICE, newX, newY, newTemperature)
-{
-}
-
 bool SaltIce::HandleEvents()
 {
 	// Handle default events first, this includes temperature shifting.
@@ -1457,6 +1380,7 @@ Source::Source(ParticleType newSourceType, int newX, int newY, float newTemperat
 {
 	sourceType = newSourceType;
 }
+
 void Source::Draw()
 {
 	EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, settingColor[sourceType][0], settingColor[sourceType][1], settingColor[sourceType][2], settingColor[sourceType][3]));
@@ -1498,10 +1422,6 @@ bool Source::HandleEvents()
 	return false;
 }
 
-// Glitch particles.
-Glitch::Glitch(int newX, int newY, float newTemperature) : SolidImmobile(TYPE_GLITCH, newX, newY, newTemperature)
-{
-}
 void Glitch::Draw()
 {
 	EditPixel(point.x, point.y, xor128());
@@ -1592,12 +1512,6 @@ bool Glitch::HandleEvents()
 	return false;
 }
 
-// Stone particles.
-// Can melt into lava at high heat.
-Stone::Stone(int newX, int newY, float newTemperature) : SolidMobile(TYPE_STONE, newX, newY, newTemperature)
-{
-}
-
 bool Stone::HandleEvents()
 {
 	if (Particle::HandleEvents())
@@ -1618,12 +1532,6 @@ bool Stone::HandleEvents()
 	return false;
 }
 
-// Lava particles.
-// Can turn into stone at low temperatures.
-Lava::Lava(int newX, int newY, float newTemperature) : Liquid(TYPE_LAVA, newX, newY, newTemperature)
-{
-}
-
 bool Lava::HandleEvents()
 {
 	if (Particle::HandleEvents())
@@ -1642,11 +1550,6 @@ bool Lava::HandleEvents()
 	}
 
 	return false;
-}
-
-Fire::Fire(int newX, int newY, float newTemperature) : Airborn(TYPE_FIRE, fireAscendRate, fireDescendRate, fireSidewardsRate, fireNoMovementRate, newX, newY, newTemperature)
-{
-
 }
 
 bool Fire::HandleEvents()
@@ -1801,29 +1704,9 @@ bool Fire::HandleEvents()
 	return false;
 }
 
-Gas::Gas(int newX, int newY, float newTemperature) : Airborn(TYPE_GAS, gasAscendRate, gasDescendRate, gasSidewardsRate, gasNoMovementRate, newX, newY, newTemperature)
-{
-}
-
-LightGas::LightGas(int newX, int newY, float newTemperature) : Airborn(TYPE_LIGHTGAS, lightGasAscendRate, lightGasDescendRate, lightGasSidewardsRate, lightGasNoMovementRate, newX, newY, newTemperature)
-{
-}
-
-HeavyGas::HeavyGas(int newX, int newY, float newTemperature) : Airborn(TYPE_HEAVYGAS, heavyGasAscendRate, heavyGasDescendRate, heavyGasSidewardsRate, heavyGasNoMovementRate, newX, newY, newTemperature)
-{
-}
-
-HeatPad::HeatPad(int newX, int newY, float newTemperature) : SolidImmobile(TYPE_HEATPAD, newX, newY, newTemperature)
-{
-}
-
 void HeatPad::Draw()
 {
 	DrawParticleHeat(point.x, point.y);
-}
-
-Seed::Seed(int newX, int newY, float newTemperature) : Airborn(TYPE_SEED, seedAscendRate, seedDescendRate, seedSidewardsRate, seedNoMovementRate, newX, newY, newTemperature)
-{
 }
 
 bool Seed::HandleEvents()
