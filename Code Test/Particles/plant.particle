@@ -1,0 +1,16 @@
+[Particle]
+Name=Plant
+Type=immobile
+Weight=-1
+Health=120
+Thermal_Conductivity=0.026
+Flammability=25
+
+[Color]
+Type=rgb
+R=20
+G=150
+B=20
+
+[Effects]
+SpreadToSurrounding=20,Water

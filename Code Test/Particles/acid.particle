@@ -1,0 +1,16 @@
+[Particle]
+Name=Acid
+Type=liquid
+Weight=1
+Health=200
+Thermal_Conductivity=0.2
+Flammability=0
+
+[Color]
+Type=rgb
+R=102
+G=0
+B=102
+
+[Effects]
+DamageSurrounding=30,Acid

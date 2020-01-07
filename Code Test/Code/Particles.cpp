@@ -18,6 +18,7 @@ ParticleType::ParticleType()
 
 	Flammability = 0;
 
+	colorType = COLORTYPE_RGB;
 	R = 0;
 	G = 0;
 	B = 0;
@@ -70,6 +71,15 @@ void EditPixel(int x, int y, Uint32 pixel)
 		*(Uint32*)p = pixel;
 		break;
 	}
+}
+
+ParticleType* FindParticleType(std::string particleName)
+{
+	for (int i = 0; i < ParticleTypes.size(); i++)
+		if (ParticleTypes[i].name == particleName)
+			return &ParticleTypes[i];
+
+	return nullptr;
 }
 
 // Draws the heat for a particle at the given X/Y coordinates.
@@ -305,6 +315,9 @@ void EvenOutTemperatures(int x1, int y1, int x2, int y2)
 		if (p1->temperature == p2->temperature)
 			return;
 
+		if (p1->type->name != "Heat Pad" || p2->type->name != "Heat Pad")
+			return;
+
 		// Get the difference between both temperatures in an attempt to either increase or decrease the spread of temperature between objects.
 		float calculatedTemperatureDifference = (std::abs(((p1->temperature - p2->temperature) / p1->temperature) * 100)) / temperatureDifferenceDivisor;
 
@@ -316,27 +329,21 @@ void EvenOutTemperatures(int x1, int y1, int x2, int y2)
 		{
 			// First particle is higher temp then second.
 			if (p1->temperature > p2->temperature)
-			{
-				if (p1->type->name != "Heat Pad")
-					p1->temperature -= calculatedTemperatureChange;
-				if (p1->type->name != "Heat Pad")
-					p2->temperature += calculatedTemperatureChange;
+			{			
+				p1->temperature -= calculatedTemperatureChange;
+				p2->temperature += calculatedTemperatureChange;
 			}
 			else// Second particle is higher temp then first.
 			{
-				if (p1->type->name != "Heat Pad")
-					p1->temperature += calculatedTemperatureChange;
-				if (p1->type->name != "Heat Pad")
-					p2->temperature -= calculatedTemperatureChange;
+				p1->temperature += calculatedTemperatureChange;
+				p2->temperature -= calculatedTemperatureChange;
 			}
 		}
 		else// Both temperatures are close enough to just even them out at same temperature.
 		{
 			float temp = (p1->temperature + p2->temperature) / 2;
-			if (p1->type->name != "Heat Pad")
-				p1->temperature = temp;
-			if (p2->type->name != "Heat Pad")
-				p2->temperature = temp;
+			p1->temperature = temp;
+			p2->temperature = temp;
 		}
 	}
 }
@@ -365,12 +372,29 @@ void Particle::Draw()
 {
 	switch (viewMode)
 	{
-	// Changes color depending on the type of pixel.
-	case VIEW_TYPE:
-		EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, type->R, type->G, type->B, 0));
+	// Changes color depending on the type of pixel and its colortype settings.
+	case VIEW_DEFAULT:
+		switch (type->colorType)
+		{
+		case COLORTYPE_RGB:
+			EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, type->R, type->G, type->B, 0));
+			break;
+		case COLORTYPE_HEAT:
+			DrawParticleHeat(point.x, point.y);
+			break;
+		case COLORTYPE_ACTIVE:
+			if (locked)
+				EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, 255, 0, 0, 0));
+			else
+				EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, 255, 255, 255, 0));
+			break;
+		case COLORTYPE_RANDOMIZED:
+			EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, (xor128() % 256), (xor128() % 256), (xor128() % 256), 0));
+			break;
+		}
 		break;
 
-	// Changes color depending o nthe heat of the pixel.
+	// Changes color depending on the heat of the pixel.
 	case VIEW_HEAT:
 		DrawParticleHeat(point.x, point.y);
 		break;
@@ -383,100 +407,6 @@ void Particle::Draw()
 			EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, 255, 255, 255, 0));
 		break;
 	}
-}
-
-bool Particle::HandleEvents()
-{
-	// Temperature handle.
-	if (type->thermalConductivity > 0)
-	{
-		// Values to help with determining what ways to calculate.
-		int up, down, left, right;
-		up = down = point.y;
-		left = right = point.x;
-		up--;
-		down++;
-		left--;
-		right++;
-
-		bool upExists, downExists, leftExists, rightExists;
-		upExists = downExists = leftExists = rightExists = false;
-
-		// Determine what directions around this particle we can work with.
-		if (up >= 0)
-			if (allParticles[point.x][up] != nullptr)
-				upExists = true;
-
-		if (down < WINDOW_HEIGHT)
-			if (allParticles[point.x][down] != nullptr)
-				downExists = true;
-
-		if (left >= 0)
-			if (allParticles[left][point.y] != nullptr)
-				leftExists = true;
-
-		if (right < WINDOW_WIDTH)
-			if (allParticles[right][point.y] != nullptr)
-				rightExists = true;
-
-
-		for (std::vector<ParticleEffect>::const_iterator iterator = type->particleEffects.begin(); iterator != type->particleEffects.end(); iterator++)
-			switch (iterator->effectType)
-			{
-			case EFFECT_CHANGE_TYPE_AT_LOW_TEMPERATURE:
-				
-				break;
-			case EFFECT_CHANGE_TYPE_AT_HIGH_TEMPERATURE:
-				break;
-
-			case EFFECT_DAMAGE_SURROUNDING:
-				int damageChance = std::stoi(iterator->effectData);
-
-				if (upExists)
-					if ((xor128() % 100) < damageChance)
-						allParticles[point.x][up]->health--;
-				if (downExists)
-					if ((xor128() % 100) < damageChance)
-						allParticles[point.x][down]->health--;
-				if (leftExists)
-					if ((xor128() % 100) < damageChance)
-						allParticles[left][point.y]->health--;
-				if (rightExists)
-					if ((xor128() % 100) < damageChance)
-						allParticles[right][point.y]->health--;
-
-				break;
-			}
-
-
-
-
-
-
-
-		// Check and update temperatures of each direction that we can.
-		if (up >= 0)
-			EvenOutTemperatures(point.x, point.y, point.x, up);
-
-		if (down < WINDOW_HEIGHT)
-			EvenOutTemperatures(point.x, point.y, left, point.y);
-
-		if (left >= 0)
-			EvenOutTemperatures(point.x, point.y, left, point.y);
-
-		if (right < WINDOW_WIDTH)
-			EvenOutTemperatures(point.x, point.y, right, point.y);
-			
-	}
-
-	// Health check.
-	if (health <= 0)
-	{
-		DestroyParticle(point.x, point.y);
-		return true;
-	}
-
-	return false;
 }
 
 // Check if the particle is at the bottom of the screen and if we need to loop back to the top.
@@ -535,6 +465,10 @@ bool Particle::CheckIfAtTop()
 // Default particle physics.
 void Particle::HandlePhysics()
 {
+	// If this is a source block we want no physics simulated.
+	if (isSource)
+		return;
+
 	switch (type->movementType)
 	{
 	case MOVEMENTTYPE_PILE:
@@ -926,71 +860,8 @@ void Particle::HandlePhysics()
 	}
 }
 
-bool Water::HandleEvents()
+bool Particle::HandleEvents()
 {
-	// Handle default events, this includes handling temperature shifts.
-	if (Particle::HandleEvents())
-		return true;
-
-	// Check if the water should freeze.
-	if (temperature < waterFreezePoint)
-	{
-		int newX = point.x;
-		int newY = point.y;
-		float newTemp = temperature;
-
-		DestroyParticle(point.x, point.y);
-		CreateParticle(TYPE_ICE, newX, newY, newTemp);
-
-		return true;
-	}
-	// Check if should turn into steam.
-	else if (temperature > waterBoilIntoSteamPoint)
-	{
-		int newX = point.x;
-		int newY = point.y;
-		float newTemp = temperature;
-
-		DestroyParticle(point.x, point.y);
-		CreateParticle(TYPE_STEAM, newX, newY, newTemp);
-
-		return true;
-	}
-
-	return false;
-}
-
-bool Ice::HandleEvents()
-{
-	// Handle default events first, this includes temperature shifting.
-	if (Particle::HandleEvents())
-		return true;
-
-	// Check if ice should melt.
-	if (temperature > iceMeltPoint)
-	{
-		int newX = point.x;
-		int newY = point.y;
-		float newTemp = temperature;
-
-		DestroyParticle(point.x, point.y);
-		CreateParticle(TYPE_WATER, newX, newY, newTemp);
-		return true;
-	}
-
-	return false;
-}
-
-// Acid needs to randomly damage other blocks around it that are not acid.
-bool Acid::HandleEvents()
-{
-	if (Particle::HandleEvents())
-		return true;
-
-	// Make sure an object exists first.
-	if (this == nullptr)
-		return true;
-
 	// Values to help with determining what ways to calculate.
 	int up, down, left, right;
 	up = down = point.y;
@@ -1000,201 +871,300 @@ bool Acid::HandleEvents()
 	left--;
 	right++;
 
-	Particle* pUp;
-	Particle* pDown;
-	Particle* pLeft;
-	Particle* pRight;
+	bool upExists, downExists, leftExists, rightExists;
+	upExists = downExists = leftExists = rightExists = false;
 
-	// Get our randomized chance ahead of time.
-	// Acid is fine to use a single burn chance around it, users will rarely notice that it doesnt randomly damage each surrounding on different intervals.
-	int random = xor128() % 100 + 1;
-
-	// Check if blocks exist in each direction and attempt to target it for damage.
+	// Determine what directions around this particle we can work with.
 	if (up >= 0)
-	{
-		pUp = allParticles[point.x][up];
-		if (pUp != nullptr)
-			if (pUp->type != TYPE_ACID)
-				if (random <= acidDamageChance)
-				{
-					pUp->health--;
-					health--;
-				}
-	}
+		if (allParticles[point.x][up] != nullptr)
+			upExists = true;
 
 	if (down < WINDOW_HEIGHT)
-	{
-		pDown = allParticles[point.x][down];
-		if (pDown != nullptr)
-			if (pDown->type != TYPE_ACID)
-				if (random <= acidDamageChance)
-				{
-					pDown->health--;
-					health--;
-				}
-	}
+		if (allParticles[point.x][down] != nullptr)
+			downExists = true;
 
 	if (left >= 0)
+		if (allParticles[left][point.y] != nullptr)
+			leftExists = true;
+
+		if (right < WINDOW_WIDTH)
+			if (allParticles[right][point.y] != nullptr)
+				rightExists = true;
+
+		if (!isSource)
+		{
+			try
+			{
+				for (std::vector<ParticleEffect>::const_iterator iterator = type->particleEffects.begin(); iterator != type->particleEffects.end(); iterator++)
+					switch (iterator->effectType)
+					{
+					case EFFECT_CHANGE_TYPE_AT_BELOW_TEMPERATURE:					
+						if (temperature < stof(iterator->effectData[1]))
+						{
+							int newX = point.x;
+							int newY = point.y;
+							float newTemp = temperature;
+
+							DestroyParticle(point.x, point.y);
+							CreateParticle(iterator->effectData[0], newX, newY, newTemp);
+						}
+						break;
+					case EFFECT_CHANGE_TYPE_AT_ABOVE_TEMPERATURE:
+						if (temperature > stof(iterator->effectData[1]))
+						{
+							int newX = point.x;
+							int newY = point.y;
+							float newTemp = temperature;
+
+							DestroyParticle(point.x, point.y);
+							CreateParticle(iterator->effectData[0], newX, newY, newTemp);
+						}
+						break;
+
+					case EFFECT_DAMAGE_NEIGHBOURS:
+					{
+						int damageChance = std::stoi(iterator->effectData[0]);
+
+						if (upExists)
+						{
+							bool damagePixel = true;
+							if (iterator->effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = iterator->effectData.begin()++; dmgIterator != iterator->effectData.end(); iterator++)
+									if (*dmgIterator == allParticles[point.x][up]->type->name)
+									{
+										damagePixel = false;
+										break;
+									}
+
+							if (damagePixel)
+								if ((xor128() % 100) < damageChance)
+									allParticles[point.x][up]->health--;
+						}
+
+						if (downExists)
+						{
+							bool damagePixel = true;
+							if (iterator->effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = iterator->effectData.begin()++; dmgIterator != iterator->effectData.end(); iterator++)
+									if (*dmgIterator == allParticles[point.x][down]->type->name)
+									{
+										damagePixel = false;
+										break;
+									}
+
+							if (damagePixel)
+								if ((xor128() % 100) < damageChance)
+									allParticles[point.x][down]->health--;
+						}
+
+						if (leftExists)
+						{
+							bool damagePixel = true;
+							if (iterator->effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = iterator->effectData.begin()++; dmgIterator != iterator->effectData.end(); iterator++)
+									if (*dmgIterator == allParticles[left][point.y]->type->name)
+									{
+										damagePixel = false;
+										break;
+									}
+
+							if (damagePixel)
+								if ((xor128() % 100) < damageChance)
+									allParticles[left][point.y]->health--;
+						}
+
+						if (rightExists)
+						{
+							bool damagePixel = true;
+							if (iterator->effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = iterator->effectData.begin()++; dmgIterator != iterator->effectData.end(); iterator++)
+									if (*dmgIterator == allParticles[right][point.y]->type->name)
+									{
+										damagePixel = false;
+										break;
+									}
+
+							if (damagePixel)
+								if ((xor128() % 100) < damageChance)
+									allParticles[right][point.y]->health--;
+						}
+					}
+						break;
+
+					case EFFECT_SPREAD_TO_NEIGHBOURS:
+					{
+						int spreadChance = std::stoi(iterator->effectData[0]);
+
+						if (upExists)
+						{
+							bool spreadPixel = true;
+							if (iterator->effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = iterator->effectData.begin()++; dmgIterator != iterator->effectData.end(); iterator++)
+									if (*dmgIterator == allParticles[point.x][up]->type->name)
+									{
+										spreadPixel = false;
+										break;
+									}
+
+							if (spreadPixel)
+								if ((xor128() % 100) < spreadChance)
+									allParticles[point.x][up]->type = type;
+						}
+
+						if (downExists)
+						{
+							bool spreadPixel = true;
+							if (iterator->effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = iterator->effectData.begin()++; dmgIterator != iterator->effectData.end(); iterator++)
+									if (*dmgIterator == allParticles[point.x][down]->type->name)
+									{
+										spreadPixel = false;
+										break;
+									}
+
+							if (spreadPixel)
+								if ((xor128() % 100) < spreadChance)
+									allParticles[point.x][up]->type = type;
+						}
+
+						if (leftExists)
+						{
+							bool spreadPixel = true;
+							if (iterator->effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = iterator->effectData.begin()++; dmgIterator != iterator->effectData.end(); iterator++)
+									if (*dmgIterator == allParticles[left][point.y]->type->name)
+									{
+										spreadPixel = false;
+										break;
+									}
+
+							if (spreadPixel)
+								if ((xor128() % 100) < spreadChance)
+									allParticles[point.x][up]->type = type;
+						}
+
+						if (rightExists)
+						{
+							bool spreadPixel = true;
+							if (iterator->effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = iterator->effectData.begin()++; dmgIterator != iterator->effectData.end(); iterator++)
+									if (*dmgIterator == allParticles[right][point.y]->type->name)
+									{
+										spreadPixel = false;
+										break;
+									}
+
+							if (spreadPixel)
+								if ((xor128() % 100) < spreadChance)
+									allParticles[point.x][up]->type = type;
+						}
+					}
+						break;
+
+					case EFFECT_OVERRIDE_NEIGHBOUR_TYPE_WITH_SELF:
+					{
+						int overrideChance = std::stoi(iterator->effectData[0]);
+
+						if (upExists)
+							if ((xor128() % 100) < overrideChance)
+								allParticles[point.x][up]->type = type;
+
+
+						if (downExists)
+							if ((xor128() % 100) < overrideChance)
+								allParticles[point.x][up]->type = type;
+
+
+						if (leftExists)
+							if ((xor128() % 100) < overrideChance)
+								allParticles[point.x][up]->type = type;
+
+
+						if (rightExists)
+							if ((xor128() % 100) < overrideChance)
+								allParticles[point.x][up]->type = type;
+					}
+						break;
+
+					case EFFECT_MERGE_WITH_OTHER_PARTICLE_TYPE:		
+						if (downExists)
+							if (allParticles[point.x][down]->type->name == iterator->effectData[0])
+							{
+								allParticles[point.x][down]->type = FindParticleType(iterator->effectData[1]);
+								DestroyParticle(point.x, point.y);
+							}
+
+						if (upExists)
+							if (allParticles[point.x][up]->type->name == iterator->effectData[0])
+							{
+								allParticles[point.x][up]->type = FindParticleType(iterator->effectData[1]);
+								DestroyParticle(point.x, point.y);
+							}
+
+						if (leftExists)
+							if (allParticles[left][point.y]->type->name == iterator->effectData[0])
+							{
+								allParticles[left][point.y]->type = FindParticleType(iterator->effectData[1]);
+								DestroyParticle(point.x, point.y);
+							}
+
+
+						if (rightExists)
+							if (allParticles[right][point.y]->type->name == iterator->effectData[0])
+							{
+								allParticles[right][point.y]->type = FindParticleType(iterator->effectData[1]);
+								DestroyParticle(point.x, point.y);
+							}
+						break;
+					}
+			}
+			catch (std::exception e)
+			{
+				std::cout << "EventHandle error on particle :" + std::to_string(point.x) + " " + std::to_string(point.y);
+			}
+
+			// Temperature handle.
+			if (type->thermalConductivity > 0)
+			{
+				// Check and update temperatures of each direction that we can.
+				if (up >= 0)
+					EvenOutTemperatures(point.x, point.y, point.x, up);
+
+				if (down < WINDOW_HEIGHT)
+					EvenOutTemperatures(point.x, point.y, left, point.y);
+
+				if (left >= 0)
+					EvenOutTemperatures(point.x, point.y, left, point.y);
+
+				if (right < WINDOW_WIDTH)
+					EvenOutTemperatures(point.x, point.y, right, point.y);
+			}
+		}
+		else
+		{
+		// Particle is a source, it has no other events.
+		if (up >= 0)
+			CreateParticle(type->name, point.x, up, temperature);
+
+		if (down < WINDOW_HEIGHT)
+			CreateParticle(type->name, point.x, down, temperature);
+
+		if (left >= 0)
+			CreateParticle(type->name, left, point.y, temperature);
+
+		if (right < WINDOW_WIDTH)
+			CreateParticle(type->name, right, point.y, temperature);
+		}
+	
+
+	// Health check.
+	if (health <= 0)
 	{
-		pLeft = allParticles[left][point.y];
-		if (pLeft != nullptr)
-			if (pLeft->type != TYPE_ACID)
-				if (random <= acidDamageChance)
-				{
-					pLeft->health--;
-					health--;
-				}
-	}
-
-	if (right < WINDOW_WIDTH)
-	{
-		pRight = allParticles[right][point.y];
-		if (pRight != nullptr)
-			if (pRight->type != TYPE_ACID)
-				if (random <= acidDamageChance)
-				{
-					pRight->health--;
-					health--;
-				}
-	}
-
-	return false;
-}
-
-bool Steam::HandleEvents()
-{
-	// Handle default events first, this includes temperature shifting.
-	if (Particle::HandleEvents())
-		return true;
-
-	if (temperature < steamCondensationPoint)
-	{
-		int newX = point.x;
-		int newY = point.y;
-		float newTemp = temperature;
-
 		DestroyParticle(point.x, point.y);
-		CreateParticle(TYPE_WATER, newX, newY, newTemp);
+		return true;
 	}
 
 	return false;
-}
-
-bool Plant::HandleEvents()
-{
-	// Handle default events first.
-	if (Particle::HandleEvents())
-		return true;
-
-	int up, down, left, right;
-
-	up = down = point.y;
-	left = right = point.x;
-
-	up--;
-	down++;
-	left--;
-	right++;
-	   
-
-	bool canGoUp, canGoDown, canGoLeft, canGoRight;
-	canGoUp = canGoDown = canGoLeft = canGoRight = false;
-
-	Particle* pUp;
-	Particle* pDown;
-	Particle* pLeft;
-	Particle* pRight;
-
-	// Check if can spread upwards.
-	if (up >= 0)
-	{
-		pUp = allParticles[point.x][up];
-		if (pUp != nullptr)
-			if (pUp->type == TYPE_WATER)
-				if (xor128() % 100 + 1 <= (uint32_t)plantSpreadChance)
-					canGoUp = true;
-	}
-
-		// Check if can spread downwards.
-	if (down < WINDOW_HEIGHT)
-	{
-		pDown = allParticles[point.x][down];
-		if (pDown != nullptr)
-			if (pDown->type == TYPE_WATER)
-				if (xor128() % 100 + 1 <= (uint32_t)plantSpreadChance)
-					canGoDown = true;
-	}
-	
-
-
-	// Check if can spread left.
-	if (left >= 0)
-	{
-		pLeft = allParticles[left][point.y];
-		if (pLeft != nullptr)
-			if (pLeft->type == TYPE_WATER)
-				if (xor128() % 100 + 1 <= (uint32_t)plantSpreadChance)
-					canGoLeft = true;
-	}
-			
-
-	// Check if can spread right.
-	if (right < WINDOW_WIDTH)
-	{
-		pRight = allParticles[right][point.y];
-		if (pRight != nullptr)
-			if (pRight->type == TYPE_WATER)
-				if ((xor128() % 100) + 1 <= (uint32_t)plantSpreadChance)
-					canGoRight = true;
-	}
-			
-	
-
-	// Check what directions we can spread and spread in those directions.
-	if (canGoUp)
-	{
-		int newX = point.x;
-		int newY = up;
-		float newTemp = temperature;
-
-		DestroyParticle(point.x, up);
-		CreateParticle(TYPE_PLANT, newX, newY, newTemp);
-	}
-
-	if (canGoDown)
-	{
-		int newX = point.x;
-		int newY = down;
-		float newTemp = temperature;
-
-		DestroyParticle(point.x, down);
-		CreateParticle(TYPE_PLANT, newX, newY, newTemp);
-	}
-
-	if (canGoLeft)
-	{
-		int newX = left;
-		int newY = point.y;
-		float newTemp = temperature;
-
-		DestroyParticle(left, point.y);
-		CreateParticle(TYPE_PLANT, newX, newY, newTemp);
-	}
-
-	if (canGoRight)
-	{
-		int newX = right;
-		int newY = point.y;
-		float newTemp = temperature;
-
-		DestroyParticle(right, point.y);
-		CreateParticle(TYPE_PLANT, newX, newY, newTemp);
-	}
-
-	if (canGoUp || canGoDown || canGoLeft || canGoRight)
-		return true;
-	else
-		return false;
 }
 
 bool Salt::HandleEvents()

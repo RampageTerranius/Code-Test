@@ -8,6 +8,7 @@
 #include <windows.h>
 #include <string>
 #include <iostream>
+#include <sstream>
 #include <filesystem>
 #include <exception>
 #include "SimpleINI/SimpleIni.h"
@@ -29,7 +30,13 @@ bool LoadParticle(CSimpleIni ini)
 		else if (str == "liquid")
 			newType.movementType = MOVEMENTTYPE_LIQUID;
 		else if (str == "airborn")
+		{
 			newType.movementType = MOVEMENTTYPE_AIRBORN;
+			newType.ascendRate = std::stoi(ini.GetValue("Movement", "Ascend"));
+			newType.descendRate = std::stoi(ini.GetValue("Movement", "Descend"));
+			newType.sidewardsRate = std::stoi(ini.GetValue("Movement", "Sidewards"));
+			newType.noMovementRate = std::stoi(ini.GetValue("Movement", "NoMovement"));
+		}
 		else
 			newType.movementType = MOVEMENTTYPE_IMMOBILE;
 
@@ -39,9 +46,23 @@ bool LoadParticle(CSimpleIni ini)
 		newType.Flammability = std::stoi(ini.GetValue("Particle", "Flammability"));
 
 		// Load particle colors.
-		newType.R = std::stoi(ini.GetValue("Color", "R"));
-		newType.G = std::stoi(ini.GetValue("Color", "G"));
-		newType.B = std::stoi(ini.GetValue("Color", "B"));		
+		std::string colType = ini.GetValue("Color", "Type");
+
+		if (colType == "rgb")
+		{
+			newType.colorType = COLORTYPE_RGB;
+			newType.R = std::stoi(ini.GetValue("Color", "R"));
+			newType.G = std::stoi(ini.GetValue("Color", "G"));
+			newType.B = std::stoi(ini.GetValue("Color", "B"));
+		}
+		else if (colType == "heat")
+			newType.colorType = COLORTYPE_HEAT;
+		else if (colType == "active")
+			newType.colorType = COLORTYPE_ACTIVE;
+		else if (colType == "random")
+			newType.colorType = COLORTYPE_RANDOMIZED;
+
+			
 
 		//Load particle effects.
 		CSimpleIniA::TNamesDepend effects;
@@ -49,19 +70,43 @@ bool LoadParticle(CSimpleIni ini)
 
 		for (CSimpleIniA::TNamesDepend::iterator iterator = effects.begin(); iterator != effects.end(); iterator++)
 		{
-			std::string a = iterator->pComment;
-			std::string a = iterator->pItem;
+			std::string com = iterator->pComment;
+			std::stringstream ss(iterator->pItem);
+
+			std::vector<std::string> split;
+
+			while (ss.good())
+			{
+				std::string substr;
+				getline(ss, substr, ',');
+				split.push_back(substr);
+			}
 
 			ParticleEffect newEffect;
-			if (iterator->pComment == "ChangeTypeAtHighTemperature")
+			if (com == "ChangeTypeAtAboveTemperature")
 			{
-				newEffect.effectType = EFFECT_CHANGE_TYPE_AT_HIGH_TEMPERATURE;
-				newEffect.effectData = iterator->pItem;
+				newEffect.effectType = EFFECT_CHANGE_TYPE_AT_ABOVE_TEMPERATURE;
+				newEffect.effectData = split;
 			} 
-			else if (iterator->pComment == "ChangeTypeAtLowTemperature")
+			else if (com == "ChangeTypeAtBelowTemperature")
 			{
-				newEffect.effectType = EFFECT_CHANGE_TYPE_AT_LOW_TEMPERATURE;
-				newEffect.effectData = iterator->pItem;
+				newEffect.effectType = EFFECT_CHANGE_TYPE_AT_BELOW_TEMPERATURE;
+				newEffect.effectData = split;
+			}
+			else if (com == "DamageNeighbours")
+			{
+				newEffect.effectType = EFFECT_DAMAGE_NEIGHBOURS;
+				newEffect.effectData = split;
+			}
+			else if (com == "SpreadToSurrounding")
+			{
+				newEffect.effectType = EFFECT_SPREAD_TO_NEIGHBOURS;
+				newEffect.effectData = split;
+			}
+			else if (com == "OverrideNeighbourWithSelf")
+			{
+				newEffect.effectType = EFFECT_OVERRIDE_NEIGHBOUR_TYPE_WITH_SELF;
+				newEffect.effectData = split;
 			}
 
 			if (newEffect.effectType != EFFECT_NULL)

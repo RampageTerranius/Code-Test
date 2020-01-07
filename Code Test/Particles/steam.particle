@@ -1,14 +1,15 @@
 [Particle]
 Name=Steam
 Type=airborn
-Weight=3
-Health=80
-Thermal_Conductivity=0.0125
+Weight=2
+Health=20
+Thermal_Conductivity=0.03
 Flammability=0
 
 [Color]
-R=0
-G=0
+Type=rgb
+R=200
+G=255
 B=255
 
 [Movement]
@@ -18,4 +19,4 @@ Sidewards=25
 NoMovement=10
 
 [Effects]
-ChangeTypeAtHighTemperature=Water,2
+ChangeTypeAtBelowTemperature=Water,2

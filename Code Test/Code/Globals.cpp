@@ -30,7 +30,7 @@ SDL_Color backgroundColor = {255, 255, 255, 0};
 
 // Ingame settings, these are the default settings for the given options.
 
-ViewType viewMode = VIEW_TYPE;// Determines what view mode we are currently in.
+ViewType viewMode = VIEW_DEFAULT;// Determines what view mode we are currently in.
 bool loopScreen = false;// When true particles that attempt to drop downwards while at the bottom of the screen will instead loop to the top of the screen, does the same for particles attempting to move upwards as well.
 bool pauseParticles = false;// When true particles physics and events will be paused, does not pause the entire program.
 bool renderBrush = true;// When true will show an outline of where particles will be brushed to.
@@ -40,25 +40,13 @@ bool createAsSource = false;// If the blocks created should be source particles 
 // Weight (-1 donates it does not calculate weight)
 int settingWeight[TYPE_TOTALTYPES]
 {
-	// Sand.
-	10,
-	// Ice.
-	-1,
 	// Thermal.
 	4,
-	// Acid.
-	1,
-	// Steam.
-	2,
-	// Plant.
-	-1,
 	// Salt.
 	6,
 	// Salt water.
 	5,
 	// Salt ice.
-	-1,
-	// Glitch.
 	-1,
 	// Stone.
 	20,
@@ -85,26 +73,14 @@ int settingWeight[TYPE_TOTALTYPES]
 // Health (-1 donates can not be broken)
 int settingHealth[TYPE_TOTALTYPES]
 {
-	// Sand.
-	160,
-	// Ice.
-	100,
 	// Thermal.
 	20,
-	// Acid.
-	200,// Loses health each time it damages another block.
-	// Steam.
-	20,
-	// Plant.
-	120,
 	// Salt.
 	140,
 	// Salt water.
 	100,
 	// Salt ice.
 	120,
-	// Glitch.
-	50,
 	// Stone.
 	260,
 	// Lava.
@@ -129,26 +105,14 @@ int settingHealth[TYPE_TOTALTYPES]
 
 float settingThermalConductivity[TYPE_TOTALTYPES]
 {
-	// Sand.
-	0.0025f,
-	// Ice.
-	0.015f,
 	// Thermal.
 	2.5f,
-	// Acid.
-	0.2f,
-	// Steam.
-	0.03f,
-	// Plant.
-	0.026f,
 	// Salt.
 	0.0185f,
 	// Salt water.
 	0.015f,
 	// Salt ice.
 	0.0175f,
-	// Glitch.
-	0,
 	// Stone.
 	0.0018f,
 	// Lava.
@@ -175,26 +139,14 @@ float settingThermalConductivity[TYPE_TOTALTYPES]
 // Format is R, G, B, A.
 int settingColor[TYPE_TOTALTYPES][4]
 {
-	// Sand.
-	{207, 226, 34, 0},
-	// Ice.
-	{100, 255, 255, 0},
 	// Thermal.
 	{150, 50, 255, 0},
-	// Acid.
-	{102, 0, 102, 0},
-	// Steam.
-	{200, 255, 255, 0},
-	// Plant.
-	{20, 150, 20, 0},
 	// Salt.
 	{230, 230, 230, 0},
 	// Salt water.
 	{0, 0, 150, 0},
 	// Salt ice.
 	{100, 255, 150, 0},
-	// Glitch (this color is not used here, glitch particles color is randomized)
-	{0, 0, 0, 0},
 	// Stone.
 	{127, 127, 90, 0},
 	// Lava.
@@ -217,21 +169,13 @@ int settingColor[TYPE_TOTALTYPES][4]
 // Flammability is in a percentage basis (0 to 100)
 int settingFlammability[TYPE_TOTALTYPES]
 {
-	// Sand.
-	0,
 	// Thermal.
 	2,
-	// Acid.
-	0,
-	// Plant.
-	25,
 	// Salt.
 	0,
 	// Salt water.
 	0,
 	// Salt ice.
-	0,
-	// Glitch.
 	0,
 	// Stone.
 	0,
@@ -262,10 +206,7 @@ float saltWaterEventTempMultiplier = 1.2f;// A value of 1.1 would give a 10% inc
 float lavaSolidifyTemp = 200;
 
 // Randomised event chances.
-int acidDamageChance = 30;// Percentage chance.
-int plantSpreadChance = 20;// Percentage chance.
 int seedSpreadChance = 2;// Percentage chance.
-int glitchSpreadChance = 5;// Percentage chance.
 
 // Airborn particle movement rates (movement in percentage chance, MUST equal up to 100 in total)
 // Fire.

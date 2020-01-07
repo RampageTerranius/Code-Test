@@ -1,14 +1,15 @@
 [Particle]
-Name=Water
-Type=liquid
-Weight=3
-Health=80
-Thermal_Conductivity=0.0125
+Name=Ice
+Type=Immobile
+Weight=-1
+Health=100
+Thermal_Conductivity=0.015
 Flammability=0
 
 [Color]
-R=0
-G=0
+Type=rgb
+R=100
+G=255
 B=255
 
 [Effects]

@@ -1,0 +1,16 @@
+[Particle]
+Name=Sand
+Type=pile
+Weight=10
+Health=160
+Thermal_Conductivity=0.0025
+Flammability=0
+
+[Color]
+Type=rgb
+R=207
+G=226
+B=34
+
+[Effects]
+DamageSurrounding=30,Acid
