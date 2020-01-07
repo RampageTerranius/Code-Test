@@ -41,6 +41,7 @@
     <ClCompile Include="Code\Main.cpp" />
     <ClCompile Include="Code\mouse.cpp" />
     <ClCompile Include="Code\Particles.cpp" />
+    <ClCompile Include="Code\ParticleTypes.cpp" />
     <ClCompile Include="Code\Render.cpp" />
     <ClCompile Include="Code\Shutdown + Startup.cpp" />
     <ClCompile Include="Code\TimerHandle.cpp" />

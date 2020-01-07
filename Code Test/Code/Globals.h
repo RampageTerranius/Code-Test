@@ -29,7 +29,7 @@ extern SDL_Surface* mainSurface;
 extern float avgFPS;
 
 extern int currentBrushTemperature;// Changing this will change the default brush temperature.
-extern ParticleType currentBrushType;
+extern int currentBrushType;
 extern int currentBrushSize;
 
 extern int countedFrames;

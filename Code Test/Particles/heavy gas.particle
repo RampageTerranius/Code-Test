@@ -1,0 +1,21 @@
+[Particle]
+Name=Heavy Gas
+Type=airborn
+Weight=7
+Health=50
+Thermal_Conductivity=0.01
+Flammability=80
+
+[Color]
+Type=rgb
+R=170
+G=60
+B=170
+
+[Movement]
+Ascend=10
+Descend=60
+Sidewards=20
+NoMovement=10
+
+[Effects]

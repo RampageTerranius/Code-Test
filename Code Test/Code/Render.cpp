@@ -57,9 +57,9 @@ void Render()
 
 	//render what type of brush is selected at the top left.
 	if (!createAsSource)
-		brushName.SetText(mainRenderer, typeNames[currentBrushType]);
+		brushName.SetText(mainRenderer, ParticleTypes[currentBrushType].name);
 	else
-		brushName.SetText(mainRenderer, "Source - " + typeNames[currentBrushType]);
+		brushName.SetText(mainRenderer, "Source - " + ParticleTypes[currentBrushType].name);
 	brushName.Draw(mainRenderer, 20, 20);
 
 	// Render what brush size is selected under that.
@@ -76,15 +76,13 @@ void Render()
 		selectedParticleTemperature.SetText(mainRenderer, std::to_string(allParticles[mouse.x][mouse.y]->temperature) + "c");
 
 		// Check if source block.
-		if (allParticles[mouse.x][mouse.y]->type != TYPE_SOURCE)
-			selectedParticleName.SetText(mainRenderer, typeNames[allParticles[mouse.x][mouse.y]->type]);
-		else
-		{
-			Source* s = (Source*)allParticles[mouse.x][mouse.y];
-			selectedParticleName.SetText(mainRenderer, typeNames[allParticles[mouse.x][mouse.y]->type] + typeNames[s->sourceType]);
-		}
+		if (!allParticles[mouse.x][mouse.y]->isSource)
+			selectedParticleName.SetText(mainRenderer, allParticles[mouse.x][mouse.y]->type->name);
+		else		
+			selectedParticleName.SetText(mainRenderer, "Source - " + allParticles[mouse.x][mouse.y]->type->name);
+		
 
-		selectedParticleHealth.SetText(mainRenderer, "HP: " + std::to_string(allParticles[mouse.x][mouse.y]->health) + "|" + std::to_string(settingHealth[allParticles[mouse.x][mouse.y]->type]));
+		selectedParticleHealth.SetText(mainRenderer, "HP: " + std::to_string(allParticles[mouse.x][mouse.y]->health) + "|" + std::to_string(allParticles[mouse.x][mouse.y]->type->startingHealth));
 	}
 	else
 	{

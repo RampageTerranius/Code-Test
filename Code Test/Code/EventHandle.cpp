@@ -10,31 +10,23 @@
 // Used to switch the brush type back or forth automatically.
 void SwitchBrushType(bool gotoNext)
 {
-	// Temp variables used to determine how many particles there is and the current brush type.
-	int i = currentBrushType;
 
 	// If told to goto next brush.
 	if (gotoNext)
 	{
-		i++;
+		currentBrushType++;
 
 		// Make sure we havent gone over the struct size.
-		if (i >= TYPE_TOTALTYPES - 2)
-			i = 0;
-
-		// Cast the int as particleType and update the current brush.
-		currentBrushType = static_cast<ParticleType>(i);
+		if ((size_t)currentBrushType >= ParticleTypes.size())
+			currentBrushType = 0;
 	}
 	else// If told to goto last brush type.
 	{
-		i--;
+		currentBrushType--;
 
 		// Make sure we havent gone under the struct size.
-		if (i < 0)
-			i = TYPE_TOTALTYPES - 2;
-
-		// Cast the int as particleType and update the current brush.
-		currentBrushType = static_cast<ParticleType>(i);
+		if (currentBrushType < 0)
+			currentBrushType = ParticleTypes.size() - 1;
 	}
 }
 
@@ -508,7 +500,7 @@ void UpdateEventStructs(SDL_Event event)
 	}
 }
 
-void CreateParticlesAtBrush(ParticleType type, int x, int y, float temperature)
+void CreateParticlesAtBrush(std::string type, int x, int y, float temperature)
 {
 	// TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm.
 	// Check the size of the brush and create particles in the range given.
@@ -546,7 +538,7 @@ void EventHandle(SDL_Event& event)
 
 	// On left click paint particles using brush.
 	if (mouse.left)
-		CreateParticlesAtBrush(currentBrushType, mouse.x, mouse.y, (float)currentBrushTemperature);
+		CreateParticlesAtBrush(ParticleTypes[currentBrushType].name, mouse.x, mouse.y, (float)currentBrushTemperature);
 
 	// On right click delete particles using brush.
 	if (mouse.right)

@@ -1,0 +1,16 @@
+[Particle]
+Name=Stone
+Type=pile
+Weight=20
+Health=260
+Thermal_Conductivity=0.0018
+Flammability=0
+
+[Color]
+Type=rgb
+R=127
+G=127
+B=90
+
+[Effects]
+ChangeTypeAtHighTemperature=Lava,200

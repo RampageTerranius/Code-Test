@@ -1,59 +1,70 @@
 #pragma once
 
-/*#include <string>
+#include <vector>
+#include <string>
 
-// Used to help objects keep track of what they are for rendering purposes
-// as the lists will be using base particles that are using polymorphism to determine how to handle physics.
-enum ParticleType
+enum MovementType
 {
-	TYPE_WALL,
-	TYPE_SAND,
-	TYPE_WATER,
-	TYPE_ICE,
-	TYPE_THERMALFLUID,
-	TYPE_ACID,
-	TYPE_STEAM,
-	TYPE_PLANT,
-	TYPE_SALT,
-	TYPE_SALTWATER,
-	TYPE_SALTICE,
-	TYPE_GLITCH,
-	TYPE_STONE,
-	TYPE_LAVA,
-	TYPE_FIRE,
-	TYPE_GAS,
-	TYPE_LIGHTGAS,
-	TYPE_HEAVYGAS,
-	TYPE_HEATPAD,
-	TYPE_SEED,
-
-	// The following must ALWAYS be at the end.
-	TYPE_SOURCE,
-	TYPE_TOTALTYPES
+	MOVEMENTTYPE_IMMOBILE,
+	MOVEMENTTYPE_PILE,
+	MOVEMENTTYPE_LIQUID,
+	MOVEMENTTYPE_AIRBORN,
 };
 
-// Used to give a name to each particle type.
-static std::string typeNames[] = {  "Wall",
-									"Sand",
-									"Water",
-									"Ice",
-									"Thermal Fluid",
-									"Acid",
-									"Steam",
-									"Plant",
-									"Salt",
-									"Salt Water",
-									"Salt Ice",
-									"GLITCH",
-									"Stone",
-									"Lava",
-									"Fire",
-									"Gas",
-									"Light Gas",
-									"Heavy Gas",
-									"Heat Pad",
-									"Seed",
+enum ColorType
+{
+	COLORTYPE_RGB,
+	COLORTYPE_HEAT,
+	COLORTYPE_ACTIVE,
+	COLORTYPE_RANDOMIZED
+};
 
-									// The following must ALWAYS be at the end.
-									"Source - ", // Used to determine if it is a source type, you should NEVER directly be creating a source type.
-									"ILLEGAL TYPE" };// Used to determine how many types there is.*/
+enum ParticleEffectType
+{
+	EFFECT_NULL,
+	EFFECT_DELETE_NEIGHBOURS,
+	EFFECT_CREATE_PARTICLE_IN_SURROUNDING,
+	EFFECT_DAMAGE_NEIGHBOURS,
+	EFFECT_BURN_NEIGHBOURS,
+	EFFECT_MERGE_WITH_OTHER_PARTICLE_TYPE,
+	EFFECT_CHANGE_TYPE_AT_BELOW_TEMPERATURE,
+	EFFECT_CHANGE_TYPE_AT_ABOVE_TEMPERATURE,
+	EFFECT_SPREAD_TO_NEIGHBOURS,
+	EFFECT_OVERRIDE_NEIGHBOUR_TYPE_WITH_SELF,
+	EFFECT_LOSE_HP_PER_TICK,
+	EFFECT_NEIGHBOUR_PARTICLES_BECOME_SAME_TEMP_OVER_TIME
+};
+
+class ParticleEffect
+{
+public:
+	ParticleEffect();
+	ParticleEffectType effectType;
+	std::vector<std::string> effectData;
+};
+
+class ParticleType
+{
+public:
+	ParticleType();
+
+	std::string name;
+	MovementType movementType;
+	int weight;
+	int startingHealth;
+	float thermalConductivity;
+
+	int ascendRate;
+	int descendRate;
+	int sidewardsRate;
+	int noMovementRate;
+
+	int Flammability;
+
+	ColorType colorType;
+	int R;
+	int G;
+	int B;
+
+	std::vector<ParticleEffect> particleEffects;
+};

@@ -1,0 +1,21 @@
+[Particle]
+Name=Light Gas
+Type=airborn
+Weight=3
+Health=50
+Thermal_Conductivity=0.01
+Flammability=80
+
+[Color]
+Type=rgb
+R=160
+G=40
+B=160
+
+[Movement]
+Ascend=75
+Descend=6
+Sidewards=10
+NoMovement=9
+
+[Effects]

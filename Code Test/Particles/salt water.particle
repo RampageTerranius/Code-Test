@@ -1,0 +1,17 @@
+[Particle]
+Name=Salt Water
+Type=liquid
+Weight=5
+Health=100
+Thermal_Conductivity=0.014
+Flammability=0
+
+[Color]
+Type=rgb
+R=0
+G=0
+B=150
+
+[Effects]
+ChangeTypeAtLowTemperature=Salt Ice,-10
+ChangeTypeAtHighTemperature=Steam,120

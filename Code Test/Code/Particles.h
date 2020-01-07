@@ -9,69 +9,6 @@
 #include <vector>
 #include <iostream>
 
-enum ParticleEffectType
-{
-	EFFECT_NULL,
-	EFFECT_DELETE_NEIGHBOURS,
-	EFFECT_CREATE_PARTICLE_IN_SURROUNDING,
-	EFFECT_DAMAGE_NEIGHBOURS,
-	EFFECT_BURN_NEIGHBOURS,
-	EFFECT_MERGE_WITH_OTHER_PARTICLE_TYPE,
-	EFFECT_CHANGE_TYPE_AT_BELOW_TEMPERATURE,
-	EFFECT_CHANGE_TYPE_AT_ABOVE_TEMPERATURE,
-	EFFECT_SPREAD_TO_NEIGHBOURS,
-	EFFECT_OVERRIDE_NEIGHBOUR_TYPE_WITH_SELF
-};
-
-class ParticleEffect
-{
-public:
-	ParticleEffectType effectType;
-	std::vector<std::string> effectData;
-};
-
-enum MovementType
-{
-	MOVEMENTTYPE_IMMOBILE,
-	MOVEMENTTYPE_PILE,
-	MOVEMENTTYPE_LIQUID,
-	MOVEMENTTYPE_AIRBORN,
-};
-
-enum ColorType
-{
-	COLORTYPE_RGB,
-	COLORTYPE_HEAT,
-	COLORTYPE_ACTIVE,
-	COLORTYPE_RANDOMIZED
-};
-
-class ParticleType
-{
-public:
-	ParticleType();
-
-	std::string name;
-	MovementType movementType;
-	int weight;
-	int startingHealth;
-	float thermalConductivity;
-
-	int ascendRate;
-	int descendRate;
-	int sidewardsRate;
-	int noMovementRate;
-
-	int Flammability;
-
-	ColorType colorType;
-	int R;
-	int G;
-	int B;
-
-	std::vector<ParticleEffect> particleEffects;
-};
-
 extern std::vector<ParticleType> ParticleTypes;
 
 class Particle
@@ -82,7 +19,7 @@ class Particle
 		void Draw();
 		bool CheckIfAtBottom();
 		bool CheckIfAtTop();
-		bool HandleEvents();
+		void HandleEvents();
 		void HandlePhysics();
 
 		SDL_Point point;
@@ -93,5 +30,15 @@ class Particle
 
 		bool locked;
 };
+
+void CreateParticle(std::string type, int x, int y, float temp, bool asSource);
+void CreateParticle(std::string type, int x, int y, float temp);
+
+void DestroyParticle(int x, int y);
+void MoveParticles(int x1, int y1, int x2, int y2);
+bool DropParticle(int x, int y, bool randomize);
+bool DropParticle(int x, int y);
+bool AscendParticle(int x, int y, bool randomize);
+void EvenOutTemperatures(int x1, int y1, int x2, int y2);
 
 extern Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];

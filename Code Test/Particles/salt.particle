@@ -1,0 +1,16 @@
+[Particle]
+Name=Salt
+Type=pile
+Weight=6
+Health=140
+Thermal_Conductivity=0.0185
+Flammability=0
+
+[Color]
+Type=rgb
+R=230
+G=230
+B=230
+
+[Effects]
+MergeWithOtherType=0,Water,SaltWater

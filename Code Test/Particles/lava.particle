@@ -1,0 +1,17 @@
+[Particle]
+Name=Lava
+Type=liquid
+Weight=7
+Health=100
+Thermal_Conductivity=0.5
+Flammability=0
+
+[Color]
+Type=rgb
+R=255
+G=153
+B=51
+
+[Effects]
+BurnNeighbours=
+ChangeTypeAtLowTemperature=Stone,200

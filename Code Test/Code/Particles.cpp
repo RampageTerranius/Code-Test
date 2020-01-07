@@ -3,29 +3,6 @@
 #include <algorithm>
 #include <iostream>
 
-ParticleType::ParticleType()
-{
-	name = "NO NAME";
-	movementType = MOVEMENTTYPE_IMMOBILE;
-	weight = -1;
-	startingHealth = -1;
-	thermalConductivity = 0;
-
-	ascendRate = 0;
-	descendRate = 0;
-	sidewardsRate = 0;
-	noMovementRate = 100;
-
-	Flammability = 0;
-
-	colorType = COLORTYPE_RGB;
-	R = 0;
-	G = 0;
-	B = 0;
-
-	particleEffects = std::vector<ParticleEffect>();
-}
-
 // https://codingforspeed.com/using-faster-psudo-random-generator-xorshift/
 uint32_t xor128(void) {
 	static uint32_t x = 123456789;
@@ -73,15 +50,6 @@ void EditPixel(int x, int y, Uint32 pixel)
 	}
 }
 
-ParticleType* FindParticleType(std::string particleName)
-{
-	for (int i = 0; i < ParticleTypes.size(); i++)
-		if (ParticleTypes[i].name == particleName)
-			return &ParticleTypes[i];
-
-	return nullptr;
-}
-
 // Draws the heat for a particle at the given X/Y coordinates.
 void DrawParticleHeat(int x, int y)
 {	
@@ -111,6 +79,17 @@ void DrawParticleHeat(int x, int y)
 }
 
 Particle* allParticles[WINDOW_WIDTH][WINDOW_HEIGHT];
+std::vector<ParticleType> ParticleTypes = std::vector<ParticleType>();
+
+ParticleType* FindParticleType(std::string particleName)
+{
+	for (int i = 0; i < ParticleTypes.size(); i++)
+		if (ParticleTypes[i].name == particleName)
+			return &ParticleTypes[i];
+
+	return nullptr;
+}
+
 
 void CreateParticle(std::string particleName, int x, int y, float temp, bool asSource)
 {
@@ -303,7 +282,7 @@ bool AscendParticle(int x, int y, bool randomize)
 }
 
 // Attempts to even out temperatures between the two given points using the given thermal change value.
-void EvenOutTemperatures(int x1, int y1, int x2, int y2)
+void EvenOutTemperatures(int x1, int y1, int x2, int y2, bool change1, bool change2)
 {
 	Particle* p1 = allParticles[x1][y1];
 	Particle* p2 = allParticles[x2][y2];
@@ -313,10 +292,7 @@ void EvenOutTemperatures(int x1, int y1, int x2, int y2)
 	{
 		// Make sure they arent already the same temp.
 		if (p1->temperature == p2->temperature)
-			return;
-
-		if (p1->type->name != "Heat Pad" || p2->type->name != "Heat Pad")
-			return;
+			return;		
 
 		// Get the difference between both temperatures in an attempt to either increase or decrease the spread of temperature between objects.
 		float calculatedTemperatureDifference = (std::abs(((p1->temperature - p2->temperature) / p1->temperature) * 100)) / temperatureDifferenceDivisor;
@@ -328,24 +304,36 @@ void EvenOutTemperatures(int x1, int y1, int x2, int y2)
 		if (std::abs(p1->temperature - p2->temperature) > calculatedTemperatureChange)
 		{
 			// First particle is higher temp then second.
+
 			if (p1->temperature > p2->temperature)
 			{			
-				p1->temperature -= calculatedTemperatureChange;
-				p2->temperature += calculatedTemperatureChange;
+				if (change1)
+					p1->temperature -= calculatedTemperatureChange;
+				if (change2)
+					p2->temperature += calculatedTemperatureChange;
 			}
 			else// Second particle is higher temp then first.
 			{
-				p1->temperature += calculatedTemperatureChange;
-				p2->temperature -= calculatedTemperatureChange;
+				if (change1)
+					p1->temperature += calculatedTemperatureChange;
+				if (change2)
+					p2->temperature -= calculatedTemperatureChange;
 			}
 		}
 		else// Both temperatures are close enough to just even them out at same temperature.
 		{
 			float temp = (p1->temperature + p2->temperature) / 2;
-			p1->temperature = temp;
-			p2->temperature = temp;
+			if (change1)
+				p1->temperature = temp;
+			if (change2)
+				p2->temperature = temp;
 		}
 	}
+}
+
+void EvenOutTemperatures(int x1, int y1, int x2, int y2)
+{
+	EvenOutTemperatures(x1, y1, x2, y2, true, true);
 }
 
 Particle::Particle(ParticleType newType, int newX, int newY, float newTemperature)
@@ -472,6 +460,7 @@ void Particle::HandlePhysics()
 	switch (type->movementType)
 	{
 	case MOVEMENTTYPE_PILE:
+	{
 		// Make sure we arent already at the bottom level, if we are we dont need to check the physics.
 		if (CheckIfAtBottom())
 			return;
@@ -621,8 +610,10 @@ void Particle::HandlePhysics()
 				return;
 			}
 		}
+	}
 		break;
 	case MOVEMENTTYPE_LIQUID:
+	{
 		// Make sure we arent already at the bottom level, if we are we dont need to check the physics.
 		if (CheckIfAtBottom())
 			return;
@@ -759,8 +750,10 @@ void Particle::HandlePhysics()
 				return;
 			}
 		}
+	}
 		break;
 	case MOVEMENTTYPE_AIRBORN:
+	{
 		int up, down, left, right;
 		up = down = point.y;
 		left = right = point.x;
@@ -856,11 +849,12 @@ void Particle::HandlePhysics()
 			locked = true;
 			return;
 		}
+	}
 		break;
 	}
 }
 
-bool Particle::HandleEvents()
+void Particle::HandleEvents()
 {
 	// Values to help with determining what ways to calculate.
 	int up, down, left, right;
@@ -898,7 +892,7 @@ bool Particle::HandleEvents()
 				for (std::vector<ParticleEffect>::const_iterator iterator = type->particleEffects.begin(); iterator != type->particleEffects.end(); iterator++)
 					switch (iterator->effectType)
 					{
-					case EFFECT_CHANGE_TYPE_AT_BELOW_TEMPERATURE:					
+					case EFFECT_CHANGE_TYPE_AT_BELOW_TEMPERATURE:
 						if (temperature < stof(iterator->effectData[1]))
 						{
 							int newX = point.x;
@@ -989,7 +983,7 @@ bool Particle::HandleEvents()
 									allParticles[right][point.y]->health--;
 						}
 					}
-						break;
+					break;
 
 					case EFFECT_SPREAD_TO_NEIGHBOURS:
 					{
@@ -1059,7 +1053,7 @@ bool Particle::HandleEvents()
 									allParticles[point.x][up]->type = type;
 						}
 					}
-						break;
+					break;
 
 					case EFFECT_OVERRIDE_NEIGHBOUR_TYPE_WITH_SELF:
 					{
@@ -1084,37 +1078,130 @@ bool Particle::HandleEvents()
 							if ((xor128() % 100) < overrideChance)
 								allParticles[point.x][up]->type = type;
 					}
-						break;
+					break;
 
-					case EFFECT_MERGE_WITH_OTHER_PARTICLE_TYPE:		
+					case EFFECT_MERGE_WITH_OTHER_PARTICLE_TYPE:
+					{
+						int mergeChance = std::stoi(iterator->effectData[0]);
 						if (downExists)
-							if (allParticles[point.x][down]->type->name == iterator->effectData[0])
-							{
-								allParticles[point.x][down]->type = FindParticleType(iterator->effectData[1]);
-								DestroyParticle(point.x, point.y);
-							}
+						{
+							bool willMerge = true;
+
+							if (mergeChance > 0)
+								if ((xor128() % 100) >= mergeChance)
+									willMerge = false;
+
+							if (willMerge)
+								if (allParticles[point.x][down]->type->name == iterator->effectData[1])
+								{
+									allParticles[point.x][down]->type = FindParticleType(iterator->effectData[2]);
+									DestroyParticle(point.x, point.y);
+								}
+						}
 
 						if (upExists)
-							if (allParticles[point.x][up]->type->name == iterator->effectData[0])
-							{
-								allParticles[point.x][up]->type = FindParticleType(iterator->effectData[1]);
-								DestroyParticle(point.x, point.y);
-							}
+						{
+							bool willMerge = true;
+
+							if (mergeChance > 0)
+								if ((xor128() % 100) >= mergeChance)
+									willMerge = false;
+
+							if (willMerge)
+								if (allParticles[point.x][up]->type->name == iterator->effectData[1])
+								{
+									allParticles[point.x][up]->type = FindParticleType(iterator->effectData[2]);
+									DestroyParticle(point.x, point.y);
+								}
+						}
 
 						if (leftExists)
-							if (allParticles[left][point.y]->type->name == iterator->effectData[0])
-							{
-								allParticles[left][point.y]->type = FindParticleType(iterator->effectData[1]);
-								DestroyParticle(point.x, point.y);
-							}
+						{
+							bool willMerge = true;
+
+							if (mergeChance > 0)
+								if ((xor128() % 100) >= mergeChance)
+									willMerge = false;
+
+							if (willMerge)
+								if (allParticles[left][point.y]->type->name == iterator->effectData[1])
+								{
+									allParticles[left][point.y]->type = FindParticleType(iterator->effectData[2]);
+									DestroyParticle(point.x, point.y);
+								}
+						}
 
 
 						if (rightExists)
-							if (allParticles[right][point.y]->type->name == iterator->effectData[0])
-							{
-								allParticles[right][point.y]->type = FindParticleType(iterator->effectData[1]);
-								DestroyParticle(point.x, point.y);
-							}
+						{
+							bool willMerge = true;
+
+							if (mergeChance > 0)
+								if ((xor128() % 100) >= mergeChance)
+									willMerge = false;
+
+							if (willMerge)
+								if (allParticles[right][point.y]->type->name == iterator->effectData[1])
+								{
+									allParticles[right][point.y]->type = FindParticleType(iterator->effectData[2]);
+									DestroyParticle(point.x, point.y);
+								}
+						}
+					}
+						break;
+
+					case EFFECT_BURN_NEIGHBOURS:
+						if (upExists)
+							if (allParticles[point.x][up]->type->Flammability > 0)
+								if ((xor128() % 100) < allParticles[point.x][up]->type->Flammability)
+									allParticles[point.x][up]->type = FindParticleType("Fire");
+
+						if (downExists)
+							if (allParticles[point.x][down]->type->Flammability > 0)
+								if ((xor128() % 100) < allParticles[point.x][down]->type->Flammability)
+									allParticles[point.x][down]->type = FindParticleType("Fire");
+
+						if (leftExists)
+							if (allParticles[left][point.y]->type->Flammability > 0)
+								if ((xor128() % 100) < allParticles[left][point.y]->type->Flammability)
+									allParticles[left][point.y]->type = FindParticleType("Fire");
+
+						if (rightExists)
+							if (allParticles[right][point.y]->type->Flammability > 0)
+								if ((xor128() % 100) < allParticles[right][point.y]->type->Flammability)
+									allParticles[right][point.y]->type = FindParticleType("Fire");
+						break;
+
+
+					case EFFECT_LOSE_HP_PER_TICK:
+					{
+						int hpLossChance = std::stoi(iterator->effectData[0]);
+						int hpLossPerChance = std::stoi(iterator->effectData[1]);
+
+						bool takeDamage = true;
+
+						if (hpLossChance > 0)
+							if (xor128() % 100 > hpLossChance)
+								takeDamage = false;
+
+						if (takeDamage)
+							health--;
+					}
+					break;
+
+					case EFFECT_NEIGHBOUR_PARTICLES_BECOME_SAME_TEMP_OVER_TIME:
+						if (upExists)
+							EvenOutTemperatures(point.x, point.y, point.x, up, false, true);
+
+						if (downExists)
+							EvenOutTemperatures(point.x, point.y, point.x, down, false, true);
+
+						if (leftExists)
+							EvenOutTemperatures(point.x, point.y, left, point.y, false, true);
+
+						if (rightExists)
+							EvenOutTemperatures(point.x, point.y, right, point.y, false, true);
+
 						break;
 					}
 			}
@@ -1158,547 +1245,6 @@ bool Particle::HandleEvents()
 	
 
 	// Health check.
-	if (health <= 0)
-	{
+	if (health <= 0)	
 		DestroyParticle(point.x, point.y);
-		return true;
-	}
-
-	return false;
-}
-
-bool Salt::HandleEvents()
-{
-	// Default event handling.
-	if (Particle::HandleEvents())
-		return true;
-
-	// Salt event handling.
-	int up, down, left, right;
-
-	up = down = point.y;
-	left = right = point.x;
-
-	up--;
-	down++;
-	left--;
-	right++;
-
-	Particle* pCenter = allParticles[point.x][point.y];
-	Particle* pUp;
-	Particle* pDown;
-	Particle* pLeft;
-	Particle* pRight;
-
-	// Up.
-	if (up >= 0)
-	{
-		pUp = allParticles[point.x][up];
-		if (pUp != nullptr)
-			if (pUp->type == TYPE_WATER)
-			{
-				// Get some temporary variables as both particles will be deleted soon and we do not want to possibly call upon a deleted object.
-				float temp = (pUp->temperature + pCenter->temperature) / 2;
-				int x1, y1, x2, y2;
-
-				x1 = point.x;
-				y1 = point.y;
-				x2 = point.x;
-				y2 = up;
-
-				DestroyParticle(x1, y1);
-				DestroyParticle(x2, y2);
-
-				CreateParticle(TYPE_SALTWATER, x2, y2, temp);
-				return true;
-			}
-	}
-
-	// Down.
-	if (down < WINDOW_HEIGHT)
-	{
-		pDown = allParticles[point.x][down];
-		if (pDown != nullptr)
-			if (pDown->type == TYPE_WATER)
-			{
-				// Get some temporary variables as both particles will be deleted soon and we do not want to possibly call downon a deleted object.
-				float temp = (pDown->temperature + pCenter->temperature) / 2;
-				int x1, y1, x2, y2;
-
-				x1 = point.x;
-				y1 = point.y;
-				x2 = point.x;
-				y2 = down;
-
-				DestroyParticle(x1, y1);
-				DestroyParticle(x2, y2);
-
-				CreateParticle(TYPE_SALTWATER, x2, y2, temp);
-				return true;
-			}
-	}
-
-	// Left.
-	if (left >= 0)
-	{
-		pLeft = allParticles[left][point.y];
-		if (pLeft != nullptr)
-			if (pLeft->type == TYPE_WATER)
-			{
-				// Get some temporary variables as both particles will be deleted soon and we do not want to possibly call upon a deleted object.
-				float temp = (pLeft->temperature + pCenter->temperature) / 2;
-				int x1, y1, x2, y2;
-
-				x1 = point.x;
-				y1 = point.y;
-				x2 = left;
-				y2 = point.y;
-
-				DestroyParticle(x1, y1);
-				DestroyParticle(x2, y2);
-
-				CreateParticle(TYPE_SALTWATER, x2, y2, temp);
-				return true;
-			}
-	}
-
-	//Right.
-	if (right < WINDOW_WIDTH)
-	{
-		pRight = allParticles[right][point.y];
-		if (pRight != nullptr)
-			if (pRight->type == TYPE_WATER)
-			{
-				// Get some temporary variables as both particles will be deleted soon and we do not want to possibly call upon a deleted object.
-				float temp = (pRight->temperature + pCenter->temperature) / 2;
-				int x1, y1, x2, y2;
-
-				x1 = point.x;
-				y1 = point.y;
-				x2 = right;
-				y2 = point.y;
-
-				DestroyParticle(x1, y1);
-				DestroyParticle(x2, y2);
-
-				CreateParticle(TYPE_SALTWATER, x2, y2, temp);
-				return true;
-			}
-	}
-
-	return false;
-}
-
-bool SaltWater::HandleEvents()
-{
-	// Handle default events, this includes handling temperature shifts.
-	if (Particle::HandleEvents())
-		return true;
-
-	// Check if the salt water should freeze.
-	if (temperature < (waterFreezePoint * saltWaterEventTempMultiplier))
-	{
-		int newX = point.x;
-		int newY = point.y;
-		float newTemp = temperature;
-
-		DestroyParticle(point.x, point.y);
-		CreateParticle("Salt Ice", newX, newY, newTemp);
-
-		return true;
-	}
-	// Check if should turn into steam.
-	else if (temperature > (waterBoilIntoSteamPoint * saltWaterEventTempMultiplier))
-	{
-		int newX = point.x;
-		int newY = point.y;
-		float newTemp = temperature;
-
-		DestroyParticle(point.x, point.y);
-		CreateParticle(TYPE_STEAM, newX, newY, newTemp);
-
-		return true;
-	}
-
-	return false;
-}
-
-bool SaltIce::HandleEvents()
-{
-	// Handle default events first, this includes temperature shifting.
-	if (Particle::HandleEvents())
-		return true;
-
-	// Check if ice should melt.
-	if (temperature > (iceMeltPoint * saltWaterEventTempMultiplier))
-	{
-		int newX = point.x;
-		int newY = point.y;
-		float newTemp = temperature;
-
-		DestroyParticle(point.x, point.y);
-		CreateParticle(TYPE_SALTWATER, newX, newY, newTemp);
-		return true;
-	}
-
-	return false;
-}
-
-// Source particles.
-// Creates copies of its self in the surrounding blocks that are empty.
-Source::Source(ParticleType newSourceType, int newX, int newY, float newTemperature) : SolidImmobile(TYPE_SOURCE, newX, newY, newTemperature)
-{
-	sourceType = newSourceType;
-}
-
-void Source::Draw()
-{
-	EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, settingColor[sourceType][0], settingColor[sourceType][1], settingColor[sourceType][2], settingColor[sourceType][3]));
-}
-
-bool Source::HandleEvents()
-{
-	if (Particle::HandleEvents())
-		return true;
-
-	// Source event handle.
-	// Attempt to create new particles around this particle using its sourceType value.
-
-	// Values to help with determining what ways to calculate.
-	int up, down, left, right;
-	up = down = point.y;
-	left = right = point.x;
-	up--;
-	down++;
-	left--;
-	right++;
-
-	if (up >= 0)
-		if (allParticles[point.x][up] == nullptr)
-			CreateParticle(sourceType, point.x, up, temperature);
-
-	if (down < WINDOW_HEIGHT)
-		if (allParticles[point.x][down] == nullptr)
-			CreateParticle(sourceType, point.x, down, temperature);
-
-	if (left >= 0)
-		if (allParticles[left][point.y] == nullptr)
-			CreateParticle(sourceType, left, point.y, temperature);
-
-	if (right < WINDOW_WIDTH)
-		if (allParticles[right][point.y] == nullptr)
-			CreateParticle(sourceType, right, point.y, temperature);
-
-	return false;
-}
-
-void Glitch::Draw()
-{
-	EditPixel(point.x, point.y, xor128());
-}
-
-bool Glitch::HandleEvents()
-{
-	if (Particle::HandleEvents())
-		return true;
-
-	// Glitch event handle.
-	// Attempt to create new glitch particles around this particle and delete any other blocks that are in the way.
-
-	// Values to help with determining what ways to calculate.
-	int up, down, left, right;
-	up = down = point.y;
-	left = right = point.x;
-	up--;
-	down++;
-	left--;
-	right++;	
-
-	// Attempt to spread to other blocks.
-	if (up >= 0)
-	{
-		Particle* pUp = allParticles[point.x][up];
-		if (pUp == nullptr)
-		{
-			if (xor128() % 100 + 1 <= (uint32_t)glitchSpreadChance)
-				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
-		}
-		else if (pUp->type != TYPE_GLITCH)
-			if (xor128() % 100 + 1 <= (uint32_t)glitchSpreadChance)
-			{
-				DestroyParticle(point.x, up);
-				CreateParticle(TYPE_GLITCH, point.x, up, temperature);
-			}
-	}
-
-	if (down < WINDOW_HEIGHT)
-	{
-		Particle* pDown = allParticles[point.x][down];
-		if (pDown == nullptr)
-		{
-			if (xor128() % 100 + 1 <= (uint32_t)glitchSpreadChance)
-				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
-		}
-		else if (pDown->type != TYPE_GLITCH)
-			if (xor128() % 100 + 1 <= (uint32_t)glitchSpreadChance)
-			{
-				DestroyParticle(point.x, down);
-				CreateParticle(TYPE_GLITCH, point.x, down, temperature);
-			}
-	}
-
-	if (left >= 0)
-	{
-		Particle* pLeft = allParticles[left][point.y];
-		if (pLeft == nullptr)
-		{
-			if (xor128() % 100 + 1 <= (uint32_t)glitchSpreadChance)
-				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
-		}
-		else if (pLeft->type != TYPE_GLITCH)
-			if (xor128() % 100 + 1 <= (uint32_t)glitchSpreadChance)
-			{
-				DestroyParticle(left, point.y);
-				CreateParticle(TYPE_GLITCH, left, point.y, temperature);
-			}
-	}
-
-	if (right < WINDOW_WIDTH)
-	{
-		Particle* pRight = allParticles[right][point.y];
-		if (pRight == nullptr)
-		{
-			if (xor128() % 100 + 1 <= (uint32_t)glitchSpreadChance)
-				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
-		}
-		else if (pRight->type != TYPE_GLITCH)
-			if (xor128() % 100 + 1 <= (uint32_t)glitchSpreadChance)
-			{
-				DestroyParticle(right, point.y);
-				CreateParticle(TYPE_GLITCH, right, point.y, temperature);
-			}
-	}
-
-	return false;
-}
-
-bool Stone::HandleEvents()
-{
-	if (Particle::HandleEvents())
-		return true;
-
-	if (temperature > lavaSolidifyTemp)
-	{
-		int newX = point.x;
-		int newY = point.y;
-		float newTemp = temperature;
-
-		DestroyParticle(point.x, point.y);
-		CreateParticle(TYPE_LAVA, newX, newY, newTemp);
-
-		return true;
-	}
-
-	return false;
-}
-
-bool Lava::HandleEvents()
-{
-	if (Particle::HandleEvents())
-		return true;
-
-	if (temperature < lavaSolidifyTemp)
-	{
-		int newX = point.x;
-		int newY = point.y;
-		float newTemp = temperature;
-
-		DestroyParticle(point.x, point.y);
-		CreateParticle(TYPE_STONE, newX, newY, newTemp);
-
-		return true;
-	}
-
-	return false;
-}
-
-bool Fire::HandleEvents()
-{
-	health--;
-
-	if (Particle::HandleEvents())
-		return true;
-
-	// Check all surrounding particles and attempt to change them to fire.
-
-	int up, down, left, right;
-	up = down = point.y;
-	left = right = point.x;
-	up--;
-	down++;
-	left--;
-	right++;
-
-	if (up >= 0)
-	{
-		Particle* pUp = allParticles[point.x][up];
-		if (pUp != nullptr)
-			if (settingFlammability[pUp->type] > 0)
-				if (settingFlammability[pUp->type] == 1)
-				{
-					int newHealth = pUp->health;
-					int newX = point.x;
-					int newY = up;
-					float newTemp = temperature;
-
-					DestroyParticle(point.x, up);
-
-					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
-
-					pUp->health = newHealth;
-				}
-				else if (xor128() % 100 + 1 <= (uint32_t)settingFlammability[pUp->type])
-				{
-					int newHealth = pUp->health;
-					int newX = point.x;
-					int newY = up;
-					float newTemp = temperature;
-
-					DestroyParticle(point.x, up);
-
-					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
-
-					pUp->health = newHealth;
-				}
-	}					
-
-	if (down < WINDOW_HEIGHT)
-	{
-		Particle* pDown = allParticles[point.x][down];
-		if (pDown != nullptr)
-			if (settingFlammability[pDown->type] > 0)
-				if (settingFlammability[pDown->type] == 1)
-				{
-					int newHealth = pDown->health;
-					int newX = point.x;
-					int newY = down;
-					float newTemp = temperature;
-
-					DestroyParticle(point.x, down);
-
-					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
-
-					pDown->health = newHealth;
-				}
-				else if (xor128() % 100 + 1 <= (uint32_t)settingFlammability[pDown->type])
-				{
-					int newHealth = pDown->health;
-					int newX = point.x;
-					int newY = down;
-					float newTemp = temperature;
-
-					DestroyParticle(point.x, down);
-
-					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
-
-					pDown->health = newHealth;
-				}
-	}				
-
-	if (left >= 0)
-	{
-		Particle* pLeft = allParticles[left][point.y];
-		if (pLeft != nullptr)
-			if (settingFlammability[pLeft->type] > 0)
-				if (settingFlammability[pLeft->type] == 1)
-				{
-					int newHealth = pLeft->health;
-					int newX = left;
-					int newY = point.y;
-					float newTemp = temperature;
-
-					DestroyParticle(left, point.y);
-
-					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
-
-					pLeft->health = newHealth;
-				}
-				else if (xor128() % 100 + 1 <= (uint32_t)settingFlammability[pLeft->type])
-				{
-					int newHealth = pLeft->health;
-					int newX = left;
-					int newY = point.y;
-					float newTemp = temperature;
-
-					DestroyParticle(left, point.y);
-
-					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
-
-					pLeft->health = newHealth;
-				}
-	}				
-
-	if (right < WINDOW_WIDTH)
-	{
-		Particle* pRight = allParticles[right][point.y];
-		if (pRight != nullptr)
-			if (settingFlammability[pRight->type] > 0)
-				if (settingFlammability[pRight->type] == 1)
-				{
-					int newHealth = pRight->health;
-					int newX = right;
-					int newY = point.y;
-					float newTemp = temperature;
-
-					DestroyParticle(right, point.y);
-
-					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
-
-					pRight->health = newHealth;
-				}
-				else if (xor128() % 100 + 1 <= (uint32_t)settingFlammability[pRight->type])
-				{
-					int newHealth = pRight->health;
-					int newX = right;
-					int newY = point.y;
-					float newTemp = temperature;
-
-					DestroyParticle(right, point.y);
-
-					CreateParticle(TYPE_FIRE, newX, newY, newTemp);
-
-					pRight->health = newHealth;
-				}
-	}				
-
-	return false;
-}
-
-void HeatPad::Draw()
-{
-	DrawParticleHeat(point.x, point.y);
-}
-
-bool Seed::HandleEvents()
-{
-	if (Particle::HandleEvents())
-		return true;
-
-	int down = point.y - 1;
-
-	if (down < WINDOW_HEIGHT)
-	{
-		Particle* pDown = allParticles[point.x][down];
-
-		if (pDown->type == TYPE_WATER)
-			if (xor128() % 100 + 1 <= (uint32_t)seedSpreadChance)
-			{
-				float temp = pDown->temperature;
-
-				// Clear out the particles and create the new plant.
-				DestroyParticle(point.x, point.y);
-				DestroyParticle(point.x, down);
-				CreateParticle(TYPE_PLANT, point.x, down, temp);
-			}
-	}
 }

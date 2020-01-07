@@ -40,7 +40,7 @@ bool LoadParticle(CSimpleIni ini)
 		else
 			newType.movementType = MOVEMENTTYPE_IMMOBILE;
 
-		newType.weight = std::stof(ini.GetValue("Particle", "Weight"));
+		newType.weight = std::stoi(ini.GetValue("Particle", "Weight"));
 		newType.startingHealth = std::stoi(ini.GetValue("Particle", "Health"));
 		newType.thermalConductivity = std::stof(ini.GetValue("Particle", "Thermal_Conductivity"));
 		newType.Flammability = std::stoi(ini.GetValue("Particle", "Flammability"));
@@ -84,33 +84,29 @@ bool LoadParticle(CSimpleIni ini)
 
 			ParticleEffect newEffect;
 			if (com == "ChangeTypeAtAboveTemperature")
-			{
 				newEffect.effectType = EFFECT_CHANGE_TYPE_AT_ABOVE_TEMPERATURE;
-				newEffect.effectData = split;
-			} 
 			else if (com == "ChangeTypeAtBelowTemperature")
-			{
 				newEffect.effectType = EFFECT_CHANGE_TYPE_AT_BELOW_TEMPERATURE;
-				newEffect.effectData = split;
-			}
 			else if (com == "DamageNeighbours")
-			{
 				newEffect.effectType = EFFECT_DAMAGE_NEIGHBOURS;
-				newEffect.effectData = split;
-			}
 			else if (com == "SpreadToSurrounding")
-			{
 				newEffect.effectType = EFFECT_SPREAD_TO_NEIGHBOURS;
-				newEffect.effectData = split;
-			}
 			else if (com == "OverrideNeighbourWithSelf")
-			{
 				newEffect.effectType = EFFECT_OVERRIDE_NEIGHBOUR_TYPE_WITH_SELF;
-				newEffect.effectData = split;
-			}
+			else if (com == "MergeWithOtherType")
+				newEffect.effectType = EFFECT_MERGE_WITH_OTHER_PARTICLE_TYPE;
+			else if (com == "BurnNeighbours")
+				newEffect.effectType = EFFECT_BURN_NEIGHBOURS;
+			else if (com == "LoseHPPerTick")
+				newEffect.effectType = EFFECT_LOSE_HP_PER_TICK;
+			else if (com == "LoseHPPerTick")
+				newEffect.effectType = EFFECT_NEIGHBOUR_PARTICLES_BECOME_SAME_TEMP_OVER_TIME;
 
 			if (newEffect.effectType != EFFECT_NULL)
+			{
+				newEffect.effectData = split;
 				newType.particleEffects.push_back(newEffect);
+			}
 		}
 
 		// Push the new particle type into the list now that its created.
@@ -252,7 +248,7 @@ bool Setup()
 			{
 				CSimpleIniA ini;
 				std::string str = path + "\\" + (*iterator);
-				if (ini.LoadFile(str.c_str()) != SI_FAIL);				
+				if (ini.LoadFile(str.c_str()) != SI_FAIL)			
 					LoadParticle(&ini);				
 			}
 		}
