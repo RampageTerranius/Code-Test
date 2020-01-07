@@ -14,7 +14,7 @@ extern std::vector<ParticleType> ParticleTypes;
 class Particle
 {
 	public:
-		Particle(ParticleType newType, int newX, int newY, float newTemperature);
+		Particle(ParticleType& newType, int newX, int newY, float newTemperature);
 		void Reset();		
 		void Draw();
 		bool CheckIfAtBottom();

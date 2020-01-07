@@ -13,4 +13,4 @@ G=0
 B=102
 
 [Effects]
-DamageSurrounding=30,Acid
+DamageNeighbours=30,Acid

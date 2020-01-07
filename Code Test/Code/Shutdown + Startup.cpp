@@ -13,10 +13,15 @@
 #include <exception>
 #include "SimpleINI/SimpleIni.h"
 
-bool LoadParticle(CSimpleIni ini)
+bool LoadParticle(std::string fileName)
 {
 	try
 	{
+		CSimpleIniA ini;
+
+		if (ini.LoadFile(fileName.c_str()) == SI_FAIL)
+			return false;
+
 		ParticleType newType = ParticleType();
 		
 		// Load all basic particle data.
@@ -68,19 +73,22 @@ bool LoadParticle(CSimpleIni ini)
 		CSimpleIniA::TNamesDepend effects;
 		ini.GetAllKeys("Effects", effects);
 
-		for (CSimpleIniA::TNamesDepend::iterator iterator = effects.begin(); iterator != effects.end(); iterator++)
+		for (CSimpleIniA::TNamesDepend::iterator iterator = effects.begin(); iterator != effects.end(); ++iterator)
 		{
-			std::string com = iterator->pComment;
-			std::stringstream ss(iterator->pItem);
+			std::string com = iterator->pItem;		
+
+			std::string ssplit = ini.GetValue("Effects", iterator->pItem, "");
+			std::stringstream ss(ssplit);
 
 			std::vector<std::string> split;
 
-			while (ss.good())
-			{
-				std::string substr;
-				getline(ss, substr, ',');
-				split.push_back(substr);
-			}
+			if (ssplit != "")
+				while (ss.good())
+				{
+					std::string substr;
+					getline(ss, substr, ',');
+					split.push_back(substr);
+				}
 
 			ParticleEffect newEffect;
 			if (com == "ChangeTypeAtAboveTemperature")
@@ -99,7 +107,7 @@ bool LoadParticle(CSimpleIni ini)
 				newEffect.effectType = EFFECT_BURN_NEIGHBOURS;
 			else if (com == "LoseHPPerTick")
 				newEffect.effectType = EFFECT_LOSE_HP_PER_TICK;
-			else if (com == "LoseHPPerTick")
+			else if (com == "NeighboursBecomeSameTempOverTime")
 				newEffect.effectType = EFFECT_NEIGHBOUR_PARTICLES_BECOME_SAME_TEMP_OVER_TIME;
 
 			if (newEffect.effectType != EFFECT_NULL)
@@ -112,7 +120,7 @@ bool LoadParticle(CSimpleIni ini)
 		// Push the new particle type into the list now that its created.
 		ParticleTypes.push_back(newType);
 
-		std::cout << "Sucessfully loaded particle type " + newType.name;
+		std::cout << "Sucessfully loaded particle type " + newType.name + "\n";
 
 	}
 	catch (std::exception e)
@@ -244,12 +252,11 @@ bool Setup()
 		if (fileNames.size() > 0)
 		{	
 			// Create an iterator of the fileNames vector and begin iterating through the list.
-			for (std::vector<std::string>::const_iterator iterator = fileNames.begin(); iterator != fileNames.end(); iterator++)
+			for (std::vector<std::string>::const_iterator iterator = fileNames.begin(); iterator != fileNames.end(); ++iterator)
 			{
-				CSimpleIniA ini;
-				std::string str = path + "\\" + (*iterator);
-				if (ini.LoadFile(str.c_str()) != SI_FAIL)			
-					LoadParticle(&ini);				
+				std::string str = path + "\\" + (*iterator);	
+
+				LoadParticle(str);				
 			}
 		}
 		else
