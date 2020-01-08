@@ -886,42 +886,42 @@ void Particle::HandleEvents()
 		{
 			try
 			{
-				if (type->particleEffects.size() > 0)
-				for (auto iterator : type->particleEffects)					
-					switch (iterator.effectType)
+				if (type->particleEffects.size() > 0)			
+					for (std::vector<ParticleEffect>::const_iterator iterator = type->particleEffects.begin(), end = type->particleEffects.begin(); iterator != end; ++iterator)
+					switch ((*iterator).effectType)
 					{
 					case EFFECT_CHANGE_TYPE_AT_BELOW_TEMPERATURE:
-						if (temperature < stof(iterator.effectData[1]))
+						if (temperature < stof((*iterator).effectData[1]))
 						{
 							int newX = point.x;
 							int newY = point.y;
 							float newTemp = temperature;
 
 							DestroyParticle(point.x, point.y);
-							CreateParticle(iterator.effectData[0], newX, newY, newTemp);
+							CreateParticle((*iterator).effectData[0], newX, newY, newTemp);
 						}
 						break;
 					case EFFECT_CHANGE_TYPE_AT_ABOVE_TEMPERATURE:
-						if (temperature > stof(iterator.effectData[1]))
+						if (temperature > stof((*iterator).effectData[1]))
 						{
 							int newX = point.x;
 							int newY = point.y;
 							float newTemp = temperature;
 
 							DestroyParticle(point.x, point.y);
-							CreateParticle(iterator.effectData[0], newX, newY, newTemp);
+							CreateParticle((*iterator).effectData[0], newX, newY, newTemp);
 						}
 						break;
 
 					case EFFECT_DAMAGE_NEIGHBOURS:
 					{
-						int damageChance = std::stoi(iterator.effectData[0]);
+						int damageChance = std::stoi((*iterator).effectData[0]);
 
 						if (upExists)
 						{
 							bool damagePixel = true;
-							if (iterator.effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = iterator.effectData.begin()++; dmgIterator != iterator.effectData.end(); ++dmgIterator)
+							if ((*iterator).effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
 									if (*dmgIterator == allParticles[point.x][up]->type->name)
 									{
 										damagePixel = false;
@@ -936,8 +936,8 @@ void Particle::HandleEvents()
 						if (downExists)
 						{
 							bool damagePixel = true;
-							if (iterator.effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = iterator.effectData.begin()++; dmgIterator != iterator.effectData.end(); ++dmgIterator)
+							if ((*iterator).effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
 									if (*dmgIterator == allParticles[point.x][down]->type->name)
 									{
 										damagePixel = false;
@@ -952,9 +952,9 @@ void Particle::HandleEvents()
 						if (leftExists)
 						{
 							bool damagePixel = true;
-							if (iterator.effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = iterator.effectData.begin()++; dmgIterator != iterator.effectData.end(); ++dmgIterator)
-									if (*dmgIterator == allParticles[left][point.y]->type->name)
+							if ((*iterator).effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+									if ((*dmgIterator) == allParticles[left][point.y]->type->name)
 									{
 										damagePixel = false;
 										break;
@@ -968,9 +968,9 @@ void Particle::HandleEvents()
 						if (rightExists)
 						{
 							bool damagePixel = true;
-							if (iterator.effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = iterator.effectData.begin()++; dmgIterator != iterator.effectData.end(); ++dmgIterator)
-									if (*dmgIterator == allParticles[right][point.y]->type->name)
+							if ((*iterator).effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+									if ((*dmgIterator) == allParticles[right][point.y]->type->name)
 									{
 										damagePixel = false;
 										break;
@@ -985,14 +985,14 @@ void Particle::HandleEvents()
 
 					case EFFECT_SPREAD_TO_NEIGHBOURS:
 					{
-						int spreadChance = std::stoi(iterator.effectData[0]);
+						int spreadChance = std::stoi((*iterator).effectData[0]);
 
 						if (upExists)
 						{
 							bool spreadPixel = true;
-							if (iterator.effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = iterator.effectData.begin()++; dmgIterator != iterator.effectData.end(); ++dmgIterator)
-									if (*dmgIterator == allParticles[point.x][up]->type->name)
+							if ((*iterator).effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+									if ((*dmgIterator) == allParticles[point.x][up]->type->name)
 									{
 										spreadPixel = false;
 										break;
@@ -1006,9 +1006,9 @@ void Particle::HandleEvents()
 						if (downExists)
 						{
 							bool spreadPixel = true;
-							if (iterator.effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = iterator.effectData.begin()++; dmgIterator != iterator.effectData.end(); ++dmgIterator)
-									if (*dmgIterator == allParticles[point.x][down]->type->name)
+							if ((*iterator).effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+									if ((*dmgIterator) == allParticles[point.x][down]->type->name)
 									{
 										spreadPixel = false;
 										break;
@@ -1022,9 +1022,9 @@ void Particle::HandleEvents()
 						if (leftExists)
 						{
 							bool spreadPixel = true;
-							if (iterator.effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = iterator.effectData.begin()++; dmgIterator != iterator.effectData.end(); ++dmgIterator)
-									if (*dmgIterator == allParticles[left][point.y]->type->name)
+							if ((*iterator).effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+									if ((*dmgIterator) == allParticles[left][point.y]->type->name)
 									{
 										spreadPixel = false;
 										break;
@@ -1038,9 +1038,9 @@ void Particle::HandleEvents()
 						if (rightExists)
 						{
 							bool spreadPixel = true;
-							if (iterator.effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = iterator.effectData.begin()++; dmgIterator != iterator.effectData.end(); ++dmgIterator)
-									if (*dmgIterator == allParticles[right][point.y]->type->name)
+							if ((*iterator).effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+									if ((*dmgIterator) == allParticles[right][point.y]->type->name)
 									{
 										spreadPixel = false;
 										break;
@@ -1055,7 +1055,7 @@ void Particle::HandleEvents()
 
 					case EFFECT_OVERRIDE_NEIGHBOUR_TYPE_WITH_SELF:
 					{
-						int overrideChance = std::stoi(iterator.effectData[0]);
+						int overrideChance = std::stoi((*iterator).effectData[0]);
 
 						if (upExists)
 							if ((xor128() % 100) < overrideChance)
@@ -1080,7 +1080,7 @@ void Particle::HandleEvents()
 
 					case EFFECT_MERGE_WITH_OTHER_PARTICLE_TYPE:
 					{
-						int mergeChance = std::stoi(iterator.effectData[0]);
+						int mergeChance = std::stoi((*iterator).effectData[0]);
 						if (downExists)
 						{
 							bool willMerge = true;
@@ -1090,9 +1090,9 @@ void Particle::HandleEvents()
 									willMerge = false;
 
 							if (willMerge)
-								if (allParticles[point.x][down]->type->name == iterator.effectData[1])
+								if (allParticles[point.x][down]->type->name == (*iterator).effectData[1])
 								{
-									allParticles[point.x][down]->type = FindParticleType(iterator.effectData[2]);
+									allParticles[point.x][down]->type = FindParticleType((*iterator).effectData[2]);
 									DestroyParticle(point.x, point.y);
 								}
 						}
@@ -1106,9 +1106,9 @@ void Particle::HandleEvents()
 									willMerge = false;
 
 							if (willMerge)
-								if (allParticles[point.x][up]->type->name == iterator.effectData[1])
+								if (allParticles[point.x][up]->type->name == (*iterator).effectData[1])
 								{
-									allParticles[point.x][up]->type = FindParticleType(iterator.effectData[2]);
+									allParticles[point.x][up]->type = FindParticleType((*iterator).effectData[2]);
 									DestroyParticle(point.x, point.y);
 								}
 						}
@@ -1122,9 +1122,9 @@ void Particle::HandleEvents()
 									willMerge = false;
 
 							if (willMerge)
-								if (allParticles[left][point.y]->type->name == iterator.effectData[1])
+								if (allParticles[left][point.y]->type->name == (*iterator).effectData[1])
 								{
-									allParticles[left][point.y]->type = FindParticleType(iterator.effectData[2]);
+									allParticles[left][point.y]->type = FindParticleType((*iterator).effectData[2]);
 									DestroyParticle(point.x, point.y);
 								}
 						}
@@ -1138,9 +1138,9 @@ void Particle::HandleEvents()
 									willMerge = false;
 
 							if (willMerge)
-								if (allParticles[right][point.y]->type->name == iterator.effectData[1])
+								if (allParticles[right][point.y]->type->name == (*iterator).effectData[1])
 								{
-									allParticles[right][point.y]->type = FindParticleType(iterator.effectData[2]);
+									allParticles[right][point.y]->type = FindParticleType((*iterator).effectData[2]);
 									DestroyParticle(point.x, point.y);
 								}
 						}
@@ -1172,8 +1172,8 @@ void Particle::HandleEvents()
 
 					case EFFECT_LOSE_HP_PER_TICK:
 					{
-						int hpLossChance = std::stoi(iterator.effectData[0]);
-						int hpLossPerChance = std::stoi(iterator.effectData[1]);
+						int hpLossChance = std::stoi((*iterator).effectData[0]);
+						int hpLossPerChance = std::stoi((*iterator).effectData[1]);
 
 						bool takeDamage = true;
 
