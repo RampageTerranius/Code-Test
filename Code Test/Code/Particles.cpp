@@ -122,38 +122,6 @@ void CreateParticle(std::string particleName, int x, int y, float temp)
 	CreateParticle(particleName, x, y, temp, false);
 }
 
-// Destroys the particle at the given location and wipes the memory of it.
-void DestroyParticle(int x, int y)
-{
-	// Check if a particle even exists in the area we want to delete and cancel if there is none.
-	if (allParticles[x][y] == nullptr)
-		return;
-
-	delete allParticles[x][y];	
-	allParticles[x][y] = nullptr;
-}
-
-// Used to move particles between two spots.
-void MoveParticles(int x1, int y1, int x2, int y2)
-{
-	//get both the particles we want to move.
-	std::swap(allParticles[x1][y1], allParticles[x2][y2]);
-
-	// Update the internal location data for the first point now that its been moved.
-	if (allParticles[x2][y2] != nullptr)
-	{
-		allParticles[x2][y2]->point.x = x2;
-		allParticles[x2][y2]->point.y = y2;
-	}
-
-	// Update the internal location data for the second point now that its been moved.
-	if (allParticles[x1][y1] != nullptr)
-	{
-		allParticles[x1][y1]->point.x = x1;
-		allParticles[x1][y1]->point.y = y1;
-	}	
-}
-
 // Unlocks all particles that neighbour the given coordinate.
 void UnlockNeighbourParticles(int x, int y)
 {
@@ -163,7 +131,7 @@ void UnlockNeighbourParticles(int x, int y)
 	up--;
 	down++;
 	left--;
-	right++;	
+	right++;
 
 	if (up >= 0)
 	{
@@ -194,6 +162,40 @@ void UnlockNeighbourParticles(int x, int y)
 	}
 }
 
+// Destroys the particle at the given location and wipes the memory of it.
+void DestroyParticle(int x, int y)
+{
+	// Check if a particle even exists in the area we want to delete and cancel if there is none.
+	if (allParticles[x][y] == nullptr)
+		return;
+
+	UnlockNeighbourParticles(x, y);
+
+	delete allParticles[x][y];	
+	allParticles[x][y] = nullptr;
+}
+
+// Used to move particles between two spots.
+void MoveParticles(int x1, int y1, int x2, int y2)
+{
+	//get both the particles we want to move.
+	std::swap(allParticles[x1][y1], allParticles[x2][y2]);
+
+	// Update the internal location data for the first point now that its been moved.
+	if (allParticles[x2][y2] != nullptr)
+	{
+		allParticles[x2][y2]->point.x = x2;
+		allParticles[x2][y2]->point.y = y2;
+	}
+
+	// Update the internal location data for the second point now that its been moved.
+	if (allParticles[x1][y1] != nullptr)
+	{
+		allParticles[x1][y1]->point.x = x1;
+		allParticles[x1][y1]->point.y = y1;
+	}
+}
+
 // Attempt to drop the particle downwards.
 bool DropParticle(int x, int y, bool randomize)
 {
@@ -207,10 +209,10 @@ bool DropParticle(int x, int y, bool randomize)
 		tempX += ((xor128() % 3) - 1);
 
 		if (tempX < 0)
-			return false;
+			tempX = 0;
 
 		if (tempX >= WINDOW_WIDTH)
-			return false;
+			tempX = WINDOW_WIDTH - 1;
 	}
 
 	// If there is no particle directly below then just drop down.

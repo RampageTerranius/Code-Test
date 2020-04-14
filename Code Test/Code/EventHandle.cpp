@@ -517,17 +517,9 @@ void DestroyParticlesAtBrush(int x, int y)
 	// Check the size of the brush and delete particles in range.
 	if (currentBrushSize == 1)
 		DestroyParticle(mouse.x, mouse.y);
-	else for (int i = currentBrushSize + 1; i > -(currentBrushSize + 1); i--)
-		for (int n = currentBrushSize + 1; n > -(currentBrushSize + 1); n--)
-			if ((i <= currentBrushSize && i >= -currentBrushSize) && (n <= currentBrushSize && n >= -currentBrushSize))
-				DestroyParticle(mouse.x + i, mouse.y + n);// Delete all particles inside of brush
-			else if ((i >= 0 && i <= WINDOW_WIDTH) && (n >= 0 && n <= WINDOW_HEIGHT))
-			{
-				Particle* p = allParticles[i][n];
-			
-				if (p != nullptr)
-					p->locked = false;// Unlock all neighbouring particles of the brush.
-			}
+	else for (int i = currentBrushSize; i > -(currentBrushSize); i--)
+		for (int n = currentBrushSize; n > -(currentBrushSize); n--)
+			DestroyParticle(mouse.x + i, mouse.y + n);// Delete all particles inside of brush
 }
 
 // Handles all keyboard/mouse events.

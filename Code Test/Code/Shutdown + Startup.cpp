@@ -282,10 +282,13 @@ bool Setup()
 
 	return true;
 }
-
-
 void Shutdown()
 {
+	// Destroy the surface used for drawing particles.
+	SDL_FreeSurface(mainSurface);
+	if (mainSurface != nullptr)
+		mainSurface = nullptr;
+
 	// Destroy the main window before shutdown.
 	SDL_DestroyWindow(mainWindow);
 
@@ -308,11 +311,6 @@ void Shutdown()
 	selectedParticleName.Clear();
 	selectedParticleHealth.Clear();
 	currentFrameRate.Clear();
-
-	// Destroy the surface used for drawing particles.
-	SDL_FreeSurface(mainSurface);
-	if (mainSurface != nullptr)
-		mainSurface = nullptr;
 
 	SDL_Quit();
 }
