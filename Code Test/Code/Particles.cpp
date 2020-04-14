@@ -186,6 +186,7 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 	{
 		allParticles[x2][y2]->point.x = x2;
 		allParticles[x2][y2]->point.y = y2;
+		
 	}
 
 	// Update the internal location data for the second point now that its been moved.
@@ -194,6 +195,9 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 		allParticles[x1][y1]->point.x = x1;
 		allParticles[x1][y1]->point.y = y1;
 	}
+
+	UnlockNeighbourParticles(x1, y1);
+	UnlockNeighbourParticles(x2, y2);
 }
 
 // Attempt to drop the particle downwards.
@@ -219,7 +223,6 @@ bool DropParticle(int x, int y, bool randomize)
 	if (pDown == nullptr)
 	{
 		// Update the array.
-		UnlockNeighbourParticles(x, y);
 		MoveParticles(x, y, tempX, y + 1);
 		return true;
 	}
@@ -227,7 +230,6 @@ bool DropParticle(int x, int y, bool randomize)
 	else if (pDown->type->weight >= 0)
 		if (allParticles[x][y]->type->weight > pDown->type->weight)
 		{
-			UnlockNeighbourParticles(x, y);
 			MoveParticles(x, y, tempX, y + 1);			
 			return true;
 		}
@@ -508,13 +510,11 @@ void Particle::HandlePhysics()
 				{
 					// Go left.
 				case 0:
-					UnlockNeighbourParticles(point.x, point.y);
 					MoveParticles(left, down, point.x, point.y);
 					return;
 
 					// Go right.
 				case 1:
-					UnlockNeighbourParticles(point.x, point.y);
 					MoveParticles(right, down, point.x, point.y);
 					return;
 				}
@@ -522,14 +522,12 @@ void Particle::HandlePhysics()
 			// Can only go left.
 			else if (canGoLeft)
 			{
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(left, down, point.x, point.y);
 				return;
 			}
 			// Can only go roght.
 			else if (canGoRight)
 			{
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(right, down, point.x, point.y);
 				return;
 			}
@@ -546,7 +544,6 @@ void Particle::HandlePhysics()
 			if (pRightDown == nullptr)
 			{
 				// Update particles.
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(point.x, point.y, right, down);
 				return;
 			}
@@ -562,7 +559,6 @@ void Particle::HandlePhysics()
 			if (pLeftDown == nullptr)
 			{
 				// Update particles.
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(point.x, point.y, left, down);
 				return;
 			}
@@ -576,7 +572,6 @@ void Particle::HandlePhysics()
 		if (pLeftDown == nullptr && pRightDown != nullptr)
 		{
 			// Update particles.
-			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, left, down);
 			return;
 		}
@@ -584,7 +579,6 @@ void Particle::HandlePhysics()
 		else if (pRightDown == nullptr && pLeftDown != nullptr)
 		{
 			// Update particles.
-			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, right, down);
 			return;
 		}
@@ -597,14 +591,12 @@ void Particle::HandlePhysics()
 				// Go left.
 			case 0:
 				// Update particles.
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(point.x, point.y, left, down);
 				return;
 
 				// Go right.
 			case 1:
 				// Update particles.
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(point.x, point.y, right, down);
 				return;
 			}
@@ -660,13 +652,11 @@ void Particle::HandlePhysics()
 				{
 					// Go left.
 				case 0:
-					UnlockNeighbourParticles(point.x, point.y);
 					MoveParticles(left, point.y, point.x, point.y);
 					return;
 
 					// Go right.
 				case 1:
-					UnlockNeighbourParticles(point.x, point.y);
 					MoveParticles(right, point.y, point.x, point.y);
 					return;
 				}
@@ -674,14 +664,12 @@ void Particle::HandlePhysics()
 			// Can only go left.
 			else if (canGoLeft)
 			{
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(left, point.y, point.x, point.y);
 				return;
 			}
 			// Can only go right.
 			else if (canGoRight)
 			{
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(right, point.y, point.x, point.y);
 				return;
 			}
@@ -697,7 +685,6 @@ void Particle::HandlePhysics()
 			if (pRight == nullptr)
 			{
 				// Update particles.
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(point.x, point.y, right, point.y);
 				return;
 			}
@@ -710,7 +697,6 @@ void Particle::HandlePhysics()
 			if (pLeft == nullptr)
 			{
 				// Update particles.
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(point.x, point.y, left, point.y);
 				return;
 			}
@@ -720,13 +706,11 @@ void Particle::HandlePhysics()
 		// If left is empty only.
 		if (pLeft == nullptr && pRight != nullptr)
 		{
-			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, left, point.y);
 		}
 		// If right is empty only.
 		else if (pRight == nullptr && pLeft != nullptr)
 		{
-			UnlockNeighbourParticles(point.x, point.y);
 			MoveParticles(point.x, point.y, right, point.y);
 		}
 		// Both ways are free, randomly choose one and move.
@@ -737,14 +721,12 @@ void Particle::HandlePhysics()
 				// Go left.
 			case 0:
 				// Update particles.
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(point.x, point.y, left, point.y);
 				return;
 
 				// Go right.
 			case 1:
 				// Update particles.
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(point.x, point.y, right, point.y);
 				return;
 			}
@@ -820,13 +802,11 @@ void Particle::HandlePhysics()
 				{
 					// Go left.
 				case 0:
-					UnlockNeighbourParticles(point.x, point.y);
 					MoveParticles(left, point.y, point.x, point.y);
 					break;
 
 					// Go right.
 				case 1:
-					UnlockNeighbourParticles(point.x, point.y);
 					MoveParticles(right, point.y, point.x, point.y);
 					break;
 				}
@@ -834,13 +814,11 @@ void Particle::HandlePhysics()
 			// Can only go left.
 			else if (canGoLeft)
 			{
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(left, point.y, point.x, point.y);
 			}
 			// Can only go right.
 			else
 			{
-				UnlockNeighbourParticles(point.x, point.y);
 				MoveParticles(right, point.y, point.x, point.y);
 			}
 
