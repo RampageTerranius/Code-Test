@@ -83,7 +83,7 @@ std::vector<ParticleType> ParticleTypes = std::vector<ParticleType>();
 
 ParticleType* FindParticleType(std::string particleName)
 {
-	for (int i = 0; i < ParticleTypes.size(); i++)
+	for (size_t i = 0; i < ParticleTypes.size(); i++)
 		if (ParticleTypes[i].name == particleName)
 			return &ParticleTypes[i];
 
@@ -190,7 +190,7 @@ void UnlockNeighbourParticles(int x, int y)
 	{
 		Particle* pRight = allParticles[right][y];
 		if (pRight != nullptr)
-			pRight = false;
+			pRight->locked = false;
 	}
 }
 
