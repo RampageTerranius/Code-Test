@@ -133,6 +133,12 @@ void UnlockNeighbourParticles(int x, int y)
 	left--;
 	right++;
 
+	if (x < 0 || x >= WINDOW_WIDTH)
+		return;
+
+	if (y < 0 || y >= WINDOW_HEIGHT)
+		return;
+
 	if (up >= 0)
 	{
 		Particle* pUp = allParticles[x][up];
@@ -165,6 +171,12 @@ void UnlockNeighbourParticles(int x, int y)
 // Destroys the particle at the given location and wipes the memory of it.
 void DestroyParticle(int x, int y)
 {
+	if (x < 0 || x >= WINDOW_WIDTH)
+		return;
+
+	if (y < 0 || y >= WINDOW_HEIGHT)
+		return;
+
 	// Check if a particle even exists in the area we want to delete and cancel if there is none.
 	if (allParticles[x][y] == nullptr)
 		return;
@@ -181,12 +193,12 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 	//get both the particles we want to move.
 	std::swap(allParticles[x1][y1], allParticles[x2][y2]);
 
+
 	// Update the internal location data for the first point now that its been moved.
 	if (allParticles[x2][y2] != nullptr)
 	{
 		allParticles[x2][y2]->point.x = x2;
-		allParticles[x2][y2]->point.y = y2;
-		
+		allParticles[x2][y2]->point.y = y2;		
 	}
 
 	// Update the internal location data for the second point now that its been moved.
@@ -198,88 +210,6 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 
 	UnlockNeighbourParticles(x1, y1);
 	UnlockNeighbourParticles(x2, y2);
-}
-
-// Attempt to drop the particle downwards.
-bool DropParticle(int x, int y, bool randomize)
-{
-	int tempX = x;
-
-	Particle* pDown = allParticles[tempX][y + 1];
-
-	// Attempt to randomize the way it will move while going down.
-	if (randomize)
-	{
-		tempX += ((xor128() % 3) - 1);
-
-		if (tempX < 0)
-			tempX = 0;
-
-		if (tempX >= WINDOW_WIDTH)
-			tempX = WINDOW_WIDTH - 1;
-	}
-
-	// If there is no particle directly below then just drop down.
-	if (pDown == nullptr)
-	{
-		// Update the array.
-		MoveParticles(x, y, tempX, y + 1);
-		return true;
-	}
-	// Other wise if the particle directly below has less weight then swap particles.
-	else if (pDown->type->weight >= 0)
-		if (allParticles[x][y]->type->weight > pDown->type->weight)
-		{
-			MoveParticles(x, y, tempX, y + 1);			
-			return true;
-		}
-
-	return false;
-}
-
-// Overload for legacy version of DropParticle.
-bool DropParticle(int x, int y)
-{
-	return DropParticle(x, y, false);
-}
-
-// Attempt to ascend the particle directly upwards.
-bool AscendParticle(int x, int y, bool randomize)
-{
-	int tempX = x;
-
-	Particle* pUp = allParticles[tempX][y - 1];
-
-	// Attempt to randomize the way it will move while going up.
-	if (randomize)
-	{
-		tempX += ((xor128() % 3) - 1);
-
-		if (tempX < 0)
-			return false;
-
-		if (tempX >= WINDOW_WIDTH)
-			return false;
-	}
-
-	// If there is no particle directly above then just ascend.
-	if (pUp == nullptr)
-	{
-		// Update the array.
-		UnlockNeighbourParticles(x, y);
-		MoveParticles(x, y, tempX, y - 1);
-		return true;
-	}
-	// Other wise if the particle directly above has more weight then swap particles.
-	else if (pUp->type->weight != -1)
-		if (allParticles[x][y]->type->weight < pUp->type->weight)
-		{
-			UnlockNeighbourParticles(x, y);
-			MoveParticles(x, y, tempX, y - 1);
-			return true;
-		}
-
-	return false;
 }
 
 // Attempts to even out temperatures between the two given points using the given thermal change value.
@@ -398,59 +328,6 @@ void Particle::Draw()
 	}
 }
 
-// Check if the particle is at the bottom of the screen and if we need to loop back to the top.
-bool Particle::CheckIfAtBottom()
-{
-	// Check if at bottom of screen.
-	if (point.y == WINDOW_HEIGHT - 1)
-	{
-		// Check if we need to loop the particles from bottom to top.
-		if (loopScreen)
-		{
-			if (allParticles[point.x][0] == nullptr)
-			{
-				UnlockNeighbourParticles(point.x, point.y);
-				MoveParticles(point.x, point.y, point.x, 0);
-			}
-
-			// Even if we cant move return true as we are stil lat the bottom and cant move else where.
-			return true;
-		}
-		else
-			return true;// We are not to loop, stop here.
-	}
-
-	// We are not at the bottom.
-	return false;
-}
-
-// Check if the particle is at the top of the screen and if we need to loop back to the bottom.
-bool Particle::CheckIfAtTop()
-{
-	// Check if at bottom of screen.
-	if (point.y == 0)
-	{
-		// Check if we need to loop the particles from bottom to top.
-		if (loopScreen)
-		{
-			if (allParticles[point.x][WINDOW_HEIGHT - 1] == nullptr)
-			{
-				UnlockNeighbourParticles(point.x, point.y);
-				MoveParticles(point.x, point.y, point.x, WINDOW_HEIGHT - 1);
-			}
-
-			// Even if we cant move return true as we are still at the bottom and cant move else where.
-			return true;
-		}
-		else
-			return true;// We are not to loop, stop here.
-	}
-
-	// We are not at the bottom.
-	return false;
-}
-
-
 // Default particle physics.
 void Particle::HandlePhysics()
 {
@@ -462,6 +339,212 @@ void Particle::HandlePhysics()
 	{
 	case MOVEMENTTYPE_PILE:
 	{
+		Particle* pCenter = allParticles[point.x][point.y];
+		Particle* pDown = nullptr;
+		Particle* pLeftDown = nullptr;
+		Particle* pRightDown = nullptr;
+
+		
+		int Down = point.y + 1;
+		int Left = point.x - 1;
+		int Right = point.x + 1;
+
+		// Check if at the bottom of the screen first and update the temp pointers as needed.
+
+		if (point.y == WINDOW_HEIGHT - 1)
+		{
+			// If we arent looping the screen then cancel all calcs from here as we are at the bottom of the screen already.
+			if (!loopScreen)
+				return;
+
+			pDown = allParticles[point.x][0];
+			if (point.y > 0)
+				pLeftDown = allParticles[Left][0];
+			if (point.y < WINDOW_WIDTH)
+				pRightDown = allParticles[Right][0];
+		}
+		else
+		{
+			pDown = allParticles[point.x][Down];
+			if (point.y > 0)
+				pLeftDown = allParticles[Left][Down];
+			if (point.y < WINDOW_WIDTH)
+				pRightDown = allParticles[Right][Down];
+		}
+
+		// If the particle directly under this is free then move downwards
+		if (pDown == nullptr)
+		{
+			MoveParticles(pCenter->point.x, pCenter->point.y, pCenter->point.x, Down);
+			return;
+		}
+		// Are we on the left edge of the screen?
+		else if (point.y == 0)
+		{
+			if (pRightDown == nullptr)
+			{
+				MoveParticles(pCenter->point.x, pCenter->point.y, Right, Down);
+				return;
+			}
+		}
+		// Are we on the right edge of the screen?
+		else if (point.y == WINDOW_WIDTH - 1)
+		{
+			if (pLeftDown == nullptr)
+			{
+				MoveParticles(pCenter->point.x, pCenter->point.y, Left, Down);
+				return;
+			}
+		}
+		// We now know that we are unable to move directly down, and we are not on the left edge or right edge?
+		// If both the left and right side are free.
+		else if (pLeftDown == nullptr && pRightDown == nullptr)
+		{
+			int i = xor128() % 2;
+
+			switch (i)
+			{
+			// Go left.
+			case 0:
+				MoveParticles(pCenter->point.x, pCenter->point.y, Left, Down);
+				break;
+			// Go right.
+			case 1:
+				MoveParticles(pCenter->point.x, pCenter->point.y, Right, Down);
+				break;
+			}
+
+			return;
+		}
+		// At this point we know at least left or right is full, check which way we can go.
+		else if (pLeftDown == nullptr)
+		{
+			MoveParticles(pCenter->point.x, pCenter->point.y, Left, Down);
+			return;
+		}
+		else if (pRightDown == nullptr)
+		{
+			MoveParticles(pCenter->point.x, pCenter->point.y, Right, Down);
+			return;
+		}
+		// At this point we know we can not move in any way downwards, check weights.
+		else
+		{
+			bool canGoDownLeft, canGoDownRight, canGoDown;
+			canGoDownLeft = canGoDownRight = canGoDown = false;
+
+			if (pDown != nullptr)
+				if (pCenter->type->weight < pDown->type->weight)
+					canGoDown = true;
+
+			if (pLeftDown != nullptr)
+				if (pCenter->type->weight < pLeftDown->type->weight)
+					canGoDownLeft = true;
+
+			if (pRightDown != nullptr)
+				if (pCenter->type->weight < pRightDown->type->weight)
+					canGoDownRight = true;
+
+			// If can go any direction.
+			if (canGoDownLeft && canGoDown && canGoDownRight)
+			{
+				int i = xor128() % 3;
+
+				switch (i)
+				{
+				case 0:
+					MoveParticles(pCenter->point.x, pCenter->point.y, Left, Down);
+					break;
+				case 1:
+					MoveParticles(pCenter->point.x, pCenter->point.y, pCenter->point.x, Down);
+					break;
+				case 2:
+					MoveParticles(pCenter->point.x, pCenter->point.y, Right, Down);
+					break;
+				}
+
+				return;
+			}
+			// If can go left or right.
+			else if (canGoDownLeft && canGoDownRight)
+			{
+				int i = xor128() % 2;
+
+				switch (i)
+				{
+				case 0:
+					MoveParticles(pCenter->point.x, pCenter->point.y, Left, Down);
+					break;
+				case 1:
+					MoveParticles(pCenter->point.x, pCenter->point.y, Right, Down);
+					break;
+				}
+
+				return;
+			}
+			// If can go left or down.
+			else if (canGoDownLeft && canGoDown)
+			{
+				int i = xor128() % 2;
+
+				switch (i)
+				{
+				case 0:
+					MoveParticles(pCenter->point.x, pCenter->point.y, Left, Down);
+					break;
+				case 1:
+					MoveParticles(pCenter->point.x, pCenter->point.y, pCenter->point.x, Down);
+					break;
+				}
+
+				return;
+			}
+			// If can go right or down
+			else if (canGoDownRight && canGoDown)
+			{
+				int i = xor128() % 2;
+
+				switch (i)
+				{
+				case 0:
+					MoveParticles(pCenter->point.x, pCenter->point.y, pCenter->point.x, Down);
+					break;
+				case 1:
+					MoveParticles(pCenter->point.x, pCenter->point.y, Right, Down);
+					break;
+				}
+
+				return;
+			}
+			// We can only go in one way, check the way
+			else
+			{
+				int i = 0;
+
+				if (canGoDownRight)
+					i++;
+				if (canGoDownLeft)
+					i--;
+
+				switch (i)
+				{
+				case -1:
+					MoveParticles(pCenter->point.x, pCenter->point.y, Left, Down);
+					return;
+				case 0:
+					MoveParticles(pCenter->point.x, pCenter->point.y, pCenter->point.x, Down);
+					return;
+				case 1:
+					MoveParticles(pCenter->point.x, pCenter->point.y, Right, Down);
+					return;
+				}
+
+				//we were unable to move in any way shape or form. Lock the particle.
+				locked = true;
+			}
+		}
+
+		/*
 		// Make sure we arent already at the bottom level, if we are we dont need to check the physics.
 		if (CheckIfAtBottom())
 			return;
@@ -600,11 +683,12 @@ void Particle::HandlePhysics()
 				MoveParticles(point.x, point.y, right, down);
 				return;
 			}
-		}
+		}*/
 	}
 		break;
 	case MOVEMENTTYPE_LIQUID:
 	{
+		/*
 		// Make sure we arent already at the bottom level, if we are we dont need to check the physics.
 		if (CheckIfAtBottom())
 			return;
@@ -730,11 +814,12 @@ void Particle::HandlePhysics()
 				MoveParticles(point.x, point.y, right, point.y);
 				return;
 			}
-		}
+		}*/
 	}
 		break;
 	case MOVEMENTTYPE_AIRBORN:
 	{
+		/*
 		int up, down, left, right;
 		up = down = point.y;
 		left = right = point.x;
@@ -826,6 +911,7 @@ void Particle::HandlePhysics()
 			locked = true;
 			return;
 		}
+		*/
 	}
 		break;
 	}

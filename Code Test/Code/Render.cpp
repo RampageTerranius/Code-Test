@@ -23,8 +23,12 @@ void Render()
 	// TODO: particles themselves have a switch in their Draw() function for handling view type
 	// switch this so that we check the type ahead of time to help speed up the rendering a bit.
 
+	SDL_UnlockSurface(mainSurface);
+
 	SDL_Texture* pixelTexture = SDL_CreateTextureFromSurface(mainRenderer, mainSurface);
 	SDL_RenderCopy(mainRenderer, pixelTexture, nullptr, nullptr);
+
+	SDL_DestroyTexture(pixelTexture);
 
 	// Once we have finished printing the particles we may print the UI overtop.
 	
@@ -101,8 +105,6 @@ void Render()
 	currentFrameRate.Draw(mainRenderer, 20, WINDOW_HEIGHT - 34);
 
 	// Render the frame and increase the counter frames.
-	SDL_UnlockSurface(mainSurface);
-
 	std::cout << avgFPS << "\n";
 	
 
