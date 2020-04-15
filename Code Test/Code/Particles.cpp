@@ -192,7 +192,7 @@ void MoveParticles(int x1, int y1, int x2, int y2)
 {	
 	if (x1 < 0 || x1 >= WINDOW_WIDTH || x2 < 0 || x2 >= WINDOW_WIDTH || y1 < 0 || y1 >= WINDOW_HEIGHT || y2 < 0 || y2 >= WINDOW_HEIGHT)
 	{
-		std::cout << "attempt to move particle that is out of range";
+		std::cout << "attempt to move particle that is out of range\n";
 		return;
 	}
 
@@ -389,6 +389,49 @@ void Particle::HandlePhysics()
 				MoveParticles(point.x, point.y, Right, Down);
 				return;
 			}
+			else
+			{
+				bool canGoDownRight, canGoDown;
+				canGoDownRight = canGoDown = false;
+
+				if (type->name != pDown->type->name)
+					if (pDown->type->weight >= 0)
+						if (type->weight < pDown->type->weight)
+							canGoDown = true;
+
+				if (type->name != pRightDown->type->name)
+					if (pRightDown->type->weight >= 0)
+						if (type->weight < pRightDown->type->weight)
+							canGoDownRight = true;
+
+				if (canGoDown && canGoDownRight)
+				{
+					int i = xor128() % 2;
+					switch (i)
+					{
+					case 0:
+						MoveParticles(point.x, point.y, point.x, Down);
+						return;
+					case 1:
+						MoveParticles(point.x, point.y, Right, Down);
+						return;
+					}
+				}
+				else if (canGoDown)
+				{
+					MoveParticles(point.x, point.y, point.x, Down);
+					return;
+				}
+				else if (canGoDownRight)
+				{
+					MoveParticles(point.x, point.y, Right, Down);
+					return;
+				}
+
+				// On edge and cant move in any way. Lock particle.
+				locked = true;
+				return;
+			}
 		}
 		// Are we on the right edge of the screen?
 		else if (point.y == WINDOW_WIDTH - 1)
@@ -398,8 +441,51 @@ void Particle::HandlePhysics()
 				MoveParticles(point.x, point.y, Left, Down);
 				return;
 			}
+			else
+			{
+				bool canGoDownLeft, canGoDown;
+				canGoDownLeft = canGoDown = false;
+
+				if (type->name != pDown->type->name)
+					if (pDown->type->weight >= 0)
+						if (type->weight < pDown->type->weight)
+							canGoDown = true;
+
+				if (type->name != pLeftDown->type->name)
+					if (pLeftDown->type->weight >= 0)
+						if (type->weight < pLeftDown->type->weight)
+							canGoDownLeft = true;
+
+				if (canGoDown && canGoDownLeft)
+				{
+					int i = xor128() % 2;
+					switch (i)
+					{
+					case 0:
+						MoveParticles(point.x, point.y, point.x, Down);
+						return;
+					case 1:
+						MoveParticles(point.x, point.y, Left, Down);
+						return;
+					}
+				}
+				else if (canGoDown)
+				{
+					MoveParticles(point.x, point.y, point.x, Down);
+					return;
+				}
+				else if (canGoDownLeft)
+				{
+					MoveParticles(point.x, point.y, Left, Down);
+					return;
+				}
+
+				// On edge and cant move in any way. Lock particle.
+				locked = true;
+				return;
+			}
 		}
-		// We now know that we are unable to move directly down, and we are not on the left edge or right edge?
+		// We now know that we are unable to move directly down, and we are not on the left edge or right edge.
 		// If both the left and right side are free.
 		else if (pLeftDown == nullptr && pRightDown == nullptr)
 		{
@@ -432,24 +518,29 @@ void Particle::HandlePhysics()
 		}
 		// At this point we know we can not move in any way downwards, check weights.
 		else
-		{
+		{	
 			bool canGoDownLeft, canGoDownRight, canGoDown;
 			canGoDownLeft = canGoDownRight = canGoDown = false;
 
 			if (pDown != nullptr)
-				if (pDown->type->weight >= 0)
-					if (type->weight < pDown->type->weight)
-						canGoDown = true;
+				if (type->name != pDown->type->name)
+					if (pDown->type->weight >= 0)
+						if (type->weight < pDown->type->weight)
+							canGoDown = true;
 
-			if (pLeftDown != nullptr)
-				if (pLeftDown->type->weight >= 0)
-					if (type->weight < pLeftDown->type->weight)
-						canGoDownLeft = true;
+			if (point.x > 0)
+				if (pLeftDown != nullptr)
+					if (type->name != pLeftDown->type->name)
+						if (pLeftDown->type->weight >= 0)
+							if (type->weight < pLeftDown->type->weight)
+								canGoDownLeft = true;
 
-			if (pRightDown != nullptr)
-				if (pRightDown->type->weight >= 0)
-					if (type->weight < pRightDown->type->weight)
-						canGoDownRight = true;
+			if (point.x < WINDOW_WIDTH - 1)
+				if (pRightDown != nullptr)
+					if (type->name != pRightDown->type->name)
+						if (pRightDown->type->weight >= 0)
+							if (type->weight < pRightDown->type->weight)
+								canGoDownRight = true;
 
 			// If can go any direction.
 			if (canGoDownLeft && canGoDown && canGoDownRight)
