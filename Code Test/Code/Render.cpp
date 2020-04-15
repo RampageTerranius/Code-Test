@@ -75,25 +75,26 @@ void Render()
 	brushTemperature.Draw(mainRenderer, 20, 88);
 
 	// Render selected particle type and temperature.
-	if (allParticles[mouse.x][mouse.y] != nullptr)
-	{
-		selectedParticleTemperature.SetText(mainRenderer, std::to_string(allParticles[mouse.x][mouse.y]->temperature) + "c");
+	if (mouse.x >= 0 && mouse.x < WINDOW_WIDTH && mouse.y >= 0 && mouse.y < WINDOW_HEIGHT)
+		if (allParticles[mouse.x][mouse.y] != nullptr)
+		{
+			selectedParticleTemperature.SetText(mainRenderer, std::to_string(allParticles[mouse.x][mouse.y]->temperature) + "c");
 
-		// Check if source block.
-		if (!allParticles[mouse.x][mouse.y]->isSource)
-			selectedParticleName.SetText(mainRenderer, allParticles[mouse.x][mouse.y]->type->name);
-		else		
-			selectedParticleName.SetText(mainRenderer, "Source - " + allParticles[mouse.x][mouse.y]->type->name);
+			// Check if source block.
+			if (!allParticles[mouse.x][mouse.y]->isSource)
+				selectedParticleName.SetText(mainRenderer, allParticles[mouse.x][mouse.y]->type->name);
+			else		
+				selectedParticleName.SetText(mainRenderer, "Source - " + allParticles[mouse.x][mouse.y]->type->name);
 		
 
-		selectedParticleHealth.SetText(mainRenderer, "HP: " + std::to_string(allParticles[mouse.x][mouse.y]->health) + "|" + std::to_string(allParticles[mouse.x][mouse.y]->type->startingHealth));
-	}
-	else
-	{
-		selectedParticleName.SetText(mainRenderer, "None");
-		selectedParticleTemperature.SetText(mainRenderer, "0c");
-		selectedParticleHealth.SetText(mainRenderer, "HP: 0|0");
-	}
+			selectedParticleHealth.SetText(mainRenderer, "HP: " + std::to_string(allParticles[mouse.x][mouse.y]->health) + "|" + std::to_string(allParticles[mouse.x][mouse.y]->type->startingHealth));
+		}
+		else
+		{
+			selectedParticleName.SetText(mainRenderer, "None");
+			selectedParticleTemperature.SetText(mainRenderer, "0c");
+			selectedParticleHealth.SetText(mainRenderer, "HP: 0|0");
+		}
 
 	selectedParticleName.Draw(mainRenderer, 20, 172);
 	selectedParticleTemperature.Draw(mainRenderer, 20, 206);

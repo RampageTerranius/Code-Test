@@ -1,5 +1,5 @@
 [Particle]
-Name=Wall
+Name=Glitch
 Type=immobile
 Weight=-1
 Health=10
