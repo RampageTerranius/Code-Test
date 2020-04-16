@@ -357,6 +357,10 @@ void Particle::HandlePhysics()
 
 	switch (type->movementType)
 	{
+	case MOVEMENTTYPE_IMMOBILE:
+		locked = true;
+		break;
+
 	case MOVEMENTTYPE_PILE:
 	{
 		int Down = point.y + 1;

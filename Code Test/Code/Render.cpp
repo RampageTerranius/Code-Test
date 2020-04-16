@@ -100,14 +100,33 @@ void Render()
 	selectedParticleTemperature.Draw(mainRenderer, 20, 206);
 	selectedParticleHealth.Draw(mainRenderer, 20, 240);
 
+	// Render the current view type.
+	switch (viewMode)
+	{
+	case VIEW_DEFAULT:
+		currentViewType.SetText(mainRenderer, "Element view");
+		break;
+
+	case VIEW_ACTIVE:
+		currentViewType.SetText(mainRenderer, "Active view");
+		break;
+
+	case VIEW_HEAT:
+		currentViewType.SetText(mainRenderer, "Heat view");
+		break;
+
+	default:
+		currentViewType.SetText(mainRenderer, "Unknown view type");
+		break;
+	}
+	currentViewType.Draw(mainRenderer, 20, WINDOW_HEIGHT - 68);
 
 	// Render the current framerate.
-	currentFrameRate.SetText(mainRenderer, std::to_string(static_cast<int>(avgFPS)));
+	currentFrameRate.SetText(mainRenderer, "FPS: " + std::to_string(static_cast<int>(avgFPS)));
 	currentFrameRate.Draw(mainRenderer, 20, WINDOW_HEIGHT - 34);
 
 	// Render the frame and increase the counter frames.
-	std::cout << avgFPS << "\n";
-	
+	std::cout << avgFPS << "\n";	
 
 	SDL_RenderPresent(mainRenderer);
 	countedFrames++;	

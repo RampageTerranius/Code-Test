@@ -57,3 +57,4 @@ extern TTF selectedParticleTemperature;
 extern TTF selectedParticleName;
 extern TTF selectedParticleHealth;
 extern TTF currentFrameRate;
+extern TTF currentViewType;
