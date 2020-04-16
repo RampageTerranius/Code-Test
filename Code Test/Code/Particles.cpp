@@ -344,7 +344,7 @@ void Particle::HandlePhysics()
 	switch (type->movementType)
 	{
 	case MOVEMENTTYPE_PILE:
-	{		
+	{
 		int Down = point.y + 1;
 		int Left = point.x - 1;
 		int Right = point.x + 1;
@@ -358,7 +358,10 @@ void Particle::HandlePhysics()
 		{
 			// If we arent looping the screen then cancel all calcs from here as we are at the bottom of the screen already.
 			if (!loopScreen)
+			{
+				locked = true;
 				return;
+			}
 
 			pDown = allParticles[point.x][0];
 			if (point.x > 0)

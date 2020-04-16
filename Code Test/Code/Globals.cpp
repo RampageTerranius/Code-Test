@@ -7,7 +7,7 @@ int frameRateLimit = 60;
 
 // Used to determine default screen size.
 
-const int MAX_BRUSH_SIZE = 32;// The total largest size the brush may be.
+const int MAX_BRUSH_SIZE = 128;// The total largest size the brush may be.
 
 // Sdl window and renderer.
 SDL_Window* mainWindow = nullptr;

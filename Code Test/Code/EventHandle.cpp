@@ -10,7 +10,6 @@
 // Used to switch the brush type back or forth automatically.
 void SwitchBrushType(bool gotoNext)
 {
-
 	// If told to goto next brush.
 	if (gotoNext)
 	{
@@ -539,7 +538,11 @@ void EventHandle(SDL_Event& event)
 	if (keyboard.a)
 	{
 		keyboard.a = false;
-		currentBrushSize--;
+		if (keyboard.lShift)
+			currentBrushSize -= 4;
+		else
+			currentBrushSize--;
+
 		if (currentBrushSize < 1)
 			currentBrushSize = 1;
 	}
@@ -553,7 +556,11 @@ void EventHandle(SDL_Event& event)
 	if (keyboard.d)
 	{
 		keyboard.d = false;
-		currentBrushSize++;
+		if (keyboard.lShift)
+			currentBrushSize += 4;
+		else
+			currentBrushSize++;
+
 		if (currentBrushSize > MAX_BRUSH_SIZE)
 			currentBrushSize = MAX_BRUSH_SIZE;
 	}
