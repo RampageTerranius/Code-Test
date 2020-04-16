@@ -385,7 +385,7 @@ void Particle::HandlePhysics()
 			return;
 		}
 		// Are we on the left edge of the screen?
-		else if (point.y == 0)
+		else if (point.x == 0)
 		{
 			if (pRightDown == nullptr)
 			{
@@ -437,7 +437,7 @@ void Particle::HandlePhysics()
 			}
 		}
 		// Are we on the right edge of the screen?
-		else if (point.y == WINDOW_WIDTH - 1)
+		else if (point.x == WINDOW_WIDTH - 1)
 		{
 			if (pLeftDown == nullptr)
 			{
