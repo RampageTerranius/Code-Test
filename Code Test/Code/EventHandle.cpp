@@ -223,6 +223,10 @@ void UpdateEventStructs(SDL_Event event)
 				keyboard.rAlt = true;
 				break;
 
+			case SDLK_BACKSPACE:
+				keyboard.backSpace = true;
+				break;
+
 			case SDLK_ESCAPE:
 				keyboard.escape = true;
 				break;
@@ -429,6 +433,10 @@ void UpdateEventStructs(SDL_Event event)
 				keyboard.rAlt = false;
 				break;
 
+			case SDLK_BACKSPACE:
+				keyboard.backSpace = false;
+				break;
+
 			case SDLK_ESCAPE:
 				keyboard.escape = false;
 				break;
@@ -621,6 +629,13 @@ void EventHandle(SDL_Event& event)
 	{
 		keyboard.space = false;
 		pauseParticles = !pauseParticles;
+	}
+
+	if (keyboard.backSpace)
+	{
+		for (int i = 0; i < WINDOW_WIDTH; i++)
+			for (int n = 0; n < WINDOW_HEIGHT; n++)
+				DestroyParticle(i, n);
 	}
 
 	if (keyboard.escape)

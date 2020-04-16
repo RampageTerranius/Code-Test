@@ -125,6 +125,12 @@ void CreateParticle(std::string particleName, int x, int y, float temp)
 // Unlocks all particles that neighbour the given coordinate.
 void UnlockNeighbourParticles(int x, int y)
 {
+	if (x < 0 || x >= WINDOW_WIDTH)
+		return;
+
+	if (y < 0 || y >= WINDOW_HEIGHT)
+		return;
+
 	int up, down, left, right;
 	left = right = x;
 	up = down = y;
@@ -133,39 +139,47 @@ void UnlockNeighbourParticles(int x, int y)
 	left--;
 	right++;
 
-	if (x < 0 || x >= WINDOW_WIDTH)
-		return;
-
-	if (y < 0 || y >= WINDOW_HEIGHT)
-		return;
-
+	// Upwards.
 	if (up >= 0)
 	{
-		Particle* pUp = allParticles[x][up];
-		if (pUp != nullptr)
-			pUp->locked = false;
+		if (allParticles[x][up] != nullptr)
+			allParticles[x][up]->locked = false;
+
+		// Up right.
+		if (right < WINDOW_WIDTH)
+			if (allParticles[right][up] != nullptr)
+				allParticles[right][up]->locked = false;
+
+		// Up left.
+		if (left >= 0)
+			if (allParticles[left][up] != nullptr)
+				allParticles[left][up]->locked = false;
 	}
+		
 
 	if (down < WINDOW_HEIGHT)
 	{
-		Particle* pDown = allParticles[x][down];
-		if (pDown != nullptr)
-			pDown->locked = false;
+		if (allParticles[x][down] != nullptr)
+			allParticles[x][down]->locked = false;
+
+		// Up right.
+		if (right < WINDOW_WIDTH)
+			if (allParticles[right][down] != nullptr)
+				allParticles[right][down]->locked = false;
+
+		// Up left.
+		if (left >= 0)
+			if (allParticles[left][down] != nullptr)
+				allParticles[left][down]->locked = false;
 	}
 
 	if (left >= 0)
-	{
-		Particle* pLeft = allParticles[left][y];
-		if (pLeft != nullptr)
-			pLeft->locked = false;
-	}
+		if (allParticles[left][y] != nullptr)
+			allParticles[left][y]->locked = false;	
 
 	if (right < WINDOW_WIDTH)
-	{
-		Particle* pRight = allParticles[right][y];
-		if (pRight != nullptr)
-			pRight->locked = false;
-	}
+		if (allParticles[right][y] != nullptr)
+			allParticles[right][y]->locked = false;
 }
 
 // Destroys the particle at the given location and wipes the memory of it.

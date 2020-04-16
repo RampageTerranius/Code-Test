@@ -6,6 +6,7 @@ struct Keyboard
 	bool n1, n2, n3, n4, n5, n6, n7, n8, n9, n0;
 	bool plus, minus;
 	bool leftBracket, rightBracket;
+	bool backSpace;
 	bool lShift, rShift, lCtrl, rCtrl, lAlt, rAlt;
 	bool space, escape, tab, capsLock, tilde;
 };
