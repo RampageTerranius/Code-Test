@@ -25,6 +25,9 @@ int currentBrushSize = 4;
 
 int countedFrames = 0;
 bool running = false;
+bool tempUnpause = false;
+bool currentEventGate = false;
+bool currentPhysicsGate = false;
 
 SDL_Color backgroundColor = {255, 255, 255, 0};
 
@@ -43,7 +46,7 @@ bool createAsSource = false;// If the blocks created should be source particles 
 int temperatureDifferenceDivisor = 15;
 
 // How far out liquid particles will check to attempt to flow out to in the situation they can only go oen direction.
-int flowRate = 5;
+int flowRate = 4;
 
 TTF brushName = TTF();
 TTF brushSize = TTF();

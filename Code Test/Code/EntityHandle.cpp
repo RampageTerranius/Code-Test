@@ -4,7 +4,7 @@
 // Runs code to do with all particles currently loaded.
 void EntityHandle()
 {
-	if (!pauseParticles)
+	if (!pauseParticles || tempUnpause)
 	{
 		// TODO: switch across to a chunk based system to lessen cycle time, look towards QuadTree implementation.
 		// Handling Events.
@@ -14,7 +14,11 @@ void EntityHandle()
 				Particle* p = allParticles[i][n];
 
 				if (p != nullptr)
-					p->HandleEvents();
+					if (p->eventGate == currentEventGate)
+					{
+						p->HandleEvents();
+						p->eventGate = !currentEventGate;
+					}
 			}				
 
 		// Handling physics.
@@ -25,7 +29,16 @@ void EntityHandle()
 
 				if (p != nullptr)
 					if (!p->locked)
-						p->HandlePhysics();
+						if (p->physicsGate == currentPhysicsGate)
+						{
+							p->HandlePhysics();
+							p->physicsGate = !currentPhysicsGate;
+						}
 			}
+
+		currentPhysicsGate = !currentPhysicsGate;
+		currentEventGate = !currentEventGate;
+
+		tempUnpause = false;
 	}
 }

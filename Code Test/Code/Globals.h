@@ -34,6 +34,9 @@ extern int currentBrushSize;
 
 extern int countedFrames;
 extern bool running;
+extern bool tempUnpause;
+extern bool currentEventGate;
+extern bool currentPhysicsGate;
 
 extern SDL_Color backgroundColor;
 

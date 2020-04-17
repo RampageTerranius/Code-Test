@@ -607,6 +607,12 @@ void EventHandle(SDL_Event& event)
 		SwitchBrushType(true);
 	}
 
+	if (keyboard.p)
+	{
+		tempUnpause = true;
+		keyboard.p = false;
+	}
+
 	if (keyboard.leftBracket)
 	{
 		keyboard.leftBracket = false;

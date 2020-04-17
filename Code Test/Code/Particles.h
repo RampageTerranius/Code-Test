@@ -26,6 +26,9 @@ class Particle
 		float temperature;
 		ParticleType* type;
 
+		bool eventGate;
+		bool physicsGate;
+
 		bool locked;
 };
 

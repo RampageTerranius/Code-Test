@@ -279,9 +279,11 @@ bool Setup()
 
 	// SPEED TESTING LINES
 	// DISABLE THESE IF NOT SPEED TESTING
+	/*
 	for (int i = 0; i < WINDOW_WIDTH; i++)
 		for (int n = 0; n < (WINDOW_HEIGHT / 2); n++)
 			CreateParticle("Sand", i, n, 30);
+			*/
 
 	SDL_MinimizeWindow(mainWindow);
 
