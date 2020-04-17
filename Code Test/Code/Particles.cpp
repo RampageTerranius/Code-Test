@@ -667,25 +667,30 @@ void Particle::HandlePhysics()
 		break;
 	case MOVEMENTTYPE_LIQUID:
 	{
-		int Down = point.y + 1;
-		int Left = point.x - 1;
-		int Left2 = point.x - 2;
-		int Left3 = point.x - 3;
-		int Left4 = point.x - 3;
-		int Right = point.x + 1;
-		int Right2 = point.x + 2;
-		int Right3 = point.x + 3;
-		int Right4 = point.x + 3;
+		int down = point.y + 1;
+		std::vector<int> left;
+		std::vector<int> right;
+		left.resize(flowRate);
+		right.resize(flowRate);
+		for (int i = 0; i < flowRate; i++)
+		{
+			left[i] = -(i + 1);
+			right[i] = (i + 1);
+		}
 
 		Particle* pDown = nullptr;
-		Particle* pLeft = nullptr;
-		Particle* pLeft2 = nullptr;
-		Particle* pLeft3 = nullptr;
-		Particle* pLeft4 = nullptr;
-		Particle* pRight = nullptr;
-		Particle* pRight2 = nullptr;
-		Particle* pRight3 = nullptr;
-		Particle* pRight4 = nullptr;
+		std::vector<Particle*> pLeft;
+		std::vector<Particle*> pRight;
+		pLeft.resize(flowRate);
+		pRight.resize(flowRate);
+
+		for (int i = 0; i < flowRate; i++)
+		{
+			if (point.x - i >= 0)
+				pLeft[i] = allParticles[point.x - (i + 1)][point.y];
+			if (point.x + i < WINDOW_WIDTH - 1)
+				pRight[i] = allParticles[point.x + (i + 1)][point.y];
+		}
 
 		// Check if at the bottom of the screen first and update the temp pointers as needed.
 		if (point.y == WINDOW_HEIGHT - 1)
@@ -697,65 +702,25 @@ void Particle::HandlePhysics()
 				return;
 			}
 
-			pDown = allParticles[point.x][0];
-			if (point.x > 0)
-			{			
-				pLeft = allParticles[Left][point.y];
-				if (point.x > 1)
-					pLeft2 = allParticles[Left2][point.y];
-				if (point.x > 2)
-					pLeft3 = allParticles[Left3][point.y];
-				if (point.x > 3)
-					pLeft4 = allParticles[Left4][point.y];
-			}
-			if (point.x < WINDOW_WIDTH - 1)
-			{
-				pRight = allParticles[Right][point.y];
-				if (point.x < WINDOW_WIDTH - 2)
-					pRight2 = allParticles[Right2][point.y];
-				if (point.x < WINDOW_WIDTH - 3)
-					pRight3 = allParticles[Right3][point.y];
-				if (point.x < WINDOW_WIDTH - 4)
-					pRight4 = allParticles[Right4][point.y];
-			}
+			pDown = allParticles[point.x][0];			
 		}
-		else
-		{
-			pDown = allParticles[point.x][Down];
-			if (point.x > 0)
-			{
-				pLeft = allParticles[Left][point.y];
-				if (point.x > 1)
-					pLeft2 = allParticles[Left2][point.y];
-				if (point.x > 2)
-					pLeft3 = allParticles[Left3][point.y];
-				if (point.x > 3)
-					pLeft4 = allParticles[Left4][point.y];
-			}
-			if (point.x < WINDOW_WIDTH - 1)
-			{
-				pRight = allParticles[Right][point.y];
-				if (point.x < WINDOW_WIDTH - 2)
-					pRight2 = allParticles[Right2][point.y];
-				if (point.x < WINDOW_WIDTH - 3)
-					pRight3 = allParticles[Right3][point.y];
-				if (point.x < WINDOW_WIDTH - 4)
-					pRight4 = allParticles[Right4][point.y];
-			}
-		}
+		else		
+			pDown = allParticles[point.x][down];
+			
+		
 
 		// If the particle directly under this is free then move downwards
 		if (pDown == nullptr)
 		{
-			MoveParticles(point.x, point.y, point.x, Down);
+			MoveParticles(point.x, point.y, point.x, down);
 			return;
 		}
 		// Are we on the left edge of the screen?
 		else if (point.x == 0)
 		{
-			if (pRight == nullptr)
+			if (pRight[0] == nullptr)
 			{
-				MoveParticles(point.x, point.y, Right, point.y);
+				MoveParticles(point.x, point.y, point.x + right[0], point.y);
 				return;
 			}
 			else
@@ -768,9 +733,9 @@ void Particle::HandlePhysics()
 						if (type->weight < pDown->type->weight)
 							canGoDown = true;
 
-				if (type->name != pRight->type->name)
-					if (pRight->type->weight >= 0)
-						if (type->weight < pRight->type->weight)
+				if (type->name != pRight[0]->type->name)
+					if (pRight[0]->type->weight >= 0)
+						if (type->weight < pRight[0]->type->weight)
 							canGoRight = true;
 
 				if (canGoDown && canGoRight)
@@ -779,21 +744,21 @@ void Particle::HandlePhysics()
 					switch (i)
 					{
 					case 0:
-						MoveParticles(point.x, point.y, point.x, Down);
+						MoveParticles(point.x, point.y, point.x, down);
 						return;
 					case 1:
-						MoveParticles(point.x, point.y, Right, point.y);
+						MoveParticles(point.x, point.y, point.x + right[0], point.y);
 						return;
 					}
 				}
 				else if (canGoDown)
 				{
-					MoveParticles(point.x, point.y, point.x, Down);
+					MoveParticles(point.x, point.y, point.x, down);
 					return;
 				}
 				else if (canGoRight)
 				{
-					MoveParticles(point.x, point.y, Right, point.y);
+					MoveParticles(point.x, point.y, point.x + right[0], point.y);
 					return;
 				}
 
@@ -805,9 +770,9 @@ void Particle::HandlePhysics()
 		// Are we on the right edge of the screen?
 		else if (point.x == WINDOW_WIDTH - 1)
 		{
-			if (pLeft == nullptr)
+			if (pLeft[0] == nullptr)
 			{
-				MoveParticles(point.x, point.y, Left, point.y);
+				MoveParticles(point.x, point.y, point.x + left[0], point.y);
 				return;
 			}
 			else
@@ -820,9 +785,9 @@ void Particle::HandlePhysics()
 						if (type->weight < pDown->type->weight)
 							canGoDown = true;
 
-				if (type->name != pLeft->type->name)
-					if (pLeft->type->weight >= 0)
-						if (type->weight < pLeft->type->weight)
+				if (type->name != pLeft[0]->type->name)
+					if (pLeft[0]->type->weight >= 0)
+						if (type->weight < pLeft[0]->type->weight)
 							canGoLeft = true;
 
 				if (canGoDown && canGoLeft)
@@ -831,21 +796,21 @@ void Particle::HandlePhysics()
 					switch (i)
 					{
 					case 0:
-						MoveParticles(point.x, point.y, point.x, Down);
+						MoveParticles(point.x, point.y, point.x, down);
 						return;
 					case 1:
-						MoveParticles(point.x, point.y, Left, point.y);
+						MoveParticles(point.x, point.y, point.x + left[0], point.y);
 						return;
 					}
 				}
 				else if (canGoDown)
 				{
-					MoveParticles(point.x, point.y, point.x, Down);
+					MoveParticles(point.x, point.y, point.x, down);
 					return;
 				}
 				else if (canGoLeft)
 				{
-					MoveParticles(point.x, point.y, Left, point.y);
+					MoveParticles(point.x, point.y, point.x + left[0], point.y);
 					return;
 				}
 
@@ -856,7 +821,7 @@ void Particle::HandlePhysics()
 		}
 		// We now know that we are unable to move directly down, and we are not on the left edge or right edge.
 		// If both the left and right side are free.
-		else if (pLeft == nullptr && pRight == nullptr)
+		else if (pLeft[0] == nullptr && pRight[0] == nullptr)
 		{
 			int i = xor128() % 2;
 
@@ -864,72 +829,50 @@ void Particle::HandlePhysics()
 			{
 				// Go left.
 			case 0:				
-				MoveParticles(point.x, point.y, Left, point.y);
+				MoveParticles(point.x, point.y, point.x + left[0], point.y);
 				break;
 				// Go right.
 			case 1:
-				MoveParticles(point.x, point.y, Right, point.y);
+				MoveParticles(point.x, point.y, point.x + right[0], point.y);
 				break;
 			}
 
 			return;
 		}
 		// At this point we know at least left or right is full, check which way we can go.
-		else if (pLeft == nullptr)
+		int leftMax = 0;
+		for (int i = 1; i < flowRate; i++)
 		{
-			if (point.x > 1)			
-				if (pLeft2 == nullptr)
-				{
-					if (point.x > 2)					
-						if (pLeft3 == nullptr)
-						{
-							if (point.x > 3)							
-								if (pLeft4 == nullptr)
-								{
-									MoveParticles(point.x, point.y, Left4, point.y);
-									return;
-								}		
+			if (point.x - i > 0)
+				if (pLeft[i] == nullptr)
+					leftMax = i;
+				else
+					break;
+		}
 
-							MoveParticles(point.x, point.y, Left3, point.y);
-							return;
-						}
-
-					MoveParticles(point.x, point.y, Left2, point.y);
-					return;
-				}
-			
-
-			MoveParticles(point.x, point.y, Left, point.y);
+		if (leftMax > 0)
+		{
+			MoveParticles(point.x, point.y, point.x - leftMax, point.y);
 			return;
 		}
-		else if (pRight == nullptr)
+
+		int rightMax = 0;
+		for (int i = 1; i < flowRate; i++)
 		{
-			if (point.x < WINDOW_WIDTH - 2)			
-				if (pRight2 == nullptr)
-				{
-					if (point.x < WINDOW_WIDTH - 3)					
-						if (pRight3 == nullptr)
-						{
-							if (point.x < WINDOW_WIDTH - 4)
-								if (pRight4 == nullptr)
-								{
-									MoveParticles(point.x, point.y, Right4, point.y);
-									return;
-								}
-
-							MoveParticles(point.x, point.y, Right3, point.y);
-							return;
-						}					
-
-					MoveParticles(point.x, point.y, Right2, point.y);
-					return;
-				}			
-
-			MoveParticles(point.x, point.y, Right, point.y);
+			if (point.x + i < WINDOW_WIDTH - 1)
+				if (pRight[i] == nullptr)
+					rightMax = i;
+				else
+					break;
+		}
+		
+		if (rightMax > 0)
+		{
+			MoveParticles(point.x, point.y, point.x + rightMax, point.y);
 			return;
 		}
-		// At this point we know we can not move in any way downwards, check weights.
-		else
+
+		// At this point we know we can not move in any way downwards, check weights.		
 		{
 			bool canGoLeft, canGoRight, canGoDown;
 			canGoLeft = canGoRight = canGoDown = false;
@@ -941,17 +884,17 @@ void Particle::HandlePhysics()
 							canGoDown = true;
 
 			if (point.x > 0)
-				if (pLeft != nullptr)
-					if (type->name != pLeft->type->name)
-						if (pLeft->type->weight >= 0)
-							if (type->weight < pLeft->type->weight)
+				if (pLeft[0] != nullptr)
+					if (type->name != pLeft[0]->type->name)
+						if (pLeft[0]->type->weight >= 0)
+							if (type->weight < pLeft[0]->type->weight)
 								canGoLeft = true;
 
 			if (point.x < WINDOW_WIDTH - 1)
-				if (pRight != nullptr)
-					if (type->name != pRight->type->name)
-						if (pRight->type->weight >= 0)
-							if (type->weight < pRight->type->weight)
+				if (pRight[0] != nullptr)
+					if (type->name != pRight[0]->type->name)
+						if (pRight[0]->type->weight >= 0)
+							if (type->weight < pRight[0]->type->weight)
 								canGoRight = true;
 
 			// If can go any direction.
@@ -962,13 +905,13 @@ void Particle::HandlePhysics()
 				switch (i)
 				{
 				case 0:
-					MoveParticles(point.x, point.y, Left, point.y);
+					MoveParticles(point.x, point.y, point.x + left[0], point.y);
 					break;
 				case 1:
-					MoveParticles(point.x, point.y, point.x, Down);
+					MoveParticles(point.x, point.y, point.x, down);
 					break;
 				case 2:
-					MoveParticles(point.x, point.y, Right, point.y);
+					MoveParticles(point.x, point.y, point.x + right[0], point.y);
 					break;
 				}
 
@@ -982,10 +925,10 @@ void Particle::HandlePhysics()
 				switch (i)
 				{
 				case 0:
-					MoveParticles(point.x, point.y, Left, point.y);
+					MoveParticles(point.x, point.y, point.x + left[0], point.y);
 					break;
 				case 1:
-					MoveParticles(point.x, point.y, Right, point.y);
+					MoveParticles(point.x, point.y, point.x + right[0], point.y);
 					break;
 				}
 
@@ -999,10 +942,10 @@ void Particle::HandlePhysics()
 				switch (i)
 				{
 				case 0:
-					MoveParticles(point.x, point.y, Left, point.y);
+					MoveParticles(point.x, point.y, point.x + left[0], point.y);
 					break;
 				case 1:
-					MoveParticles(point.x, point.y, point.x, Down);
+					MoveParticles(point.x, point.y, point.x, down);
 					break;
 				}
 
@@ -1016,10 +959,10 @@ void Particle::HandlePhysics()
 				switch (i)
 				{
 				case 0:
-					MoveParticles(point.x, point.y, point.x, Down);
+					MoveParticles(point.x, point.y, point.x, down);
 					break;
 				case 1:
-					MoveParticles(point.x, point.y, Right, point.y);
+					MoveParticles(point.x, point.y, point.x + right[0], point.y);
 					break;
 				}
 
@@ -1040,13 +983,13 @@ void Particle::HandlePhysics()
 				switch (i)
 				{
 				case 0:
-					MoveParticles(point.x, point.y, Left, point.y);
+					MoveParticles(point.x, point.y, point.x + left[0], point.y);
 					return;
 				case 1:
-					MoveParticles(point.x, point.y, point.x, Down);
+					MoveParticles(point.x, point.y, point.x, down);
 					return;
 				case 2:
-					MoveParticles(point.x, point.y, Right, point.y);
+					MoveParticles(point.x, point.y, point.x + right[0], point.y);
 					return;
 				}
 
