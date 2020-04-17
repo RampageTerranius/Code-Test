@@ -345,6 +345,22 @@ void Particle::Draw()
 		else
 			EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, 255, 255, 255, 0));
 		break;
+
+	case VIEW_EVENTGATESTATE:
+		if (!eventGate)
+			EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, 125, 125, 125, 0));
+		else
+			EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, 255, 255, 255, 0));
+		break;
+
+	case VIEW_PHYSICSGATESTATE:
+		if (!physicsGate)
+			EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, 125, 125, 125, 0));
+		else
+			EditPixel(point.x, point.y, SDL_MapRGBA(mainSurface->format, 255, 255, 255, 0));
+		break;
+
+
 	}
 }
 
@@ -546,21 +562,21 @@ void Particle::HandlePhysics()
 			if (pDown != nullptr)
 				if (type->name != pDown->type->name)
 					if (pDown->type->weight >= 0)
-						if (type->weight < pDown->type->weight)
+						if (type->weight > pDown->type->weight)
 							canGoDown = true;
 
 			if (point.x > 0)
 				if (pLeftDown != nullptr)
 					if (type->name != pLeftDown->type->name)
 						if (pLeftDown->type->weight >= 0)
-							if (type->weight < pLeftDown->type->weight)
+							if (type->weight > pLeftDown->type->weight)
 								canGoDownLeft = true;
 
 			if (point.x < WINDOW_WIDTH - 1)
 				if (pRightDown != nullptr)
 					if (type->name != pRightDown->type->name)
 						if (pRightDown->type->weight >= 0)
-							if (type->weight < pRightDown->type->weight)
+							if (type->weight > pRightDown->type->weight)
 								canGoDownRight = true;
 
 			// If can go any direction.
@@ -821,57 +837,71 @@ void Particle::HandlePhysics()
 		}
 		// We now know that we are unable to move directly down, and we are not on the left edge or right edge.
 		// If both the left and right side are free.
-		else if (pLeft[0] == nullptr && pRight[0] == nullptr)
+		else
 		{
-			int i = xor128() % 2;
+			bool canGoLeft, canGoRight;
+			canGoLeft = canGoRight = false;
 
-			switch (i)
+			if (pLeft[0] == nullptr)
+				canGoLeft = true;
+
+			if (pRight[0] == nullptr)
+				canGoRight = true;
+
+			// If we can go both ways randomly determien which way to go.
+			if (canGoLeft && canGoRight)
 			{
-				// Go left.
-			case 0:				
-				MoveParticles(point.x, point.y, point.x + left[0], point.y);
-				break;
-				// Go right.
-			case 1:
-				MoveParticles(point.x, point.y, point.x + right[0], point.y);
-				break;
+
+				int i = xor128() % 2;
+
+				switch (i)
+				{
+					// Go left.
+				case 0:
+					canGoRight = false;
+					break;
+					// Go right.
+				case 1:
+					canGoLeft = false;
+					break;
+				}
 			}
 
-			return;
-		}
-		// At this point we know at least left or right is full, check which way we can go.
-		int leftMax = -1;
-		for (int i = 0; i < flowRate; i++)
-		{
-			if (point.x - i > 0)
-				if (pLeft[i] == nullptr)
-					leftMax = i;
-				else
-					break;
-		}
-
-		if (leftMax >= 0)
-		{
-			MoveParticles(point.x, point.y, point.x - (leftMax + 1), point.y);
-			return;
-		}
-
-		int rightMax = -1;
-		for (int i = 0; i < flowRate; i++)
-		{
-			if (point.x + i < WINDOW_WIDTH - 1)
-				if (pRight[i] == nullptr)
-					rightMax = i;
-				else
-					break;
+			// At this point we know at least left or right is full, check which way we can go.
+			if (canGoLeft)
+			{
+				bool exit = false;
+				for (int i = point.x - 1; i >= 0; i--)
+				{
+					if (exit)
+						break;
+					if (allParticles[i][down] == nullptr)
+					{
+						MoveParticles(point.x, point.y, i, down);
+						return;
+					}
+					else if (allParticles[i][down]->type->movementType != MOVEMENTTYPE_LIQUID)
+						exit = true;
+				}
+			}
+			else if (canGoRight)
+			{
+				bool exit = false;
+				for (int i = point.x + 1; i < WINDOW_WIDTH - 1; i++)
+				{
+					if (exit)
+						break;
+					if (allParticles[i][down] == nullptr)
+					{
+						MoveParticles(point.x, point.y, i, down);
+						return;
+					}
+					else if (allParticles[i][down]->type->movementType != MOVEMENTTYPE_LIQUID)
+						exit = true;
+				}
+			}
 		}
 		
-		if (rightMax >= 0)
-		{
-			MoveParticles(point.x, point.y, point.x + (rightMax + 1), point.y);
-			return;
-		}
-
 		// At this point we know we can not move in any way downwards, check weights.		
 		{
 			bool canGoLeft, canGoRight, canGoDown;
@@ -880,21 +910,21 @@ void Particle::HandlePhysics()
 			if (pDown != nullptr)
 				if (type->name != pDown->type->name)
 					if (pDown->type->weight >= 0)
-						if (type->weight < pDown->type->weight)
+						if (type->weight > pDown->type->weight)
 							canGoDown = true;
 
 			if (point.x > 0)
 				if (pLeft[0] != nullptr)
 					if (type->name != pLeft[0]->type->name)
 						if (pLeft[0]->type->weight >= 0)
-							if (type->weight < pLeft[0]->type->weight)
+							if (type->weight > pLeft[0]->type->weight)
 								canGoLeft = true;
 
 			if (point.x < WINDOW_WIDTH - 1)
 				if (pRight[0] != nullptr)
 					if (type->name != pRight[0]->type->name)
 						if (pRight[0]->type->weight >= 0)
-							if (type->weight < pRight[0]->type->weight)
+							if (type->weight > pRight[0]->type->weight)
 								canGoRight = true;
 
 			// If can go any direction.

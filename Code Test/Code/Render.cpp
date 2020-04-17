@@ -115,6 +115,14 @@ void Render()
 		currentViewType.SetText(mainRenderer, "Heat view");
 		break;
 
+	case VIEW_EVENTGATESTATE:
+		currentViewType.SetText(mainRenderer, "Event gate view");
+		break;
+
+	case VIEW_PHYSICSGATESTATE:
+		currentViewType.SetText(mainRenderer, "Physics gate view");
+		break;
+
 	default:
 		currentViewType.SetText(mainRenderer, "Unknown view type");
 		break;
