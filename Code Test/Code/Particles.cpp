@@ -682,351 +682,340 @@ void Particle::HandlePhysics()
 	}
 		break;
 	case MOVEMENTTYPE_LIQUID:
-	{
-		int down = point.y + 1;
-		std::vector<int> left;
-		std::vector<int> right;
-		left.resize(flowRate);
-		right.resize(flowRate);
-		for (int i = 0; i < flowRate; i++)
+	
+		switch (flowModel)
 		{
-			left[i] = -(i + 1);
-			right[i] = (i + 1);
-		}
+		case 1:
+			break;
+		case 2:
+			int down = point.y + 1;
+			int left = point.x - 1;
+			int right = point.x + 1;
 
-		Particle* pDown = nullptr;
-		std::vector<Particle*> pLeft;
-		std::vector<Particle*> pRight;
-		pLeft.resize(flowRate);
-		pRight.resize(flowRate);
+			Particle* pDown = nullptr;
+			Particle* pLeft = nullptr;
+			Particle* pRight = nullptr;
 
-		for (int i = 0; i < flowRate; i++)
-		{
-			if (point.x - i >= 0)
-				pLeft[i] = allParticles[point.x - (i + 1)][point.y];
-			if (point.x + i < WINDOW_WIDTH - 1)
-				pRight[i] = allParticles[point.x + (i + 1)][point.y];
-		}
-
-		// Check if at the bottom of the screen first and update the temp pointers as needed.
-		if (point.y == WINDOW_HEIGHT - 1)
-		{
-			// If we arent looping the screen then cancel all calcs from here as we are at the bottom of the screen already.
-			if (!loopScreen)
+			// Check if at the bottom of the screen first and update the temp pointers as needed.
+			if (point.y == WINDOW_HEIGHT - 1)
 			{
-				locked = true;
-				return;
-			}
+				// If we arent looping the screen then cancel all calcs from here as we are at the bottom of the screen already.
+				if (!loopScreen)
+				{
+					locked = true;
+					return;
+				}
 
-			pDown = allParticles[point.x][0];			
-		}
-		else		
-			pDown = allParticles[point.x][down];
-			
-		
-
-		// If the particle directly under this is free then move downwards
-		if (pDown == nullptr)
-		{
-			MoveParticles(point.x, point.y, point.x, down);
-			return;
-		}
-		// Are we on the left edge of the screen?
-		else if (point.x == 0)
-		{
-			if (pRight[0] == nullptr)
-			{
-				MoveParticles(point.x, point.y, point.x + right[0], point.y);
-				return;
+				pDown = allParticles[point.x][0];
 			}
 			else
+				pDown = allParticles[point.x][down];
+
+			// If the particle directly under this is free then move downwards
+			if (pDown == nullptr)
 			{
-				bool canGoRight, canGoDown;
-				canGoRight = canGoDown = false;
-
-				if (type->name != pDown->type->name)
-					if (pDown->type->weight >= 0)
-						if (type->weight < pDown->type->weight)
-							canGoDown = true;
-
-				if (type->name != pRight[0]->type->name)
-					if (pRight[0]->type->weight >= 0)
-						if (type->weight < pRight[0]->type->weight)
-							canGoRight = true;
-
-				if (canGoDown && canGoRight)
-				{
-					int i = xor128() % 2;
-					switch (i)
-					{
-					case 0:
-						MoveParticles(point.x, point.y, point.x, down);
-						return;
-					case 1:
-						MoveParticles(point.x, point.y, point.x + right[0], point.y);
-						return;
-					}
-				}
-				else if (canGoDown)
-				{
-					MoveParticles(point.x, point.y, point.x, down);
-					return;
-				}
-				else if (canGoRight)
-				{
-					MoveParticles(point.x, point.y, point.x + right[0], point.y);
-					return;
-				}
-
-				// On edge and cant move in any way. Lock particle.
-				locked = true;
+				MoveParticles(point.x, point.y, point.x, down);
 				return;
 			}
-		}
-		// Are we on the right edge of the screen?
-		else if (point.x == WINDOW_WIDTH - 1)
-		{
-			if (pLeft[0] == nullptr)
+			// Are we on the left edge of the screen?
+			else if (point.x == 0)
 			{
-				MoveParticles(point.x, point.y, point.x + left[0], point.y);
-				return;
-			}
-			else
-			{
-				bool canGoLeft, canGoDown;
-				canGoLeft = canGoDown = false;
-
-				if (type->name != pDown->type->name)
-					if (pDown->type->weight >= 0)
-						if (type->weight < pDown->type->weight)
-							canGoDown = true;
-
-				if (type->name != pLeft[0]->type->name)
-					if (pLeft[0]->type->weight >= 0)
-						if (type->weight < pLeft[0]->type->weight)
-							canGoLeft = true;
-
-				if (canGoDown && canGoLeft)
+				if (pRight == nullptr)
 				{
-					int i = xor128() % 2;
-					switch (i)
-					{
-					case 0:
-						MoveParticles(point.x, point.y, point.x, down);
-						return;
-					case 1:
-						MoveParticles(point.x, point.y, point.x + left[0], point.y);
-						return;
-					}
-				}
-				else if (canGoDown)
-				{
-					MoveParticles(point.x, point.y, point.x, down);
+					MoveParticles(point.x, point.y, right, point.y);
 					return;
 				}
-				else if (canGoLeft)
+				else
 				{
-					MoveParticles(point.x, point.y, point.x + left[0], point.y);
-					return;
-				}
+					bool canGoRight, canGoDown;
+					canGoRight = canGoDown = false;
 
-				// On edge and cant move in any way. Lock particle.
-				locked = true;
-				return;
-			}
-		}
-		// We now know that we are unable to move directly down, and we are not on the left edge or right edge.
-		// If both the left and right side are free.
-		else
-		{
-			bool canGoLeft, canGoRight;
-			canGoLeft = canGoRight = false;
+					if (type->name != pDown->type->name)
+						if (pDown->type->weight >= 0)
+							if (type->weight < pDown->type->weight)
+								canGoDown = true;
 
-			if (pLeft[0] == nullptr)
-				canGoLeft = true;
-
-			if (pRight[0] == nullptr)
-				canGoRight = true;
-
-			// If we can go both ways randomly determien which way to go.
-			if (canGoLeft && canGoRight)
-			{
-
-				int i = xor128() % 2;
-
-				switch (i)
-				{
-					// Go left.
-				case 0:
-					canGoRight = false;
-					break;
-					// Go right.
-				case 1:
-					canGoLeft = false;
-					break;
-				}
-			}
-
-			// At this point we know at least left or right is full, check which way we can go.
-			if (canGoLeft)
-			{
-				bool exit = false;
-				for (int i = point.x - 1; i >= 0; i--)
-				{
-					if (exit)
-						break;
-					if (allParticles[i][down] == nullptr)
-					{
-						MoveParticles(point.x, point.y, i, down);
-						return;
-					}
-					else if (allParticles[i][down]->type->movementType != MOVEMENTTYPE_LIQUID)
-						exit = true;
-				}
-			}
-			else if (canGoRight)
-			{
-				bool exit = false;
-				for (int i = point.x + 1; i < WINDOW_WIDTH - 1; i++)
-				{
-					if (exit)
-						break;
-					if (allParticles[i][down] == nullptr)
-					{
-						MoveParticles(point.x, point.y, i, down);
-						return;
-					}
-					else if (allParticles[i][down]->type->movementType != MOVEMENTTYPE_LIQUID)
-						exit = true;
-				}
-			}
-		}
-		
-		// At this point we know we can not move in any way downwards, check weights.		
-		{
-			bool canGoLeft, canGoRight, canGoDown;
-			canGoLeft = canGoRight = canGoDown = false;
-
-			if (pDown != nullptr)
-				if (type->name != pDown->type->name)
-					if (pDown->type->weight >= 0)
-						if (type->weight > pDown->type->weight)
-							canGoDown = true;
-
-			if (point.x > 0)
-				if (pLeft[0] != nullptr)
-					if (type->name != pLeft[0]->type->name)
-						if (pLeft[0]->type->weight >= 0)
-							if (type->weight > pLeft[0]->type->weight)
-								canGoLeft = true;
-
-			if (point.x < WINDOW_WIDTH - 1)
-				if (pRight[0] != nullptr)
-					if (type->name != pRight[0]->type->name)
-						if (pRight[0]->type->weight >= 0)
-							if (type->weight > pRight[0]->type->weight)
+					if (type->name != pRight->type->name)
+						if (pRight->type->weight >= 0)
+							if (type->weight < pRight->type->weight)
 								canGoRight = true;
 
-			// If can go any direction.
-			if (canGoLeft && canGoDown && canGoRight)
-			{
-				int i = xor128() % 3;
+					if (canGoDown && canGoRight)
+					{
+						int i = xor128() % 2;
+						switch (i)
+						{
+						case 0:
+							MoveParticles(point.x, point.y, point.x, down);
+							return;
+						case 1:
+							MoveParticles(point.x, point.y, right, point.y);
+							return;
+						}
+					}
+					else if (canGoDown)
+					{
+						MoveParticles(point.x, point.y, point.x, down);
+						return;
+					}
+					else if (canGoRight)
+					{
+						MoveParticles(point.x, point.y, right, point.y);
+						return;
+					}
 
-				switch (i)
-				{
-				case 0:
-					MoveParticles(point.x, point.y, point.x + left[0], point.y);
-					break;
-				case 1:
-					MoveParticles(point.x, point.y, point.x, down);
-					break;
-				case 2:
-					MoveParticles(point.x, point.y, point.x + right[0], point.y);
-					break;
+					// On edge and cant move in any way. Lock particle.
+					locked = true;
+					return;
 				}
-
-				return;
 			}
-			// If can go left or right.
-			else if (canGoLeft && canGoRight)
+			// Are we on the right edge of the screen?
+			else if (point.x == WINDOW_WIDTH - 1)
 			{
-				int i = xor128() % 2;
-
-				switch (i)
+				if (pLeft == nullptr)
 				{
-				case 0:
-					MoveParticles(point.x, point.y, point.x + left[0], point.y);
-					break;
-				case 1:
-					MoveParticles(point.x, point.y, point.x + right[0], point.y);
-					break;
+					MoveParticles(point.x, point.y, left, point.y);
+					return;
 				}
-
-				return;
-			}
-			// If can go left or down.
-			else if (canGoLeft && canGoDown)
-			{
-				int i = xor128() % 2;
-
-				switch (i)
+				else
 				{
-				case 0:
-					MoveParticles(point.x, point.y, point.x + left[0], point.y);
-					break;
-				case 1:
-					MoveParticles(point.x, point.y, point.x, down);
-					break;
+					bool canGoLeft, canGoDown;
+					canGoLeft = canGoDown = false;
+
+					if (type->name != pDown->type->name)
+						if (pDown->type->weight >= 0)
+							if (type->weight < pDown->type->weight)
+								canGoDown = true;
+
+					if (type->name != pLeft->type->name)
+						if (pLeft->type->weight >= 0)
+							if (type->weight < pLeft->type->weight)
+								canGoLeft = true;
+
+					if (canGoDown && canGoLeft)
+					{
+						int i = xor128() % 2;
+						switch (i)
+						{
+						case 0:
+							MoveParticles(point.x, point.y, point.x, down);
+							return;
+						case 1:
+							MoveParticles(point.x, point.y, left, point.y);
+							return;
+						}
+					}
+					else if (canGoDown)
+					{
+						MoveParticles(point.x, point.y, point.x, down);
+						return;
+					}
+					else if (canGoLeft)
+					{
+						MoveParticles(point.x, point.y, left, point.y);
+						return;
+					}
+
+					// On edge and cant move in any way. Lock particle.
+					locked = true;
+					return;
 				}
-
-				return;
 			}
-			// If can go right or down
-			else if (canGoRight && canGoDown)
-			{
-				int i = xor128() % 2;
-
-				switch (i)
-				{
-				case 0:
-					MoveParticles(point.x, point.y, point.x, down);
-					break;
-				case 1:
-					MoveParticles(point.x, point.y, point.x + right[0], point.y);
-					break;
-				}
-
-				return;
-			}
-			// We can only go in one way, check the way
+			// We now know that we are unable to move directly down, and we are not on the left edge or right edge.
+			// If both the left and right side are free.
 			else
 			{
-				int i = -1;
-				if (canGoLeft)
-					i = 0;
-				else if (canGoRight)
-					i = 2;
-				else if (canGoDown)
-					i = 1;
+				bool canGoLeft, canGoRight;
+				canGoLeft = canGoRight = false;
 
+				if (pLeft == nullptr)
+					canGoLeft = true;
 
-				switch (i)
+				if (pRight == nullptr)
+					canGoRight = true;
+
+				// If we can go both ways randomly determien which way to go.
+				if (canGoLeft && canGoRight)
 				{
-				case 0:
-					MoveParticles(point.x, point.y, point.x + left[0], point.y);
-					return;
-				case 1:
-					MoveParticles(point.x, point.y, point.x, down);
-					return;
-				case 2:
-					MoveParticles(point.x, point.y, point.x + right[0], point.y);
-					return;
+
+					int i = xor128() % 2;
+
+					switch (i)
+					{
+						// Go left.
+					case 0:
+						canGoRight = false;
+						break;
+						// Go right.
+					case 1:
+						canGoLeft = false;
+						break;
+					}
 				}
 
-				//we were unable to move in any way shape or form. Lock the particle.
-				locked = true;
+				// At this point we know at least left or right is full, check which way we can go.
+				if (canGoLeft)
+				{
+					bool exit = false;
+					for (int i = point.x - 1; i >= 0; i--)
+					{
+						if (exit)
+							break;
+						if (allParticles[i][down] == nullptr)
+						{
+							MoveParticles(point.x, point.y, i, down);
+							return;
+						}
+						else if (allParticles[i][down]->type->movementType != MOVEMENTTYPE_LIQUID)
+							exit = true;
+					}
+				}
+				else if (canGoRight)
+				{
+					bool exit = false;
+					for (int i = point.x + 1; i < WINDOW_WIDTH - 1; i++)
+					{
+						if (exit)
+							break;
+						if (allParticles[i][down] == nullptr)
+						{
+							MoveParticles(point.x, point.y, i, down);
+							return;
+						}
+						else if (allParticles[i][down]->type->movementType != MOVEMENTTYPE_LIQUID)
+							exit = true;
+					}
+				}
 			}
+
+			// At this point we know we can not move in any way downwards, check weights.		
+			{
+				bool canGoLeft, canGoRight, canGoDown;
+				canGoLeft = canGoRight = canGoDown = false;
+
+				if (pDown != nullptr)
+					if (type->name != pDown->type->name)
+						if (pDown->type->weight >= 0)
+							if (type->weight > pDown->type->weight)
+								canGoDown = true;
+
+				if (point.x > 0)
+					if (pLeft != nullptr)
+						if (type->name != pLeft->type->name)
+							if (pLeft->type->weight >= 0)
+								if (type->weight > pLeft->type->weight)
+									canGoLeft = true;
+
+				if (point.x < WINDOW_WIDTH - 1)
+					if (pRight != nullptr)
+						if (type->name != pRight->type->name)
+							if (pRight->type->weight >= 0)
+								if (type->weight > pRight->type->weight)
+									canGoRight = true;
+
+				// If can go any direction.
+				if (canGoLeft && canGoDown && canGoRight)
+				{
+					int i = xor128() % 3;
+
+					switch (i)
+					{
+					case 0:
+						MoveParticles(point.x, point.y, left, point.y);
+						break;
+					case 1:
+						MoveParticles(point.x, point.y, point.x, down);
+						break;
+					case 2:
+						MoveParticles(point.x, point.y, right, point.y);
+						break;
+					}
+
+					return;
+				}
+				// If can go left or right.
+				else if (canGoLeft && canGoRight)
+				{
+					int i = xor128() % 2;
+
+					switch (i)
+					{
+					case 0:
+						MoveParticles(point.x, point.y, left, point.y);
+						break;
+					case 1:
+						MoveParticles(point.x, point.y, right, point.y);
+						break;
+					}
+
+					return;
+				}
+				// If can go left or down.
+				else if (canGoLeft && canGoDown)
+				{
+					int i = xor128() % 2;
+
+					switch (i)
+					{
+					case 0:
+						MoveParticles(point.x, point.y, left, point.y);
+						break;
+					case 1:
+						MoveParticles(point.x, point.y, point.x, down);
+						break;
+					}
+
+					return;
+				}
+				// If can go right or down
+				else if (canGoRight && canGoDown)
+				{
+					int i = xor128() % 2;
+
+					switch (i)
+					{
+					case 0:
+						MoveParticles(point.x, point.y, point.x, down);
+						break;
+					case 1:
+						MoveParticles(point.x, point.y, right, point.y);
+						break;
+					}
+
+					return;
+				}
+				// We can only go in one way, check the way
+				else
+				{
+					int i = -1;
+					if (canGoLeft)
+						i = 0;
+					else if (canGoRight)
+						i = 2;
+					else if (canGoDown)
+						i = 1;
+
+
+					switch (i)
+					{
+					case 0:
+						MoveParticles(point.x, point.y, left, point.y);
+						return;
+					case 1:
+						MoveParticles(point.x, point.y, point.x, down);
+						return;
+					case 2:
+						MoveParticles(point.x, point.y, right, point.y);
+						return;
+					}
+
+					//we were unable to move in any way shape or form. Lock the particle.
+					locked = true;
+				}
+			}
+			break;
 		}
+	
 
 		/*
 		// Make sure we arent already at the bottom level, if we are we dont need to check the physics.
@@ -1155,8 +1144,7 @@ void Particle::HandlePhysics()
 				return;
 			}
 		}*/
-	}
-		break;
+
 	case MOVEMENTTYPE_AIRBORN:
 	{
 		/*

@@ -45,7 +45,10 @@ bool createAsSource = false;// If the blocks created should be source particles 
 // Lower number = faster spread.
 int temperatureDifferenceDivisor = 15;
 
-// How far out liquid particles will check to attempt to flow out to in the situation they can only go oen direction.
+// What model of flow to use. 1 = standard fast pile, 2 = move to open space
+int flowModel = 1;
+
+// How far out liquid particles will check to attempt to flow out to in the situation they can only go one direction. (Only used if flowModel = 1)
 int flowRate = 4;
 
 TTF brushName = TTF();

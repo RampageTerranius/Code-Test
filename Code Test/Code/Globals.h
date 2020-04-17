@@ -54,7 +54,7 @@ extern bool createAsSource;// If the blocks created should be source particles o
 extern int temperatureDifferenceDivisor;
 
 // How far out liquid particles will check to attempt to flow out to in the situation they can only go oen direction.
-extern int flowRate;
+extern int flowModel;
 
 extern TTF brushName;
 extern TTF brushSize;
