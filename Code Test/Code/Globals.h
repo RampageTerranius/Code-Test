@@ -56,6 +56,9 @@ extern int temperatureDifferenceDivisor;
 // How far out liquid particles will check to attempt to flow out to in the situation they can only go oen direction.
 extern int flowModel;
 
+// How far out liquid particles will check to attempt to flow out to in the situation they can only go one direction. (Only used if flowModel = 1)
+extern int flowRate;
+
 extern TTF brushName;
 extern TTF brushSize;
 extern TTF brushTemperature;
