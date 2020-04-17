@@ -840,8 +840,8 @@ void Particle::HandlePhysics()
 			return;
 		}
 		// At this point we know at least left or right is full, check which way we can go.
-		int leftMax = 0;
-		for (int i = 1; i < flowRate; i++)
+		int leftMax = -1;
+		for (int i = 0; i < flowRate; i++)
 		{
 			if (point.x - i > 0)
 				if (pLeft[i] == nullptr)
@@ -850,14 +850,14 @@ void Particle::HandlePhysics()
 					break;
 		}
 
-		if (leftMax > 0)
+		if (leftMax >= 0)
 		{
-			MoveParticles(point.x, point.y, point.x - leftMax, point.y);
+			MoveParticles(point.x, point.y, point.x - (leftMax + 1), point.y);
 			return;
 		}
 
-		int rightMax = 0;
-		for (int i = 1; i < flowRate; i++)
+		int rightMax = -1;
+		for (int i = 0; i < flowRate; i++)
 		{
 			if (point.x + i < WINDOW_WIDTH - 1)
 				if (pRight[i] == nullptr)
@@ -866,9 +866,9 @@ void Particle::HandlePhysics()
 					break;
 		}
 		
-		if (rightMax > 0)
+		if (rightMax >= 0)
 		{
-			MoveParticles(point.x, point.y, point.x + rightMax, point.y);
+			MoveParticles(point.x, point.y, point.x + (rightMax + 1), point.y);
 			return;
 		}
 
