@@ -5,8 +5,7 @@ modification of system to use multithreading to work on multiple particles in ta
 change of particlelsit to use a chunk system instead to help threads to work easier
 
 MAJOR:
-change from using SDL_RenderDrawPoint to SDL_RenderDrawPoints, will need to store an array of SDL_Point* to do so, should speed up drawing of particles however
-game slows down as more particles are emulated on screen
+
 
 MINOR:
 sand like particles will be blocked from falling by airborn like particles that happen to be ascending near them

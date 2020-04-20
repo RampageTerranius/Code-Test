@@ -1328,7 +1328,6 @@ void Particle::HandlePhysics()
 					else if (canGoDown)
 						i = 1;
 
-
 					switch (i)
 					{
 					case 0:
@@ -1615,41 +1614,41 @@ void Particle::HandleEvents()
 			try
 			{
 				if (type->particleEffects.size() > 0)			
-					for (std::vector<ParticleEffect>::const_iterator iterator = type->particleEffects.begin(), end = type->particleEffects.begin(); iterator != end; ++iterator)
-					switch ((*iterator).effectType)
+					for (int i = 0; i < type->particleEffects.size(); i++)
+					switch (type->particleEffects[i].effectType)
 					{
 					case EFFECT_CHANGE_TYPE_AT_BELOW_TEMPERATURE:
-						if (temperature < stof((*iterator).effectData[1]))
+						if (temperature < stof(type->particleEffects[i].effectData[1]))
 						{
 							int newX = point.x;
 							int newY = point.y;
 							float newTemp = temperature;
 
 							DestroyParticle(point.x, point.y);
-							CreateParticle((*iterator).effectData[0], newX, newY, newTemp);
+							CreateParticle(type->particleEffects[i].effectData[0], newX, newY, newTemp);
 						}
 						break;
 					case EFFECT_CHANGE_TYPE_AT_ABOVE_TEMPERATURE:
-						if (temperature > stof((*iterator).effectData[1]))
+						if (temperature > stof(type->particleEffects[i].effectData[1]))
 						{
 							int newX = point.x;
 							int newY = point.y;
 							float newTemp = temperature;
 
 							DestroyParticle(point.x, point.y);
-							CreateParticle((*iterator).effectData[0], newX, newY, newTemp);
+							CreateParticle(type->particleEffects[i].effectData[0], newX, newY, newTemp);
 						}
 						break;
 
 					case EFFECT_DAMAGE_NEIGHBOURS:
 					{
-						int damageChance = std::stoi((*iterator).effectData[0]);
+						int damageChance = std::stoi(type->particleEffects[i].effectData[0]);
 
 						if (upExists)
 						{
 							bool damagePixel = true;
-							if ((*iterator).effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+							if (type->particleEffects[i].effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = type->particleEffects[i].effectData.begin()++, end = type->particleEffects[i].effectData.end(); dmgIterator != end; ++dmgIterator)
 									if (*dmgIterator == allParticles[point.x][up]->type->name)
 									{
 										damagePixel = false;
@@ -1657,15 +1656,15 @@ void Particle::HandleEvents()
 									}
 
 							if (damagePixel)
-								if ((xor128() % 100) < damageChance)
+								if (int(xor128() % 100) < damageChance)
 									allParticles[point.x][up]->health--;
 						}
 
 						if (downExists)
 						{
 							bool damagePixel = true;
-							if ((*iterator).effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+							if (type->particleEffects[i].effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = type->particleEffects[i].effectData.begin()++, end = type->particleEffects[i].effectData.end(); dmgIterator != end; ++dmgIterator)
 									if (*dmgIterator == allParticles[point.x][down]->type->name)
 									{
 										damagePixel = false;
@@ -1673,15 +1672,15 @@ void Particle::HandleEvents()
 									}
 
 							if (damagePixel)
-								if ((xor128() % 100) < damageChance)
+								if (int(xor128() % 100) < damageChance)
 									allParticles[point.x][down]->health--;
 						}
 
 						if (leftExists)
 						{
 							bool damagePixel = true;
-							if ((*iterator).effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+							if (type->particleEffects[i].effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = type->particleEffects[i].effectData.begin()++, end = type->particleEffects[i].effectData.end(); dmgIterator != end; ++dmgIterator)
 									if ((*dmgIterator) == allParticles[left][point.y]->type->name)
 									{
 										damagePixel = false;
@@ -1689,15 +1688,15 @@ void Particle::HandleEvents()
 									}
 
 							if (damagePixel)
-								if ((xor128() % 100) < damageChance)
+								if (int(xor128() % 100) < damageChance)
 									allParticles[left][point.y]->health--;
 						}
 
 						if (rightExists)
 						{
 							bool damagePixel = true;
-							if ((*iterator).effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+							if (type->particleEffects[i].effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = type->particleEffects[i].effectData.begin()++, end = type->particleEffects[i].effectData.end(); dmgIterator != end; ++dmgIterator)
 									if ((*dmgIterator) == allParticles[right][point.y]->type->name)
 									{
 										damagePixel = false;
@@ -1705,7 +1704,7 @@ void Particle::HandleEvents()
 									}
 
 							if (damagePixel)
-								if ((xor128() % 100) < damageChance)
+								if (int(xor128() % 100) < damageChance)
 									allParticles[right][point.y]->health--;
 						}
 					}
@@ -1713,13 +1712,13 @@ void Particle::HandleEvents()
 
 					case EFFECT_SPREAD_TO_NEIGHBOURS:
 					{
-						int spreadChance = std::stoi((*iterator).effectData[0]);
+						int spreadChance = std::stoi(type->particleEffects[i].effectData[0]);
 
 						if (upExists)
 						{
 							bool spreadPixel = true;
-							if ((*iterator).effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+							if (type->particleEffects[i].effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = type->particleEffects[i].effectData.begin()++, end = type->particleEffects[i].effectData.end(); dmgIterator != end; ++dmgIterator)
 									if ((*dmgIterator) == allParticles[point.x][up]->type->name)
 									{
 										spreadPixel = false;
@@ -1727,15 +1726,15 @@ void Particle::HandleEvents()
 									}
 
 							if (spreadPixel)
-								if ((xor128() % 100) < spreadChance)
+								if (int(xor128() % 100) < spreadChance)
 									allParticles[point.x][up]->type = type;
 						}
 
 						if (downExists)
 						{
 							bool spreadPixel = true;
-							if ((*iterator).effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+							if (type->particleEffects[i].effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = type->particleEffects[i].effectData.begin()++, end = type->particleEffects[i].effectData.end(); dmgIterator != end; ++dmgIterator)
 									if ((*dmgIterator) == allParticles[point.x][down]->type->name)
 									{
 										spreadPixel = false;
@@ -1743,15 +1742,15 @@ void Particle::HandleEvents()
 									}
 
 							if (spreadPixel)
-								if ((xor128() % 100) < spreadChance)
+								if (int(xor128() % 100) < spreadChance)
 									allParticles[point.x][up]->type = type;
 						}
 
 						if (leftExists)
 						{
 							bool spreadPixel = true;
-							if ((*iterator).effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+							if (type->particleEffects[i].effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = type->particleEffects[i].effectData.begin()++, end = type->particleEffects[i].effectData.end(); dmgIterator != end; ++dmgIterator)
 									if ((*dmgIterator) == allParticles[left][point.y]->type->name)
 									{
 										spreadPixel = false;
@@ -1759,15 +1758,15 @@ void Particle::HandleEvents()
 									}
 
 							if (spreadPixel)
-								if ((xor128() % 100) < spreadChance)
+								if (int(xor128() % 100) < spreadChance)
 									allParticles[point.x][up]->type = type;
 						}
 
 						if (rightExists)
 						{
 							bool spreadPixel = true;
-							if ((*iterator).effectData.size() > 0)
-								for (std::vector<std::string>::const_iterator dmgIterator = (*iterator).effectData.begin()++, end = (*iterator).effectData.end(); dmgIterator != end; ++dmgIterator)
+							if (type->particleEffects[i].effectData.size() > 0)
+								for (std::vector<std::string>::const_iterator dmgIterator = type->particleEffects[i].effectData.begin()++, end = type->particleEffects[i].effectData.end(); dmgIterator != end; ++dmgIterator)
 									if ((*dmgIterator) == allParticles[right][point.y]->type->name)
 									{
 										spreadPixel = false;
@@ -1775,7 +1774,7 @@ void Particle::HandleEvents()
 									}
 
 							if (spreadPixel)
-								if ((xor128() % 100) < spreadChance)
+								if (int(xor128() % 100) < spreadChance)
 									allParticles[point.x][up]->type = type;
 						}
 					}
@@ -1783,44 +1782,44 @@ void Particle::HandleEvents()
 
 					case EFFECT_OVERRIDE_NEIGHBOUR_TYPE_WITH_SELF:
 					{
-						int overrideChance = std::stoi((*iterator).effectData[0]);
+						int overrideChance = std::stoi(type->particleEffects[i].effectData[0]);
 
 						if (upExists)
-							if ((xor128() % 100) < overrideChance)
+							if (int(xor128() % 100) < overrideChance)
 								allParticles[point.x][up]->type = type;
 
 
 						if (downExists)
-							if ((xor128() % 100) < overrideChance)
+							if (int(xor128() % 100) < overrideChance)
 								allParticles[point.x][up]->type = type;
 
 
 						if (leftExists)
-							if ((xor128() % 100) < overrideChance)
+							if (int(xor128() % 100) < overrideChance)
 								allParticles[point.x][up]->type = type;
 
 
 						if (rightExists)
-							if ((xor128() % 100) < overrideChance)
+							if (int(xor128() % 100) < overrideChance)
 								allParticles[point.x][up]->type = type;
 					}
 					break;
 
 					case EFFECT_MERGE_WITH_OTHER_PARTICLE_TYPE:
 					{
-						int mergeChance = std::stoi((*iterator).effectData[0]);
+						int mergeChance = std::stoi(type->particleEffects[i].effectData[0]);
 						if (downExists)
 						{
 							bool willMerge = true;
 
 							if (mergeChance > 0)
-								if ((xor128() % 100) >= mergeChance)
+								if (int(xor128() % 100) >= mergeChance)
 									willMerge = false;
 
 							if (willMerge)
-								if (allParticles[point.x][down]->type->name == (*iterator).effectData[1])
+								if (allParticles[point.x][down]->type->name == type->particleEffects[i].effectData[1])
 								{
-									allParticles[point.x][down]->type = FindParticleType((*iterator).effectData[2]);
+									allParticles[point.x][down]->type = FindParticleType(type->particleEffects[i].effectData[2]);
 									DestroyParticle(point.x, point.y);
 								}
 						}
@@ -1830,13 +1829,13 @@ void Particle::HandleEvents()
 							bool willMerge = true;
 
 							if (mergeChance > 0)
-								if ((xor128() % 100) >= mergeChance)
+								if (int(xor128() % 100) >= mergeChance)
 									willMerge = false;
 
 							if (willMerge)
-								if (allParticles[point.x][up]->type->name == (*iterator).effectData[1])
+								if (allParticles[point.x][up]->type->name == type->particleEffects[i].effectData[1])
 								{
-									allParticles[point.x][up]->type = FindParticleType((*iterator).effectData[2]);
+									allParticles[point.x][up]->type = FindParticleType(type->particleEffects[i].effectData[2]);
 									DestroyParticle(point.x, point.y);
 								}
 						}
@@ -1846,13 +1845,13 @@ void Particle::HandleEvents()
 							bool willMerge = true;
 
 							if (mergeChance > 0)
-								if ((xor128() % 100) >= mergeChance)
+								if (int(xor128() % 100) >= mergeChance)
 									willMerge = false;
 
 							if (willMerge)
-								if (allParticles[left][point.y]->type->name == (*iterator).effectData[1])
+								if (allParticles[left][point.y]->type->name == type->particleEffects[i].effectData[1])
 								{
-									allParticles[left][point.y]->type = FindParticleType((*iterator).effectData[2]);
+									allParticles[left][point.y]->type = FindParticleType(type->particleEffects[i].effectData[2]);
 									DestroyParticle(point.x, point.y);
 								}
 						}
@@ -1862,13 +1861,13 @@ void Particle::HandleEvents()
 							bool willMerge = true;
 
 							if (mergeChance > 0)
-								if ((xor128() % 100) >= mergeChance)
+								if (int(xor128() % 100) >= mergeChance)
 									willMerge = false;
 
 							if (willMerge)
-								if (allParticles[right][point.y]->type->name == (*iterator).effectData[1])
+								if (allParticles[right][point.y]->type->name == type->particleEffects[i].effectData[1])
 								{
-									allParticles[right][point.y]->type = FindParticleType((*iterator).effectData[2]);
+									allParticles[right][point.y]->type = FindParticleType(type->particleEffects[i].effectData[2]);
 									DestroyParticle(point.x, point.y);
 								}
 						}
@@ -1878,35 +1877,35 @@ void Particle::HandleEvents()
 					case EFFECT_BURN_NEIGHBOURS:
 						if (upExists)
 							if (allParticles[point.x][up]->type->Flammability > 0)
-								if ((xor128() % 100) < allParticles[point.x][up]->type->Flammability)
+								if (int(xor128() % 100) < allParticles[point.x][up]->type->Flammability)
 									allParticles[point.x][up]->type = FindParticleType("Fire");
 
 						if (downExists)
 							if (allParticles[point.x][down]->type->Flammability > 0)
-								if ((xor128() % 100) < allParticles[point.x][down]->type->Flammability)
+								if (int(xor128() % 100) < allParticles[point.x][down]->type->Flammability)
 									allParticles[point.x][down]->type = FindParticleType("Fire");
 
 						if (leftExists)
 							if (allParticles[left][point.y]->type->Flammability > 0)
-								if ((xor128() % 100) < allParticles[left][point.y]->type->Flammability)
+								if (int(xor128() % 100) < allParticles[left][point.y]->type->Flammability)
 									allParticles[left][point.y]->type = FindParticleType("Fire");
 
 						if (rightExists)
 							if (allParticles[right][point.y]->type->Flammability > 0)
-								if ((xor128() % 100) < allParticles[right][point.y]->type->Flammability)
+								if (int(xor128() % 100) < allParticles[right][point.y]->type->Flammability)
 									allParticles[right][point.y]->type = FindParticleType("Fire");
 						break;
 
 
 					case EFFECT_LOSE_HP_PER_TICK:
 					{
-						int hpLossChance = std::stoi((*iterator).effectData[0]);
-						int hpLossPerChance = std::stoi((*iterator).effectData[1]);
+						int hpLossChance = std::stoi(type->particleEffects[i].effectData[0]);
+						int hpLossPerChance = std::stoi(type->particleEffects[i].effectData[1]);
 
 						bool takeDamage = true;
 
 						if (hpLossChance > 0)
-							if (xor128() % 100 > hpLossChance)
+							if (int(xor128() % 100) > hpLossChance)
 								takeDamage = false;
 
 						if (takeDamage)

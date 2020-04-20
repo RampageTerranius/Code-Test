@@ -24,7 +24,6 @@ void EntityHandle()
 		// Handling physics.
 		for (int n = WINDOW_HEIGHT - 1; n >= 0; n--)
 			for (int i = WINDOW_WIDTH - 1; i >= 0; i--)
-
 			{
 				Particle* p = allParticles[i][n];
 
