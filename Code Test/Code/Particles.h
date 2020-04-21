@@ -2,6 +2,7 @@
 
 #include "Globals.h"
 #include "ParticleTypes.h"
+#include "Math functions.h"
 
 #include <SDL.h>
 

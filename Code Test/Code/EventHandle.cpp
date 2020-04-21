@@ -4,6 +4,7 @@
 #include "Keyboard.h"
 #include "Globals.h"
 #include "Particles.h"
+#include "Math functions.h"
 
 #include <SDL.h>
 
@@ -16,15 +17,14 @@ void SwitchBrushType(bool gotoNext)
 		currentBrushType++;
 
 		// Make sure we havent gone over the struct size.
-		if ((size_t)currentBrushType >= ParticleTypes.size())
+		if (currentBrushType >= ParticleTypes.size())
 			currentBrushType = 0;
 	}
 	else// If told to goto last brush type.
 	{
-		currentBrushType--;
-
-		// Make sure we havent gone under the struct size.
-		if (currentBrushType < 0)
+		if (currentBrushType > 0)
+			currentBrushType--;
+		else
 			currentBrushType = ParticleTypes.size() - 1;
 	}
 }
@@ -509,13 +509,27 @@ void UpdateEventStructs(SDL_Event event)
 
 void CreateParticlesAtBrush(std::string type, int x, int y, float temperature)
 {
-	// TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm.
-	// Check the size of the brush and create particles in the range given.
 	if (currentBrushSize == 1)
 		CreateParticle(type, mouse.x, mouse.y, temperature, createAsSource);
-	else for (int i = currentBrushSize; i > -currentBrushSize; i--)
-		for (int n = currentBrushSize; n > -currentBrushSize; n--)
-			CreateParticle(type, mouse.x + i, mouse.y + n, temperature, createAsSource);
+	else switch (currentBrushMode)
+	{
+	case BRUSHMODE_FILL:
+		// TODO: setup a function to sort this automatically, currently doing it by hand. look towards the midpoint circle algorithm.
+		// Check the size of the brush and create particles in the range given.		
+		for (int i = currentBrushSize; i > -currentBrushSize; i--)
+			for (int n = currentBrushSize; n > -currentBrushSize; n--)
+				CreateParticle(type, mouse.x + i, mouse.y + n, temperature, createAsSource);
+		break;
+
+	case BRUSHMODE_SPRAY:
+		for (int i = 0; i < currentBrushSize; i++)
+		{
+			int randX = xor128() % ((currentBrushSize * 2) + 1);
+			int randY = xor128() % ((currentBrushSize * 2) + 1);
+
+			CreateParticle(type, mouse.x - (currentBrushSize) + randX, mouse.y - (currentBrushSize) + randY, temperature, createAsSource);
+		}
+	}
 }
 
 void DestroyParticlesAtBrush(int x, int y)
@@ -536,8 +550,10 @@ void EventHandle(SDL_Event& event)
 	UpdateEventStructs(event);
 
 	// On left click paint particles using brush.
-	if (mouse.left)
+	if (mouse.left)	
 		CreateParticlesAtBrush(ParticleTypes[currentBrushType].name, mouse.x, mouse.y, (float)currentBrushTemperature);
+		
+	
 
 	// On right click delete particles using brush.
 	if (mouse.right)
@@ -555,12 +571,6 @@ void EventHandle(SDL_Event& event)
 			currentBrushSize = 1;
 	}
 
-	if (keyboard.b)
-	{
-		keyboard.b = false;
-		renderBrush = !renderBrush;
-	}
-
 	if (keyboard.d)
 	{
 		keyboard.d = false;
@@ -571,6 +581,22 @@ void EventHandle(SDL_Event& event)
 
 		if (currentBrushSize > MAX_BRUSH_SIZE)
 			currentBrushSize = MAX_BRUSH_SIZE;
+	}
+
+	if (keyboard.q)
+	{
+		keyboard.q = false;
+
+		currentBrushMode = static_cast<BrushMode>(currentBrushMode + 1);
+
+		if (currentBrushMode == BRUSHMODE_TOTALMODES)
+			currentBrushMode = static_cast<BrushMode>(0);
+	}
+
+	if (keyboard.b)
+	{
+		keyboard.b = false;
+		renderBrush = !renderBrush;
 	}
 
 	if (keyboard.e)

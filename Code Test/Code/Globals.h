@@ -2,6 +2,7 @@
 
 #include "ParticleTypes.h"
 #include "ViewTypes.h"
+#include "BrushModes.h"
 #include "TTF.h"
 
 #include <SDL.h>
@@ -29,7 +30,8 @@ extern SDL_Surface* mainSurface;
 extern float avgFPS;
 
 extern int currentBrushTemperature;// Changing this will change the default brush temperature.
-extern int currentBrushType;
+extern size_t currentBrushType;
+extern BrushMode currentBrushMode;
 extern int currentBrushSize;
 
 extern int countedFrames;
@@ -60,6 +62,7 @@ extern int flowModel;
 extern int flowRate;
 
 extern TTF brushName;
+extern TTF brushMode;
 extern TTF brushSize;
 extern TTF brushTemperature;
 extern TTF selectedParticleTemperature;

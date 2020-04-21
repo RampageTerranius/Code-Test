@@ -1,0 +1,8 @@
+#pragma once
+
+enum BrushMode
+{
+	BRUSHMODE_FILL,
+	BRUSHMODE_SPRAY,
+	BRUSHMODE_TOTALMODES
+};

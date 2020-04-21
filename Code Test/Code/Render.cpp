@@ -96,9 +96,23 @@ void Render()
 			selectedParticleHealth.SetText(mainRenderer, "HP: 0|0");
 		}
 
+	// Render the particles name, temperature and hp.
 	selectedParticleName.Draw(mainRenderer, 20, 172);
 	selectedParticleTemperature.Draw(mainRenderer, 20, 206);
 	selectedParticleHealth.Draw(mainRenderer, 20, 240);
+
+	// Render the current brush mode.
+	switch (currentBrushMode)
+	{
+	case BRUSHMODE_FILL:
+		brushMode.SetText(mainRenderer, "Brush Mode: Fill");
+		break;
+	case BRUSHMODE_SPRAY:
+		brushMode.SetText(mainRenderer, "Brush Mode: Spray");
+		break;
+	}
+
+	brushMode.Draw(mainRenderer, 20, WINDOW_HEIGHT - 102);
 
 	// Render the current view type.
 	switch (viewMode)

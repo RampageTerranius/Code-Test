@@ -191,6 +191,12 @@ bool Setup()
 		return false;
 	}
 
+	if (!brushMode.SetFont("pxl.ttf", 24))
+	{
+		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
+		return false;
+	}
+
 	if (!brushSize.SetFont("pxl.ttf", 24))
 	{
 		std::cout << "Unable to load font pxl.ttf: " << TTF_GetError();
@@ -312,12 +318,14 @@ void Shutdown()
 
 	// Clean up all TTF files.
 	brushName.Clear();
+	brushMode.Clear();
 	brushSize.Clear();
 	brushTemperature.Clear();
 	selectedParticleTemperature.Clear();
 	selectedParticleName.Clear();
 	selectedParticleHealth.Clear();
 	currentFrameRate.Clear();
+	currentViewType.Clear();
 
 	SDL_Quit();
 }

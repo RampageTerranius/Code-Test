@@ -19,11 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\BrushModes.h" />
     <ClInclude Include="Code\EntityHandle.h" />
     <ClInclude Include="Code\EventHandle.h" />
     <ClInclude Include="Code\Globals.h" />
     <ClInclude Include="Code\Keyboard.h" />
     <ClInclude Include="Code\Main.h" />
+    <ClInclude Include="Code\Math functions.h" />
     <ClInclude Include="Code\Mouse.h" />
     <ClInclude Include="Code\Particles.h" />
     <ClInclude Include="Code\ParticleTypes.h" />
@@ -39,6 +41,7 @@
     <ClCompile Include="Code\Globals.cpp" />
     <ClCompile Include="Code\keyboard.cpp" />
     <ClCompile Include="Code\Main.cpp" />
+    <ClCompile Include="Code\Math Functions.cpp" />
     <ClCompile Include="Code\mouse.cpp" />
     <ClCompile Include="Code\Particles.cpp" />
     <ClCompile Include="Code\ParticleTypes.cpp" />

@@ -20,7 +20,8 @@ SDL_Texture* pixelTexture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_RGBA
 float avgFPS = 0;
 
 int currentBrushTemperature = 20;// Changing this will change the default brush temperature.
-int currentBrushType = 0;
+size_t currentBrushType = 0;
+BrushMode currentBrushMode = BRUSHMODE_FILL;
 int currentBrushSize = 4;
 
 int countedFrames = 0;
@@ -52,6 +53,7 @@ int flowModel = 1;
 int flowRate = 4;
 
 TTF brushName = TTF();
+TTF brushMode = TTF();
 TTF brushSize = TTF();
 TTF brushTemperature = TTF();
 TTF selectedParticleTemperature = TTF();
